@@ -1,6 +1,7 @@
 extends CharacterBody2D
 
 @onready var animation = $"Animation"
+var Starthp = 100
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 var is_jumping = false
 
@@ -12,7 +13,8 @@ func _ready():
 	# Initialize the movement system and attack system with necessary components
 	movement_system = Movements.new(animation, self)  # Pass 'self' as the player instance
 	attack_system = Attacks.new(animation, self)      # Pass 'self' as the player instance
-
+	$PlayerHP.value = Starthp
+	
 func _physics_process(delta):
 	if not is_on_floor():
 		velocity.y += gravity * delta
