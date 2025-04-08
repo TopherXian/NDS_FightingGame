@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=3 uid="uid://benbni2llwpep"]
+[gd_scene load_steps=32 format=3 uid="uid://benbni2llwpep"]
 
 [ext_resource type="Texture2D" uid="uid://ceg3tovqvw3y0" path="res://Assets/Characters/Ryu - New Version.png" id="1_duwlu"]
 [ext_resource type="Script" uid="uid://ph1ipitxaxon" path="res://Scripts/test.gd" id="1_hxnh7"]
@@ -292,7 +292,6 @@ tracks/10/keys = {
 [sub_resource type="Animation" id="Animation_hxnh7"]
 resource_name = "hurt"
 length = 0.60002
-loop_mode = 1
 step = 0.2
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -611,6 +610,10 @@ size = Vector2(35, 45)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5eeq5"]
 size = Vector2(15, 14)
 
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_hxnh7"]
+radius = 22.0
+height = 96.0
+
 [node name="Dummy_Ryu" type="CharacterBody2D"]
 script = ExtResource("1_hxnh7")
 
@@ -624,6 +627,7 @@ root_node = NodePath("../AnimatedSprite2D")
 libraries = {
 &"": SubResource("AnimationLibrary_fgqka")
 }
+autoplay = "idle"
 
 [node name="Dummy_UpperHurtbox" type="Area2D" parent="."]
 position = Vector2(-9, -36)
@@ -640,7 +644,6 @@ metadata/_edit_group_ = true
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Dummy_LowerHurtbox"]
 position = Vector2(7.5, 12.5)
 rotation = 0.15708
-scale = Vector2(1, 1)
 shape = SubResource("RectangleShape2D_lyne4")
 
 [node name="Dummy_Hitbox" type="Area2D" parent="."]
@@ -660,3 +663,10 @@ offset_right = 56.0
 offset_bottom = -65.0
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(2, 4)
+shape = SubResource("CapsuleShape2D_hxnh7")
+
+[connection signal="area_entered" from="Dummy_UpperHurtbox" to="." method="_on_dummy_upper_hurtbox_area_entered"]
+[connection signal="area_entered" from="Dummy_LowerHurtbox" to="." method="_on_dummy_lower_hurtbox_area_entered"]
