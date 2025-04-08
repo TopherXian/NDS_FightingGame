@@ -1,8 +1,7 @@
-[gd_scene load_steps=7 format=3 uid="uid://blrq2ywjpukmy"]
+[gd_scene load_steps=6 format=3 uid="uid://blrq2ywjpukmy"]
 
 [ext_resource type="Texture2D" uid="uid://bc8lukclo6np6" path="res://Assets/Levels/tileset.png" id="1_tea6x"]
 [ext_resource type="PackedScene" uid="uid://biq13tpq0b71q" path="res://Characters/ryu.tscn" id="2_4ll3w"]
-[ext_resource type="Script" uid="uid://b3of5v47ghw3m" path="res://Scripts/ryu.gd" id="3_4ll3w"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_g5jrl"]
 texture = ExtResource("1_tea6x")
@@ -555,4 +554,3 @@ position = Vector2(-1, 93)
 shape = SubResource("RectangleShape2D_4ll3w")
 
 [node name="Player" parent="." instance=ExtResource("2_4ll3w")]
-script = ExtResource("3_4ll3w")
