@@ -1,17 +1,15 @@
 extends CharacterBody2D
 
-var Starthp = 20
+var Starthp = 100
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 
 func _ready():
 	$DummyHP.value = Starthp
-	
+	scale.x = -1
 func _physics_process(delta):
 	if not is_on_floor():
 		velocity.y += gravity * delta	
-		
 	move_and_slide()
-
 
 func _on_dummy_upper_hurtbox_area_entered(area: Area2D) -> void:
 	if area.name == "Hitbox":

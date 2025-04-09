@@ -287,23 +287,6 @@ animations = [{
 "texture": SubResource("AtlasTexture_gxq58")
 }],
 "loop": true,
-"name": &"basic_1",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_dmqg8")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_gxq58")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_ss38o")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_gxq58")
-}],
-"loop": true,
 "name": &"basic_kick",
 "speed": 5.0
 }, {
@@ -3736,3 +3719,6 @@ offset_right = 56.0
 offset_bottom = -54.0
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[connection signal="area_entered" from="Upper_Hurtbox" to="." method="_on_upper_hurtbox_area_entered"]
+[connection signal="area_entered" from="Lower_Hurtbox" to="." method="_on_lower_hurtbox_area_entered"]
