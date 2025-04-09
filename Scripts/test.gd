@@ -3,10 +3,20 @@ extends CharacterBody2D
 var Starthp = 100
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 
+# Reference to the enemy character
+@onready var enemy = get_parent().get_node("Player")
+
 func _ready():
 	$DummyHP.value = Starthp
-	scale.x = -1
+	
+func update_facing_direction():
+	if enemy.position.x > position.x:
+		$AnimatedSprite2D.flip_h = false  # Face right
+	else:
+		$AnimatedSprite2D.flip_h = true   # Face left
+	
 func _physics_process(delta):
+	update_facing_direction()
 	if not is_on_floor():
 		velocity.y += gravity * delta	
 	move_and_slide()

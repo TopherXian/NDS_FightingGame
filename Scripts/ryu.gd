@@ -10,6 +10,15 @@ var movement_system : Movements
 var attack_system : Attacks
 var damaged_system : Damaged
 
+# Reference to the enemy character
+@onready var enemy = get_parent().get_node("Dummy_Ryu")
+	
+func update_facing_direction():
+	if enemy.position.x > position.x:
+		$Sprite.flip_h = false  # Face right
+	else:
+		$Sprite.flip_h = true   # Face left
+
 func _ready():
 	# Initialize the movement system and attack system with necessary components
 	movement_system = Movements.new(animation, self)  # Pass 'self' as the player instance
@@ -18,6 +27,7 @@ func _ready():
 	$PlayerHP.value = Starthp
 	
 func _physics_process(delta):
+	update_facing_direction()
 	if not is_on_floor():
 		velocity.y += gravity * delta
 		if not is_jumping:

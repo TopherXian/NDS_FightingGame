@@ -73,6 +73,6 @@ func handle_movement():
 # Handle jumping
 func handle_jump():
 	if Input.is_action_just_pressed("ui_accept") and player.is_on_floor():
-		player.velocity.y = -400  # Apply jump velocity
+		player.velocity.y = -450  # Apply jump velocity
 		player.is_jumping = true
 		animation.play("jump")  # Play jump animation
