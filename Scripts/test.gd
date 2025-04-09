@@ -2,59 +2,50 @@ extends CharacterBody2D
 
 var Starthp = 100
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
+var speed = 100
+
+# CLASSES
+var movementClass: DummyMovement
+var attackClass: DummyAttack
+var damageClass: DummyDamaged
 
 # Reference to the enemy character
 @onready var enemy = get_parent().get_node("Player")
 
 func _ready():
 	$DummyHP.value = Starthp
-	
+	damageClass = DummyDamaged.new()
+	damageClass.init($Dummy_Animation, $DummyHP, self)
+	movementClass = DummyMovement.new($Dummy_Animation, self)
+	attackClass = DummyAttack.new($Dummy_Animation, self, enemy)
+
+func _on_dummy_lower_hurtbox_area_entered(area: Area2D) -> void:
+	if area.name == "Hitbox":
+		damageClass.take_damage()
+		
+func _on_dummy_upper_hurtbox_area_entered(area: Area2D) -> void:
+	if area.name == "Hitbox":
+		damageClass.take_damage()
+
 func update_facing_direction():
 	if enemy.position.x > position.x:
 		$AnimatedSprite2D.flip_h = false  # Face right
 		$Dummy_Hitbox_Container.scale.x = 1
 		$Dummy_LowerHurtbox.position.x = abs($Dummy_LowerHurtbox.position.x)
 		$Dummy_UpperHurtbox.position.x = abs($Dummy_UpperHurtbox.position.x)
+		#movementClass.dummy_move(speed)
 	else:
 		$AnimatedSprite2D.flip_h = true   # Face left
 		$Dummy_Hitbox_Container.scale.x = -1
 		$Dummy_LowerHurtbox.position.x = -abs($Dummy_LowerHurtbox.position.x)
 		$Dummy_UpperHurtbox.position.x = -abs($Dummy_UpperHurtbox.position.x)
+		#movementClass.dummy_move(-speed)
 		
 	
 func _physics_process(delta):
 	update_facing_direction()
 	if not is_on_floor():
-		velocity.y += gravity * delta	
-	move_and_slide()
-
-func _on_dummy_upper_hurtbox_area_entered(area: Area2D) -> void:
-	if area.name == "Hitbox":
-		$DummyHP.value -= 10
-		$Dummy_Animation.play("hurt")
-		_connect_animation_physics()
-	if $DummyHP.value <= 0:
-		knocked_down()
-	else:
-		_connect_animation_physics()
-
-
-func _on_dummy_lower_hurtbox_area_entered(area: Area2D) -> void:
-	if area.name == "Hitbox":
-		$DummyHP.value -= 10
-		$Dummy_Animation.play("hurt")
-		_connect_animation_physics()
-	if $DummyHP.value <= 0:
-		knocked_down()
-	else:
-		_connect_animation_physics()
-		
-func _connect_animation_physics():
-	if not $Dummy_Animation.is_connected("animation_finished", Callable(self, "on_hurt_finished")):
-		$Dummy_Animation.connect("animation_finished", Callable(self, "on_hurt_finished"))
-		
-func on_hurt_finished(animation):
-	$Dummy_Animation.play("idle")
+		velocity.y += gravity * delta
 	
-func knocked_down():
-	$Dummy_Animation.play("knocked_down")
+	attackClass.get_attacks()
+	move_and_slide()

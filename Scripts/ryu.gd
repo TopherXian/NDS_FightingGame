@@ -54,7 +54,6 @@ func _physics_process(delta):
 	
 	move_and_slide()
 
-
 func _on_upper_hurtbox_area_entered(area: Area2D) -> void:
 	if area.name == "Dummy_Hitbox":
 		damaged_system.take_damage(10)
