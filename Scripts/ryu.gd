@@ -16,8 +16,14 @@ var damaged_system : Damaged
 func update_facing_direction():
 	if enemy.position.x > position.x:
 		$Sprite.flip_h = false  # Face right
+		$Hitbox_Container.scale.x = 1
+		$Upper_Hurtbox.position.x = abs($Upper_Hurtbox.position.x)
+		$Lower_Hurtbox.position.x = abs($Lower_Hurtbox.position.x)
 	else:
 		$Sprite.flip_h = true   # Face left
+		$Hitbox_Container.scale.x = -1
+		$Upper_Hurtbox.position.x = -abs($Upper_Hurtbox.position.x)
+		$Lower_Hurtbox.position.x = -abs($Lower_Hurtbox.position.x)
 
 func _ready():
 	# Initialize the movement system and attack system with necessary components
