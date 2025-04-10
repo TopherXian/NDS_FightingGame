@@ -1,0 +1,132 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/ai_test_suite.gd" id="1_tn8ba"]
+
+[node name="StartButton" type="Button" parent="CanvasLayer"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -120.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 50.0
+grow_horizontal = 0
+theme_override_font_sizes/font_size = 16
+text = "Start Tests"
+
+[node name="ResetButton" type="Button" parent="CanvasLayer"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -120.0
+offset_top = 60.0
+offset_right = -20.0
+offset_bottom = 90.0
+grow_horizontal = 0
+theme_override_font_sizes/font_size = 16
+text = "Reset Tests"
+
+[node name="DetailPanel" type="Panel" parent="CanvasLayer"]
+visible = false
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -300.0
+offset_top = -300.0
+offset_right = -20.0
+offset_bottom = -100.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="DetailLabel" type="Label" parent="CanvasLayer/DetailPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 12
+text = "Test Details"
+autowrap_mode = 3
+
+[connection signal="pressed" from="CanvasLayer/StartButton" to="." method="_on_start_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/ResetButton" to="." method="_on_reset_button_pressed"]
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_tn8ba")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Background" type="ColorRect" parent="CanvasLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.12549, 0.145098, 0.192157, 1)
+
+[node name="Title" type="Label" parent="CanvasLayer"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 20.0
+offset_bottom = 60.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 24
+text = "LSTM AI System Test Suite"
+horizontal_alignment = 1
+
+[node name="OutputLabel" type="RichTextLabel" parent="CanvasLayer"]
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 100.0
+offset_right = -20.0
+offset_bottom = -100.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/normal_font_size = 14
+bbcode_enabled = true
+text = "AI Test Suite Ready
+Press Start to begin tests"
+scroll_following = true
+
+[node name="StatusLabel" type="Label" parent="CanvasLayer"]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -70.0
+offset_bottom = -40.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 18
+text = "Status: Ready"
+horizontal_alignment = 1
+
+[node name="ProgressBar" type="ProgressBar" parent="CanvasLayer"]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = -35.0
+offset_right = -20.0
+offset_bottom = -15.0
+grow_horizontal = 2
+grow_vertical = 0
+max_value = 16.0
+step = 1.0
+
+[node name="StartButton" type="Button" parent="CanvasLayer"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset
+

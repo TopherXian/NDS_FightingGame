@@ -1,0 +1,165 @@
+# Game Scene Setup Instructions
+
+Follow these instructions to create game_scene.tscn in the Godot editor.
+
+## 1. Create the Base Scene
+
+1. Open Godot Engine
+2. Click "New Scene" or File > New Scene
+3. Select "Node2D" as the root node type
+4. Rename the root node to "GameScene"
+5. With GameScene selected, click the "Attach Script" button in the Inspector
+6. Select the existing script "res://Scripts/game_scene_manager.gd"
+
+## 2. Create the Ground/Arena
+
+1. Right-click on GameScene in the Scene panel and select "Add Child Node"
+2. Choose "StaticBody2D" and name it "Ground"
+3. Right-click on Ground and add a "CollisionShape2D" child
+4. Select the CollisionShape2D and in the Inspector:
+   - Click "Shape" property > "New RectangleShape2D"
+   - Set Size to (1200, 20)
+5. Right-click on Ground and add a "Sprite2D" child
+6. For the Sprite2D, in the Inspector:
+   - Import a simple rectangle texture or create one in the editor
+   - Set Scale to (1200, 20) if using a 1x1 texture
+7. Position the Ground at (600, 550)
+
+## 3. Add Player Character
+
+1. Right-click on GameScene and select "Add Child Node"
+2. Choose "PackedScene" (for instancing)
+3. In the Inspector, click the "Scene" property and select "res://Characters/ryu.tscn"
+4. Rename the node to "Player"
+5. Set its Position to (300, 500)
+6. In the Inspector, go to the Node tab and click Groups
+7. Add the Player to a group called "Player"
+
+## 4. Add AI Opponent
+
+1. Right-click on GameScene and select "Add Child Node"
+2. Choose "PackedScene" (for instancing)
+3. In the Inspector, click the "Scene" property and select "res://Characters/dummy_ryu.tscn"
+4. Rename the node to "AIOpponent"
+5. Set its Position to (800, 500)
+6. In the Inspector, go to the Node tab and click Groups
+7. Add the AIOpponent to a group called "Dummy"
+
+## 5. Add Camera
+
+1. Right-click on GameScene and select "Add Child Node"
+2. Choose "Camera2D" as the type
+3. In the Inspector:
+   - Check "Current" to make this the active camera
+   - Set Position to (600, 400)
+   - Set Zoom to (1, 1) or adjust as needed
+   - Optionally, enable "Smoothing" for smoother camera movement
+
+## 6. Set Up UI
+
+1. Right-click on GameScene and select "Add Child Node"
+2. Choose "CanvasLayer" as the type
+3. Rename it to "GameUI"
+
+### 6.1 Health Bars
+
+1. Right-click on GameUI and add a "ProgressBar" node
+2. Rename it to "PlayerHealth"
+3. In the Inspector:
+   - Set Rect > Position to (50, 50)
+   - Set Rect > Size to (300, 30)
+   - Set Value to 100
+   - Set Max Value to 100
+   - Style as needed (custom theme, colors, etc.)
+
+4. Right-click on GameUI and add another "ProgressBar" node
+5. Rename it to "OpponentHealth"
+6. In the Inspector:
+   - Set Rect > Position to (650, 50)
+   - Set Rect > Size to (300, 30)
+   - Set Value to 100
+   - Set Max Value to 100
+   - Style as needed (custom theme, colors, etc.)
+
+### 6.2 Round Timer
+
+1. Right-click on GameUI and add a "Label" node
+2. Rename it to "RoundTimer"
+3. In the Inspector:
+   - Set Rect > Position to (500, 50)
+   - Set Text to "1:39"
+   - Set Horizontal Alignment to Center
+   - Increase font size as needed
+
+### 6.3 AI Status Panel
+
+1. Right-click on GameUI and add a "Panel" node
+2. Rename it to "AIStatusPanel"
+3. In the Inspector:
+   - Set Rect > Position to (50, 500)
+   - Set Rect > Size to (250, 80)
+
+4. Right-click on AIStatusPanel and add a "Label" node
+5. Rename it to "AIStatusLabel" 
+6. In the Inspector:
+   - Set Rect > Position to (10, 10)
+   - Set Rect > Size to (230, 30)
+   - Set Text to "AI State: Initializing"
+
+7. Right-click on AIStatusPanel and add another "Label" node
+8. Rename it to "DifficultyLabel"
+9. In the Inspector:
+   - Set Rect > Position to (10, 40)
+   - Set Rect > Size to (230, 30)
+   - Set Text to "Difficulty: 5.0"
+
+### 6.4 Round End Panel
+
+1. Right-click on GameUI and add a "Panel" node
+2. Rename it to "RoundEndPanel"
+3. In the Inspector:
+   - Set Rect > Position to (400, 300)
+   - Set Rect > Size to (400, 200)
+   - Set Visible to off (uncheck)
+
+4. Right-click on RoundEndPanel and add a "Label" node
+5. Rename it to "ResultLabel"
+6. In the Inspector:
+   - Set Rect > Position to (100, 80)
+   - Set Rect > Size to (200, 50)
+   - Set Text to "Round Over"
+   - Set Horizontal Alignment to Center
+   - Increase font size as needed
+
+## 7. Save the Scene
+
+1. Click File > Save Scene or press Ctrl+S
+2. Navigate to the Scenes folder
+3. Save the file as "game_scene.tscn"
+
+## 8. Set as Main Scene
+
+1. Go to Project > Project Settings
+2. In the left panel, navigate to Application > Run
+3. Set Main Scene to "res://Scenes/game_scene.tscn"
+4. Click "OK" to save the settings
+
+## 9. Run the Game
+
+1. Click the Play button in the top right corner or press F5
+2. The game should start with the player and AI opponent
+3. Verify that:
+   - Both characters are visible
+   - The UI displays correctly
+   - The AI character responds to the player's actions
+   - The difficulty adjusts based on gameplay
+
+## Troubleshooting
+
+If there are issues:
+
+1. Check the Output panel for error messages
+2. Verify that all node names match those referenced in game_scene_manager.gd
+3. Ensure the character scenes have all required nodes (PlayerHP, DummyHP, etc.)
+4. Confirm that AI scripts are properly attached to the dummy_ryu.tscn scene
+
