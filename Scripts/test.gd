@@ -46,9 +46,9 @@ func _physics_process(delta):
 	update_facing_direction()
 	if not is_on_floor():
 		velocity.y += gravity * delta
-	
-	if enemy_animation.current_animation == "crouch":
-		attackClass.get_crouchAttacks()
-	else:
-		attackClass.get_basicAttacks()
+	if $DummyHP.value > 0:
+		if enemy_animation.current_animation == "crouch":
+			attackClass.get_crouchAttacks()
+		else:
+			attackClass.get_basicAttacks()
 	move_and_slide()
