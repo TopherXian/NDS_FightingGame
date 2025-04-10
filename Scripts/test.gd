@@ -16,7 +16,7 @@ func _ready():
 	$DummyHP.value = Starthp
 	damageClass = DummyDamaged.new()
 	damageClass.init($Dummy_Animation, $DummyHP, self)
-	movementClass = DummyMovement.new($Dummy_Animation, self)
+	movementClass = DummyMovement.new($Dummy_Animation, self, enemy)
 	attackClass = DummyAttack.new($Dummy_Animation, self, enemy)
 
 func _on_dummy_lower_hurtbox_area_entered(area: Area2D) -> void:
@@ -46,9 +46,9 @@ func _physics_process(delta):
 	update_facing_direction()
 	if not is_on_floor():
 		velocity.y += gravity * delta
-	if $DummyHP.value > 0:
-		if enemy_animation.current_animation == "crouch":
-			attackClass.get_crouchAttacks()
-		else:
-			attackClass.get_basicAttacks()
+	
+	if enemy_animation.current_animation == "crouch":
+		attackClass.get_crouchAttacks()
+	else:
+		attackClass.get_basicAttacks()
 	move_and_slide()
