@@ -1,6 +1,5 @@
 extends Node
 
-
 class_name DummyMovement
 
 var player : CharacterBody2D
