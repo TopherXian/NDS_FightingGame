@@ -1,10 +1,9 @@
-[gd_scene load_steps=11 format=3 uid="uid://blrq2ywjpukmy"]
+[gd_scene load_steps=10 format=3 uid="uid://blrq2ywjpukmy"]
 
 [ext_resource type="Script" uid="uid://jynmae7nogn8" path="res://Scripts/level.gd" id="1_g5jrl"]
 [ext_resource type="Texture2D" uid="uid://bc8lukclo6np6" path="res://Assets/Levels/tileset.png" id="1_tea6x"]
 [ext_resource type="PackedScene" uid="uid://biq13tpq0b71q" path="res://Characters/ryu.tscn" id="2_4ll3w"]
 [ext_resource type="PackedScene" uid="uid://benbni2llwpep" path="res://Characters/dummy_ryu.tscn" id="3_4ll3w"]
-[ext_resource type="Script" uid="uid://dyh2ba63a4o8m" path="res://Scripts/enemy_character_movement.gd" id="5_ma6ne"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_g5jrl"]
 texture = ExtResource("1_tea6x")
@@ -569,7 +568,6 @@ position = Vector2(-164, 9)
 
 [node name="Dummy_Ryu" parent="." instance=ExtResource("3_4ll3w")]
 position = Vector2(164, 7)
-script = ExtResource("5_ma6ne")
 
 [node name="StaticBody2D2" type="StaticBody2D" parent="."]
 

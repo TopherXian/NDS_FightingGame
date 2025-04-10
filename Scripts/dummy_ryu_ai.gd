@@ -12,10 +12,16 @@ signal prediction_error(error_message)
 
 # Constants
 const HIDDEN_LAYER_SIZE = 64
-const INPUT_FEATURE_SIZE = 16
-const OUTPUT_SIZE = 8  # Number of possible actions
+const INPUT_FEATURE_SIZE = 15  # Reduced from 16 since we need fewer one-hot encoding slots
+const OUTPUT_SIZE = 6  # Number of possible actions (reduced from 8)
 const SEQUENCE_LENGTH = 10  # Length of sequence history to consider
 const MIN_CONFIDENCE_THRESHOLD = 0.3  # Minimum confidence to perform an action
+
+# Action timing constants
+const ATTACK_DELAY = 0.05      # Very quick attack response
+const MOVEMENT_DELAY = 0.05    # Quick movement response
+const MIN_ATTACK_INTERVAL = 0.05 # Allow even more frequent attacks
+const DECISION_DELAY = 0.05    # Faster decision making
 
 # Neural Network Parameters
 var input_weights = []  # Input gate weights
@@ -37,9 +43,7 @@ var action_to_index = {
 	"walk_backward": 2,
 	"jump": 3,
 	"basic_punch": 4,
-	"heavy_punch": 5,
-	"basic_kick": 6,
-	"heavy_kick": 7
+	"basic_kick": 5
 }
 
 var index_to_action = {
@@ -48,9 +52,7 @@ var index_to_action = {
 	2: "walk_backward",
 	3: "jump",
 	4: "basic_punch",
-	5: "heavy_punch",
-	6: "basic_kick",
-	7: "heavy_kick"
+	5: "basic_kick"
 }
 
 # Runtime variables
@@ -72,6 +74,13 @@ var current_action = "idle"
 var action_duration = 0.0
 var action_timer = 0.0
 var facing_right = true  # Direction the AI character is facing
+
+# Action state tracking
+var last_attack_time: float = 0.0
+var action_delay_timer: float = 0.0
+var can_make_decision: bool = true
+var queued_action: String = ""
+var is_executing_action: bool = false
 
 # NEW VARIABLES
 var character_body = null     # Reference to the CharacterBody2D or similar
@@ -96,11 +105,11 @@ var output_weights_gradients = []
 var cell_weights_gradients = []
 var fc_weights_gradients = []
 
-#DEBUG: Don't touch!
-var predicted_action = prediction_queue
-# Assume the model returns a numeric index (or probabilities from which you choose the max)
-var predicted_index = predict_next_action()
-
+# AI state tracking for combat
+var predicted_action = null
+var last_distance_to_player = 0.0
+var player_in_attack_range = false
+var attack_probability_boost = 0.0
 # Called when the node enters the scene tree
 func _ready():
 	rng.randomize()
@@ -113,141 +122,6 @@ func _ready():
 	
 	# Run matrix operation tests to validate fixes
 	test_matrix_operations()
-
-# Called every frame
-func _process(delta):
-	# Suppose 'predicted_index' comes from your model's softmax output:
-	#print("Predicted Action:", predicted_action)
-
-	# Update action timer
-	if action_timer > 0:
-		action_timer -= delta
-		if action_timer <= 0:
-			current_action = "idle"
-			if attack_system:
-				attack_system.stop_attacking()
-	
-	## Execute the current action
-	#_perform_current_action(delta)
-	
-	# Track time since last action for scheduling
-	time_since_last_action += delta
-	
-	if inference_mode and ready_for_prediction:
-		var current_time = Time.get_unix_time_from_system()
-		if current_time - last_prediction_time > prediction_cooldown:
-			predict_next_action()
-			#print(predict_next_action())
-			last_prediction_time = current_time
-			
-	# Process any completed predictions from the queue
-	if prediction_queue.size() > 0:
-		var prediction = prediction_queue.pop_front()
-		_execute_prediction(prediction)
-
-
-# NEW FUNCTION: Handle being hit by an attack with smarter decision making
-func receive_hit(damage: float, attacker) -> bool:
-	# Get current state information
-	var distance = player_node.global_position.distance_to(enemy_node.global_position)
-	var hp_percent = 0.0
-	if enemy_node.has_node("DummyHP"):
-		var hp_bar = enemy_node.get_node("DummyHP")
-		hp_percent = float(hp_bar.value) / float(hp_bar.max_value)
-	
-	# Critical health behavior (below 30%)
-	if hp_percent < 0.3:
-		if distance < 150:
-			# Desperate defense
-			if rng.randf() < 0.7:  # 70% chance to try to escape
-				current_action = "walk_backward"
-				action_timer = 0.6
-			else:  # 30% chance to counter-attack
-				current_action = "heavy_punch" if distance < 90 else "heavy_kick"
-				action_timer = 0.5
-		else:
-			# Strategic repositioning
-			current_action = "walk_forward"
-			action_timer = 0.4
-	
-	# Medium health behavior (30-70%)
-	elif hp_percent < 0.7:
-		if distance < 100:
-			if rng.randf() < 0.5:  # 50% chance to counter or retreat
-				# Counter with appropriate attack based on distance
-				if distance < 83:  # PUNCH_RANGE
-					current_action = "basic_punch"
-					action_timer = 0.3
-				else:
-					current_action = "basic_kick"
-					action_timer = 0.4
-			else:
-				# Create space
-				current_action = "walk_backward"
-				action_timer = 0.3
-		else:
-			# Maintain neutral distance
-			current_action = "idle"
-			action_timer = 0.2
-	
-	# High health behavior (above 70%)
-	else:
-		if distance < 120:
-			if rng.randf() < 0.6:  # 60% chance to counter-attack
-				# Aggressive counter
-				if distance < 83:  # PUNCH_RANGE
-					current_action = "basic_punch" if rng.randf() < 0.5 else "heavy_punch"
-				else:
-					current_action = "basic_kick" if rng.randf() < 0.5 else "heavy_kick"
-				action_timer = 0.4
-			else:
-				# Tactical repositioning
-				current_action = "walk_backward"
-				action_timer = 0.2
-		else:
-			# Close in for pressure
-			current_action = "walk_forward"
-			action_timer = 0.3
-	
-	# Special case: if taking heavy damage, consider emergency evasion
-	if damage >= 20:
-		if character_body and character_body.is_on_floor() and rng.randf() < 0.4:  # 40% chance to jump away
-			current_action = "jump"
-			action_timer = 0.5
-	
-	# Update facing direction for proper movement
-	facing_right = player_node.global_position.x > enemy_node.global_position.x
-	
-	# Return true to acknowledge hit
-	return true
-	
-	# Apply velocity
-	if "velocity" in character_body:
-		character_body.move_and_slide()
-	
-	# Update animations if available
-	if animation_player and animation_player.has_animation(current_action):
-		animation_player.play(current_action)
-
-# Initialize the neural network with random weights
-func _initialize_network():
-	# Reset states with correct sizes
-	hidden_state = _create_zero_vector(HIDDEN_LAYER_SIZE)
-	cell_state = _create_zero_vector(HIDDEN_LAYER_SIZE)
-	
-	# Calculate the combined input size (features + hidden state)
-	var combined_input_size = INPUT_FEATURE_SIZE + HIDDEN_LAYER_SIZE
-	
-	# Initialize weights with correct dimensions 
-	# Each row operates on the combined input vector to produce an output element
-	input_weights = _create_random_matrix(HIDDEN_LAYER_SIZE, combined_input_size)
-	forget_weights = _create_random_matrix(HIDDEN_LAYER_SIZE, combined_input_size)
-	output_weights = _create_random_matrix(HIDDEN_LAYER_SIZE, combined_input_size)
-	cell_weights = _create_random_matrix(HIDDEN_LAYER_SIZE, combined_input_size)
-	hidden_weights = _create_random_matrix(OUTPUT_SIZE, HIDDEN_LAYER_SIZE)  # Output layer has OUTPUT_SIZE rows
-	
-	# Initialize last features
-	last_features = _create_zero_vector(INPUT_FEATURE_SIZE)
 
 # ENHANCED: Setup the AI with references to game nodes
 func setup(p_node, e_node, collector):
@@ -270,8 +144,8 @@ func setup(p_node, e_node, collector):
 						break
 		
 		# Find animation player
-		if enemy_node.has_node("AnimationPlayer"):
-			animation_player = enemy_node.get_node("AnimationPlayer")
+		if enemy_node.has_node("Dummy_Animation"):
+			animation_player = enemy_node.get_node("Dummy_Animation")
 		
 		# Find attack system
 		for child in enemy_node.get_children():
@@ -291,6 +165,273 @@ func setup(p_node, e_node, collector):
 	print("Attack system: " + str(attack_system != null))
 	print("Hitbox: " + str(hitbox != null))
 
+# Called every frame
+func _process(delta):
+	# Update timers with more aggressive timing
+	if action_timer > 0:
+		action_timer -= delta * 2.0  # Double speed up action completion
+		if action_timer <= 0:
+			current_action = "idle"
+			if attack_system:
+				attack_system.stop_attacking()
+			is_executing_action = false  # Reset execution state
+	
+	# Update action delay with faster response
+	if action_delay_timer > 0:
+		action_delay_timer -= delta * 3.0  # Triple speed delay countdown
+		if action_delay_timer <= 0 and queued_action != "":
+			_execute_queued_action()
+	
+	# Track time since last action
+	time_since_last_action += delta
+	
+	# Make decisions more frequently when not executing action
+	if not is_executing_action and not queued_action:
+		var current_time = Time.get_unix_time_from_system()
+		if current_time - last_prediction_time > prediction_cooldown:
+			predict_next_action()
+			last_prediction_time = current_time
+			
+			# Force attack check when in range for more aggressive AI
+			if player_in_attack_range and not is_executing_action and not queued_action:
+				var attack_force_chance = 0.2  # 20% chance to force an attack when in range
+				if rng.randf() < attack_force_chance:
+					var attack_type = "basic_punch" if last_distance_to_player <= 88 else "basic_kick"
+					queued_action = attack_type
+					action_delay_timer = ATTACK_DELAY * 0.5  # Very quick attack
+					print("[AI DEBUG] Forcing immediate attack: " + attack_type)
+	
+	# Process predictions immediately if possible
+	if prediction_queue.size() > 0 and not is_executing_action and not queued_action:
+		var prediction = prediction_queue.pop_front()
+		_execute_prediction(prediction)
+
+# Execute queued action
+func _execute_queued_action():
+	if is_executing_action:
+		return
+		
+	is_executing_action = true
+	current_action = queued_action
+	
+	# Play animation immediately
+	if animation_player:
+		animation_player.play(current_action)
+	
+	match current_action:
+		"basic_punch":
+			if attack_system:
+				attack_system.perform_attack(current_action)
+			action_timer = 0.15  # Shorter duration for punch
+		"basic_kick":
+			if attack_system:
+				attack_system.perform_attack(current_action)
+			action_timer = 0.2   # Slightly longer for kick
+			
+		"walk_forward", "walk_backward":
+			action_timer = 0.1   # Quick movement
+		"jump":
+			action_timer = 0.4   # Shorter jump
+			if character_body and character_body.is_on_floor():
+				character_body.velocity.y = -400
+				animation_player.play("jump")
+		"idle":
+			action_timer = 0.1
+			animation_player.play("idle")
+	
+	# Emit signal immediately after starting the action
+	emit_signal("action_predicted", current_action, {
+		"executing": true,
+		"immediate": true
+	})
+	
+	queued_action = ""  # Clear queued action immediately
+	
+	# Reset execution state after a shorter delay
+	await get_tree().create_timer(action_timer * 0.5).timeout
+	is_executing_action = false
+
+# NEW FUNCTION: Handle being hit by an attack with smarter decision making
+func receive_hit(damage: float, attacker) -> bool:
+	# Clear any queued actions when hit
+	queued_action = ""
+	action_delay_timer = 0.0
+	
+	# Reset action execution state
+	is_executing_action = false
+	
+	# Get current state information
+	var distance = player_node.global_position.distance_to(enemy_node.global_position)
+	var hp_percent = 0.0
+	if enemy_node.has_node("DummyHP"):
+		var hp_bar = enemy_node.get_node("DummyHP")
+		hp_percent = float(hp_bar.value) / float(hp_bar.max_value)
+	
+	# Critical health behavior (below 30%)
+	if hp_percent < 0.3:
+		if distance < 150:
+			# Desperate defense with increased counter-attack chance
+			if rng.randf() < 0.5:  # Reduced from 70% to 50% chance to escape
+				current_action = "walk_backward"
+				action_timer = 0.5  # Shorter retreat
+			else:  # 50% chance to counter-attack
+				current_action = "basic_punch" if distance < 90 else "basic_kick"  # Increased range
+				action_timer = 0.3  # Faster attack
+		else:
+			# Strategic repositioning
+			current_action = "walk_forward"
+			action_timer = 0.3  # Faster approach
+	
+	# Medium health behavior (30-70%)
+	elif hp_percent < 0.7:
+		if distance < 120:  # Increased from 100
+			if rng.randf() < 0.7:  # Increased from 50% to 70% chance to counter-attack
+				# Counter with appropriate attack based on distance
+				if distance < 90:  # Increased PUNCH_RANGE
+					current_action = "basic_punch"
+					action_timer = 0.25  # Faster attack
+				else:
+					current_action = "basic_kick"
+					action_timer = 0.3
+			else:
+				# Create space
+				current_action = "walk_backward"
+				action_timer = 0.25
+		else:
+			# Approach player more aggressively
+			current_action = "walk_forward"
+			action_timer = 0.25
+	
+	# High health behavior (above 70%)
+	else:
+		if distance < 140:  # Increased from 120
+			if rng.randf() < 0.8:  # Increased from 60% to 80% chance to counter-attack
+				# Simple counter based on distance
+				if distance < 90:  # Increased PUNCH_RANGE
+					current_action = "basic_punch"
+					action_timer = 0.25
+				else:
+					current_action = "basic_kick"
+					action_timer = 0.3
+			else:
+				# Tactical repositioning
+				current_action = "walk_backward"
+				action_timer = 0.2
+		else:
+			# Close in for pressure
+			current_action = "walk_forward"
+			action_timer = 0.2  # Faster approach
+	# Special case: if taking heavy damage, consider emergency evasion
+	if damage >= 20 and character_body and character_body.is_on_floor() and rng.randf() < 0.4:
+		current_action = "jump"
+		action_timer = 0.5
+	
+	# Apply animation first
+	if animation_player and animation_player.has_animation(current_action):
+		animation_player.play(current_action)
+	
+	# Apply velocity if we have a character body
+	if character_body and "velocity" in character_body:
+		character_body.move_and_slide()
+	
+	# Update facing direction for proper movement
+	facing_right = player_node.global_position.x > enemy_node.global_position.x
+	
+	# Return true to acknowledge hit
+	return true
+
+# Initialize the neural network with random weights
+func _initialize_network():
+	# Reset states with correct sizes
+	hidden_state = _create_zero_vector(HIDDEN_LAYER_SIZE)
+	cell_state = _create_zero_vector(HIDDEN_LAYER_SIZE)
+	
+	# Calculate the combined input size (features + hidden state)
+	var combined_input_size = INPUT_FEATURE_SIZE + HIDDEN_LAYER_SIZE
+	
+	# Initialize weights with correct dimensions 
+	# Each row operates on the combined input vector to produce an output element
+	input_weights = _create_random_matrix(HIDDEN_LAYER_SIZE, combined_input_size)
+	forget_weights = _create_random_matrix(HIDDEN_LAYER_SIZE, combined_input_size)
+	output_weights = _create_random_matrix(HIDDEN_LAYER_SIZE, combined_input_size)
+	cell_weights = _create_random_matrix(HIDDEN_LAYER_SIZE, combined_input_size)
+	hidden_weights = _create_random_matrix(OUTPUT_SIZE, HIDDEN_LAYER_SIZE)  # Output layer has OUTPUT_SIZE rows
+	
+	# Initialize last features
+	last_features = _create_zero_vector(INPUT_FEATURE_SIZE)
+
+# ENHANCED: Execute a prediction from the queue
+func _execute_prediction(prediction):
+	var action_index = prediction["action_index"]
+	var confidence = prediction["confidence"]
+	var action_name = index_to_action[action_index]
+	
+	# Add to action history
+	action_history.append(action_name)
+	if action_history.size() > SEQUENCE_LENGTH:
+		action_history.pop_front()
+	
+	# Queue the action with appropriate delay
+	queued_action = action_name
+	action_delay_timer = MOVEMENT_DELAY  # Default to movement delay
+	
+	# More aggressive attack timing with shorter delays
+	if action_name in ["basic_punch", "basic_kick"]:
+		var current_time = Time.get_unix_time_from_system()
+		# Reduced attack interval for more frequent attacks
+		if current_time - last_attack_time >= MIN_ATTACK_INTERVAL:
+			# Use even shorter delay when in optimal range
+			if player_in_attack_range:
+				action_delay_timer = ATTACK_DELAY * 0.5  # 50% faster attack when in range (more aggressive)
+			else:
+				action_delay_timer = ATTACK_DELAY * 0.8  # Still slightly faster than normal
+			last_attack_time = current_time
+			
+			# Debug output
+			print("[AI DEBUG] Executing attack: " + action_name + " at distance: " + str(last_distance_to_player))
+		else:
+			# Instead of always canceling, more frequently try anyway (more aggressive)
+			if rng.randf() < 0.6:  # 60% chance to attempt attack anyway
+				action_delay_timer = ATTACK_DELAY * 1.2  # Reduced delay multiplier
+				last_attack_time = current_time
+				print("[AI DEBUG] Forcing attack: " + action_name)
+			else:
+				queued_action = "idle"  # Cancel attack if too soon
+	
+	# Emit the signal with the predicted action
+	emit_signal("action_predicted", action_name, {
+		"confidence": confidence,
+		"queued": true
+	})
+	
+	# Log the prediction for training data
+	if data_collector and data_collector.is_collecting:
+		# Extract current game state for prediction context
+		var game_state = {
+			"player_position": player_node.global_position if player_node else Vector2.ZERO,
+			"enemy_position": enemy_node.global_position if enemy_node else Vector2.ZERO,
+			"player_velocity": player_node.velocity if "velocity" in player_node else Vector2.ZERO,
+			"player_health_percent": _get_health_percent(player_node),
+			"enemy_health_percent": _get_health_percent(enemy_node),
+			"distance_to_player": _get_distance_to_player(),
+			"lstm_hidden_state": hidden_state.duplicate(),
+			"lstm_cell_state": cell_state.duplicate(),
+			"prediction_index": action_index,
+			"action_probabilities": prediction["probabilities"]
+		}
+		
+		# Emit signal with detailed prediction information
+		emit_signal("prediction_details", 
+			action_name, 
+			confidence, 
+			game_state,
+			Time.get_unix_time_from_system()
+		)
+		
+		# After emitting the prediction, track when the action is executed
+		# We'll call this method from the character controller when the action completes
+		call_deferred("_schedule_execution_tracking", action_name)
+
 # Set the difficulty level
 func set_difficulty(level):
 	difficulty_level = clamp(level, 0.0, 1.0)
@@ -300,7 +441,7 @@ func set_difficulty(level):
 
 # Predict the next action based on current game state
 func predict_next_action():
-	print("DEBUG: Checking if the Thread Work!")
+	print("DEBUG: Running prediction logic")
 	if player_node == null or enemy_node == null:
 		emit_signal("prediction_error", "Game nodes not set up")
 		return
@@ -316,17 +457,60 @@ func predict_next_action():
 		
 	print("[DEBUG] LSTM output probabilities:", probabilities)
 	
+	# Calculate distance to player for range-based decisions
+	var distance = _get_distance_to_player()
+	last_distance_to_player = distance
+	
+	# Boost attack probabilities when in range
+	var modified_probabilities = probabilities.duplicate()
+	
+	# Check if player is in attack range (updated ranges to match enemy_character_movement.gd)
+	var in_punch_range = distance <= 88  # PUNCH_RANGE + 5 from enemy_character_movement.gd
+	var in_kick_range = distance <= 135  # KICK_RANGE + 5 from enemy_character_movement.gd
+	var in_heavy_punch_range = distance <= 93  # PUNCH_RANGE + 10 from enemy_character_movement.gd
+	var in_heavy_kick_range = distance <= 140  # KICK_RANGE + 10 from enemy_character_movement.gd
+	player_in_attack_range = in_punch_range or in_kick_range or in_heavy_punch_range or in_heavy_kick_range
+	
+	# Dynamically adjust attack probabilities based on range (increased boosts)
+	if in_punch_range:
+		# Significantly boost punch probability when in close range
+		modified_probabilities[action_to_index["basic_punch"]] += 0.6  # Increased from 0.4
+		attack_probability_boost = 0.6
+	elif in_kick_range:
+		# Boost kick probability when in medium range
+		modified_probabilities[action_to_index["basic_kick"]] += 0.5  # Increased from 0.3
+		attack_probability_boost = 0.5
+	else:
+		# When out of range, boost movement toward player
+		modified_probabilities[action_to_index["walk_forward"]] += 0.3  # Increased from 0.2
+		attack_probability_boost = 0
+	
+	# Add randomization to prevent predictable behavior, with attack bias
+	if rng.randf() < 0.15:  # 15% chance to add randomness
+		var random_boost = rng.randf() * 0.2
+		var random_action = rng.randi() % OUTPUT_SIZE
+		
+		# Bias randomness towards attacks when in range
+		if player_in_attack_range and rng.randf() < 0.7:  # 70% bias towards attacks when in range
+			random_action = action_to_index["basic_punch"] if last_distance_to_player <= 88 else action_to_index["basic_kick"]
+			random_boost += 0.2  # Extra boost for attacks
+		
+		modified_probabilities[random_action] += random_boost
+	
+	# Renormalize probabilities
+	modified_probabilities = _softmax(modified_probabilities)
+	
 	# Find the action with highest probability
 	var best_action_idx = 0
-	var best_probability = probabilities[0]
+	var best_probability = modified_probabilities[0]
 	
-	for i in range(1, probabilities.size()):
-		if probabilities[i] > best_probability:
-			best_probability = probabilities[i]
+	for i in range(1, modified_probabilities.size()):
+		if modified_probabilities[i] > best_probability:
+			best_probability = modified_probabilities[i]
 			best_action_idx = i
 	
 	# Apply difficulty adjustment
-	var confidence_threshold = lerp(0.3, MIN_CONFIDENCE_THRESHOLD, difficulty_level)
+	var confidence_threshold = lerp(0.4, MIN_CONFIDENCE_THRESHOLD, difficulty_level)  # Increased base threshold
 	
 	# If confidence is too low or we randomly decide to make a mistake (based on difficulty)
 	if best_probability < confidence_threshold or rng.randf() > difficulty_level:
@@ -394,14 +578,14 @@ func _extract_features():
 		float(relative_position),
 		float(player_is_attacking),
 		float(player_is_jumping),
-		# Add the last action as one-hot encoding (4 slots)
-		0.0, 0.0, 0.0, 0.0
+		# Add the last action as one-hot encoding (3 slots for basic actions)
+		0.0, 0.0, 0.0
 	]
 	
 	# Set the one-hot encoding for the last action if available
 	if action_history.size() > 0:
 		var last_action_idx = action_to_index.get(action_history.back(), 0)
-		if last_action_idx < 4:  # We only have 4 slots in our feature vector
+		if last_action_idx < 3:  # We only need 3 slots now
 			features[12 + last_action_idx] = 1.0
 	
 	return features
@@ -504,65 +688,65 @@ func _add_to_prediction_queue(prediction):
 func _finish_prediction():
 	ready_for_prediction = true
 
-# ENHANCED: Execute a prediction from the queue
-func _execute_prediction(prediction):
-	var action_index = prediction["action_index"]
-	var confidence = prediction["confidence"]
-	var action_name = index_to_action[action_index]
-	
-	# Add to action history
-	action_history.append(action_name)
-	if action_history.size() > SEQUENCE_LENGTH:
-		action_history.pop_front()
-	
-	# Set the current action and its duration
-	current_action = action_name
-	
-	# Set action duration based on action type
-	match current_action:
-		"idle":
-			action_timer = rng.randf_range(0.5, 1.0)
-		"walk_forward", "walk_backward":
-			action_timer = rng.randf_range(0.3, 0.8)
-		"jump":
-			action_timer = 1.0
-		"basic_punch", "basic_kick":
-			action_timer = 0.4
-		"heavy_punch", "heavy_kick":
-			action_timer = 0.6
-	
-	# Emit the signal with the predicted action
-	emit_signal("action_predicted", action_name, {
-		"confidence": confidence
-	})
-	
-	# Log the prediction for training data
-	if data_collector and data_collector.is_collecting:
-		# Extract current game state for prediction context
-		var game_state = {
-			"player_position": player_node.global_position if player_node else Vector2.ZERO,
-			"enemy_position": enemy_node.global_position if enemy_node else Vector2.ZERO,
-			"player_velocity": player_node.velocity if "velocity" in player_node else Vector2.ZERO,
-			"player_health_percent": _get_health_percent(player_node),
-			"enemy_health_percent": _get_health_percent(enemy_node),
-			"distance_to_player": _get_distance_to_player(),
-			"lstm_hidden_state": hidden_state.duplicate(),
-			"lstm_cell_state": cell_state.duplicate(),
-			"prediction_index": action_index,
-			"action_probabilities": prediction["probabilities"]
-		}
-		
-		# Emit signal with detailed prediction information
-		emit_signal("prediction_details", 
-			action_name, 
-			confidence, 
-			game_state,
-			Time.get_unix_time_from_system()
-		)
-		
-		# After emitting the prediction, track when the action is executed
-		# We'll call this method from the character controller when the action completes
-		call_deferred("_schedule_execution_tracking", action_name)
+## ENHANCED: Execute a prediction from the queue
+#func _execute_prediction(prediction):
+	#var action_index = prediction["action_index"]
+	#var confidence = prediction["confidence"]
+	#var action_name = index_to_action[action_index]
+	#
+	## Add to action history
+	#action_history.append(action_name)
+	#if action_history.size() > SEQUENCE_LENGTH:
+		#action_history.pop_front()
+	#
+	## Set the current action and its duration
+	#current_action = action_name
+	#
+	## Set action duration based on action type
+	#match current_action:
+		#"idle":
+			#action_timer = rng.randf_range(0.5, 1.0)
+		#"walk_forward", "walk_backward":
+			#action_timer = rng.randf_range(0.3, 0.8)
+		#"jump":
+			#action_timer = 1.0
+		#"basic_punch":
+			#action_timer = 0.4
+		#"basic_kick":
+			#action_timer = 0.4
+	#
+	## Emit the signal with the predicted action
+	#emit_signal("action_predicted", action_name, {
+		#"confidence": confidence
+	#})
+	#
+	## Log the prediction for training data
+	#if data_collector and data_collector.is_collecting:
+		## Extract current game state for prediction context
+		#var game_state = {
+			#"player_position": player_node.global_position if player_node else Vector2.ZERO,
+			#"enemy_position": enemy_node.global_position if enemy_node else Vector2.ZERO,
+			#"player_velocity": player_node.velocity if "velocity" in player_node else Vector2.ZERO,
+			#"player_health_percent": _get_health_percent(player_node),
+			#"enemy_health_percent": _get_health_percent(enemy_node),
+			#"distance_to_player": _get_distance_to_player(),
+			#"lstm_hidden_state": hidden_state.duplicate(),
+			#"lstm_cell_state": cell_state.duplicate(),
+			#"prediction_index": action_index,
+			#"action_probabilities": prediction["probabilities"]
+		#}
+		#
+		## Emit signal with detailed prediction information
+		#emit_signal("prediction_details", 
+			#action_name, 
+			#confidence, 
+			#game_state,
+			#Time.get_unix_time_from_system()
+		#)
+		#
+		## After emitting the prediction, track when the action is executed
+		## We'll call this method from the character controller when the action completes
+		#call_deferred("_schedule_execution_tracking", action_name)
 
 # Track action execution result
 func record_action_result(action_name, result, position):
@@ -612,7 +796,7 @@ func train_model():
 			var target_idx = _get_target_action_index(sample)
 			
 			# Forward pass
-			var forward_result = _lstm_forward_pass_with_cache(features)
+			var forward_result = _lstm_forward_pass(features)
 			var lstm_output = forward_result[0]
 			var cache = forward_result[1]
 			
@@ -661,21 +845,18 @@ func _initialize_model():
 	
 	# Initialize gradient accumulators
 	_zero_gradients()
-	
-# Helper for creating a matrix with random values
-func _create_random_matrix(rows, cols):
-	var result = []
-	for i in range(rows):
-		result.append([])
-		for j in range(cols):
-			# Initialize with small random values
-			result[i].append(rng.randf_range(-0.1, 0.1))
-	return result
 
-# Forward pass specifically for training (returns cache for backprop)
-func _lstm_forward_pass_with_cache(features):
-	# Delegate to the more complete implementation
-	return _lstm_forward_pass_training(features)
+# Helper for creating a matrix with random values
+func _create_random_matrix(rows: int, cols: int) -> Array:
+	var matrix = []
+	for i in range(rows):
+		var row = []
+		row.resize(cols)
+		for j in range(cols):
+			# Initialize with small random values for better training stability
+			row[j] = rng.randf_range(-0.1, 0.1)
+		matrix.append(row)
+	return matrix
 
 # Backward pass for LSTM with cross-entropy loss
 func _lstm_backward_pass(output, target, cache):
@@ -814,6 +995,7 @@ func _update_weights(learning_rate, batch_size):
 	for i in range(OUTPUT_SIZE):
 		for j in range(HIDDEN_LAYER_SIZE):
 			fc_weights[i][j] -= lr * fc_weights_gradients[i][j]
+
 func _matrix_vector_multiply(matrix, vector):
 	var result = []
 	
@@ -1085,21 +1267,6 @@ func on_action_completed(action_name, success, position):
 			Time.get_unix_time_from_system())
 		last_scheduled_action = null
 
-## NEW FUNCTION: Handle being hit by an attack
-#func receive_hit(damage, attacker):
-	## When the AI character receives a hit, we can react
-	## This function should be called from your hit detection system
-	#
-	## We could change action based on being hit
-	#if rng.randf() < 0.3:  # 30% chance to counter
-		#current_action = "basic_punch"
-		#action_timer = 0.4
-	#elif rng.randf() < 0.5:  # 50% chance to back away
-		#current_action = "walk_backward"
-		#action_timer = 0.5
-	#
-	## Return true to acknowledge hit
-	#return true
 
 # Math helper functions for LSTM
 func _sigmoid(x):
@@ -1172,27 +1339,22 @@ func _get_target_action_index(sample):
 func test_matrix_operations():
 	print("Testing matrix operations...")
 	
-	# Test matrix-vector multiplication
-	var test_matrix = [[1.0, 2.0], [3.0, 4.0]]
-	var test_vector = [0.5, 0.5]
+	# Test matrix-vector multiplication with actual dimensions
+	var test_matrix = _create_random_matrix(OUTPUT_SIZE, HIDDEN_LAYER_SIZE)
+	var test_vector = _create_zero_vector(HIDDEN_LAYER_SIZE)
 	var result = _matrix_vector_multiply(test_matrix, test_vector)
-	print("Matrix-vector multiply test:", result)  # Should be [1.5, 3.5]
+	print("Matrix-vector multiply test size:", result.size())  # Should be OUTPUT_SIZE
 	
-	# Test softmax
-	var test_logits = [1.0, 2.0, 3.0, 4.0]
+	# Test softmax with correct output size
+	var test_logits = _create_zero_vector(OUTPUT_SIZE)
 	var softmax_result = _softmax(test_logits)
-	print("Softmax test:", softmax_result)  # Should sum to 1.0
+	print("Softmax test size:", softmax_result.size())  # Should be OUTPUT_SIZE
 	
-	# Test sigmoid and tanh
-	var test_values = [0.0, 1.0, -1.0]
-	var sigmoid_result = _sigmoid(test_values)
-	var tanh_result = _tanh(test_values)
-	print("Sigmoid test:", sigmoid_result)
-	print("Tanh test:", tanh_result)
-	
-	# Test forward pass with all zeros
+	# Test LSTM forward pass with correct input size
 	var test_features = _create_zero_vector(INPUT_FEATURE_SIZE)
 	var lstm_result = _lstm_forward_pass(test_features)
 	print("LSTM forward pass test:", lstm_result != null)
+	if lstm_result:
+		print("LSTM output size:", lstm_result.size())  # Should be OUTPUT_SIZE
 	
 	print("Matrix operations test complete")

@@ -80,12 +80,19 @@ func _on_ai_action_predicted(action_type, params):
 		"basic_punch", "heavy_punch", "basic_kick", "heavy_kick":
 			# Only attempt attack if in proper range
 			if _is_in_attack_range(action_type, distance):
+				print("[DEBUG] Attempting attack: " + action_type + " at distance: " + str(distance))
 				if attackClass.perform_attack(action_type):
 					# Attack succeeded, stop movement
 					movementClass.dummy_move(0)
+					print("[DEBUG] Acttack succeeded: " + action_type)
+					# Notify AI controller of successful attack for learning
+					if ai_controller:
+						ai_controller.on_action_completed(action_type, true, position)
 			else:
 				# Move towards attack range if too far
-				movementClass.dummy_move(direction if distance > get_optimal_range(action_type) else -direction)
+				var optimal_range = get_optimal_range(action_type)
+				print("[DEBUG] Not in range for " + action_type + ". Distance: " + str(distance) + ", Optimal range: " + str(optimal_range))
+				movementClass.dummy_move(direction if distance > optimal_range else -direction)
 		"idle":
 			movementClass.dummy_move(0)
 			if not $Dummy_Animation.current_animation in ["hurt", "knocked_down"]:
@@ -97,11 +104,11 @@ func get_optimal_range(attack_type: String) -> float:
 		"basic_punch", "crouch_punch":
 			return attackClass.PUNCH_RANGE - 10  # Slightly inside punch range
 		"heavy_punch":
-			return attackClass.HEAVY_RANGE - 15
+			return attackClass.PUNCH_RANGE - 5  # Closer for heavy punch
 		"basic_kick", "crouch_kick":
 			return attackClass.KICK_RANGE - 20
 		"heavy_kick":
-			return attackClass.HEAVY_RANGE - 15
+			return attackClass.KICK_RANGE - 10  # Closer for heavy kick
 		_:
 			return 100.0  # Default medium range
 
@@ -109,13 +116,13 @@ func get_optimal_range(attack_type: String) -> float:
 func _is_in_attack_range(attack_type: String, distance: float) -> bool:
 	match attack_type:
 		"basic_punch", "crouch_punch":
-			return distance <= attackClass.PUNCH_RANGE
+			return distance <= attackClass.PUNCH_RANGE + 5 # Slightly more generous range
 		"heavy_punch":
-			return distance <= attackClass.HEAVY_RANGE
+			return distance <= attackClass.PUNCH_RANGE + 10 # Extended range for heavy punch
 		"basic_kick", "crouch_kick":
-			return distance <= attackClass.KICK_RANGE
+			return distance <= attackClass.KICK_RANGE + 5 # Slightly more generous range
 		"heavy_kick":
-			return distance <= attackClass.HEAVY_RANGE
+			return distance <= attackClass.KICK_RANGE + 10 # Extended range for heavy kick
 	return false
 
 func _physics_process(delta):
@@ -136,6 +143,22 @@ func _physics_process(delta):
 		# Let AI make decisions only if not attacking
 		if not attackClass.is_attacking():
 			ai_controller._process(delta)
+
+		# Check if we should trigger an attack based on proximity to player
+		# This serves as a backup to ensure attacks happen
+		var distance_to_player = position.distance_to(enemy.position)
+		if not attackClass.is_attacking() and attackClass.attack_cooldown <= 0:
+			# Try attacks based on range
+			if distance_to_player <= attackClass.PUNCH_RANGE:
+				var attack_chance = 0.15  # 15% chance per frame when in range
+				if randf() <= attack_chance:
+					print("[DEBUG] Proximity-triggered basic punch")
+					attackClass.perform_attack("basic_punch")
+			elif distance_to_player <= attackClass.KICK_RANGE:
+				var attack_chance = 0.1  # 10% chance per frame when in kick range
+				if randf() <= attack_chance:
+					print("[DEBUG] Proximity-triggered basic kick")
+					attackClass.perform_attack("basic_kick")
 		
 		# Handle crouching attacks only if not in AI attack and close to player
 		if enemy_animation.current_animation == "crouch" and not attackClass.is_attacking():
