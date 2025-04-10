@@ -11,7 +11,7 @@ var damageClass: DummyDamaged
 
 # Reference to the enemy character
 @onready var enemy = get_parent().get_node("Player")
-
+@onready var enemy_animation = enemy.get_node("Animation")
 func _ready():
 	$DummyHP.value = Starthp
 	damageClass = DummyDamaged.new()
@@ -46,6 +46,8 @@ func _physics_process(delta):
 	update_facing_direction()
 	if not is_on_floor():
 		velocity.y += gravity * delta
-	
-	attackClass.get_attacks()
+	if enemy_animation.current_animation == "crouch":
+		attackClass.get_crouchAttacks()
+	else:
+		attackClass.get_basicAttacks()
 	move_and_slide()
