@@ -22,4 +22,4 @@ func take_damage(amount: int):
 		
 	else:
 		is_knocked_down = true
-		animation_player.play("knockdown")
+		animation_player.play("knocked_down")

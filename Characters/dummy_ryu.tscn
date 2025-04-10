@@ -3209,7 +3209,6 @@ tracks/11/keys = {
 
 [sub_resource type="Animation" id="Animation_fgqka"]
 resource_name = "walk_forward"
-loop_mode = 1
 step = 0.2
 tracks/0/type = "value"
 tracks/0/imported = false

@@ -24,7 +24,7 @@ func _connect_animation_physics():
 		
 func on_hurt_finished(animation):
 	enemy.velocity.x = 0
-	if hp_bar.value >= 0:
+	if hp_bar.value > 0:
 		anim_player.play("idle")
 	else:
 		anim_player.play("knocked_down")

@@ -33,21 +33,22 @@ func update_facing_direction():
 		$Dummy_Hitbox_Container.scale.x = 1
 		$Dummy_LowerHurtbox.position.x = abs($Dummy_LowerHurtbox.position.x)
 		$Dummy_UpperHurtbox.position.x = abs($Dummy_UpperHurtbox.position.x)
-		#movementClass.dummy_move(speed)
+		movementClass.dummy_move(speed)
 	else:
 		$AnimatedSprite2D.flip_h = true   # Face left
 		$Dummy_Hitbox_Container.scale.x = -1
 		$Dummy_LowerHurtbox.position.x = -abs($Dummy_LowerHurtbox.position.x)
 		$Dummy_UpperHurtbox.position.x = -abs($Dummy_UpperHurtbox.position.x)
-		#movementClass.dummy_move(-speed)
+		movementClass.dummy_move(-speed)
 		
 	
 func _physics_process(delta):
 	update_facing_direction()
 	if not is_on_floor():
 		velocity.y += gravity * delta
-	if enemy_animation.current_animation == "crouch":
-		attackClass.get_crouchAttacks()
-	else:
-		attackClass.get_basicAttacks()
+	if $DummyHP.value > 0:
+		if enemy_animation.current_animation == "crouch":
+			attackClass.get_crouchAttacks()
+		else:
+			attackClass.get_basicAttacks()
 	move_and_slide()
