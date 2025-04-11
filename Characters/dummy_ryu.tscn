@@ -4018,7 +4018,6 @@ metadata/_edit_group_ = true
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Dummy_Hitbox_Container/Dummy_Hitbox"]
 modulate = Color(0.725832, 0.494822, 0.159089, 1)
 position = Vector2(-2.5, 3)
-scale = Vector2(1, 1)
 shape = SubResource("RectangleShape2D_5eeq5")
 
 [connection signal="area_entered" from="Dummy_UpperHurtbox" to="." method="_on_dummy_upper_hurtbox_area_entered"]
