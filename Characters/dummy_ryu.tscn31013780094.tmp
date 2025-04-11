@@ -3971,7 +3971,7 @@ position = Vector2(-4, -1)
 sprite_frames = SubResource("SpriteFrames_k0s8r")
 animation = &"idle"
 
-[node name="DS_Animation" type="AnimationPlayer" parent="."]
+[node name="Dummy_Animation" type="AnimationPlayer" parent="."]
 root_node = NodePath("../AnimatedSprite2D")
 libraries = {
 &"": SubResource("AnimationLibrary_fgqka")

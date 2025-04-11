@@ -566,9 +566,6 @@ shape = SubResource("RectangleShape2D_4ll3w")
 [node name="Player" parent="." instance=ExtResource("2_4ll3w")]
 position = Vector2(-164, 9)
 
-[node name="Dummy_Ryu" parent="." instance=ExtResource("3_4ll3w")]
-position = Vector2(164, 7)
-
 [node name="StaticBody2D2" type="StaticBody2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D2"]
@@ -580,3 +577,5 @@ shape = SubResource("RectangleShape2D_g5jrl")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D3"]
 position = Vector2(224, -18)
 shape = SubResource("RectangleShape2D_ma6ne")
+
+[node name="DS_Ryu" parent="." instance=ExtResource("3_4ll3w")]

@@ -11,7 +11,7 @@ var attack_system : Attacks
 var damaged_system : Damaged
 
 # Reference to the enemy character
-@onready var enemy = get_parent().get_node("Dummy_Ryu")
+@onready var enemy = get_parent().get_node("DS_Ryu")
 	
 func update_facing_direction():
 	if enemy.position.x > position.x:
