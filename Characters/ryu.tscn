@@ -4105,6 +4105,7 @@ metadata/_edit_group_ = true
 modulate = Color(0.72549, 0.494118, 0.160784, 1)
 position = Vector2(20.1908, 1.01848)
 rotation = -0.378736
+scale = Vector2(1, 1)
 shape = SubResource("RectangleShape2D_gxq58")
 
 [connection signal="area_entered" from="Upper_Hurtbox" to="." method="_on_upper_hurtbox_area_entered"]
