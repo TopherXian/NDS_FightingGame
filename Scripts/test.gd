@@ -30,13 +30,13 @@ func _on_dummy_upper_hurtbox_area_entered(area: Area2D) -> void:
 func update_facing_direction():
 	if enemy.position.x > position.x:
 		$AnimatedSprite2D.flip_h = false  # Face right
-		$Dummy_Hitbox_Container.scale.x = 1
+		$Dummy_Hitbox.scale.x = 1
 		$Dummy_LowerHurtbox.position.x = abs($Dummy_LowerHurtbox.position.x)
 		$Dummy_UpperHurtbox.position.x = abs($Dummy_UpperHurtbox.position.x)
 		movementClass.dummy_move(speed)
 	else:
 		$AnimatedSprite2D.flip_h = true   # Face left
-		$Dummy_Hitbox_Container.scale.x = -1
+		$Dummy_Hitbox.scale.x = -1
 		$Dummy_LowerHurtbox.position.x = -abs($Dummy_LowerHurtbox.position.x)
 		$Dummy_UpperHurtbox.position.x = -abs($Dummy_UpperHurtbox.position.x)
 		movementClass.dummy_move(-speed)

@@ -578,4 +578,4 @@ shape = SubResource("RectangleShape2D_g5jrl")
 position = Vector2(224, -18)
 shape = SubResource("RectangleShape2D_ma6ne")
 
-[node name="DS_Ryu" parent="." instance=ExtResource("3_4ll3w")]
+[node name="Dummy_Ryu" parent="." instance=ExtResource("3_4ll3w")]
