@@ -49,6 +49,8 @@ func _physics_process(delta):
 	if $DummyHP.value > 0:
 		if enemy_animation.current_animation == "crouch":
 			attackClass.get_crouchAttacks()
+			velocity.x = 0
+			velocity.y = 0
 		else:
 			attackClass.get_basicAttacks()
 	move_and_slide()

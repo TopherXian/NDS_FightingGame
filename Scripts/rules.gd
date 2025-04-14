@@ -1,106 +1,120 @@
+# rules.gd
 extends Node
-class_name RuleBase
+class_name Rules
 
-var DS_anim : AnimationPlayer
-var player_anim : AnimationPlayer
-var enemy : CharacterBody2D
-var player : CharacterBody2D
+var rules: Array = [
+	{
+		"ruleID": 1,
+		"conditions": {
+			"player_anim": "walk_forward",
+			"distance": { "op": ">=", "value": 100 }
+		},
+		"enemy_action": "walk_forward",
+		"weight": 0.5,
+		"wasUsed": 0
+	},
+	{
+		"ruleID": 2,
+		"conditions": {
+			"player_anim": "walk_forward",
+			"distance": { "op": "<=", "value": 100 }
+		},
+		"enemy_action": "basic_kick",
+		"weight": 0.5,
+		"wasUsed": 0
+	},
+	{
+		"ruleID": 3,
+		"conditions": {
+			"distance": { "op": "<=", "value": 50 }
+		},
+		"enemy_action": "walk_backward",
+		"weight": 0.5,
+		"wasUsed": 0
+	},
+	{
+		"ruleID": 4,
+		"conditions": {
+			"player_anim": "basic_kick",
+			"distance": { "op": "<=", "value": 100 }
+		},
+		"enemy_action": "standing_defense",
+		"weight": 0.5,
+		"wasUsed": 0
+	},
+	{
+		"ruleID": 5,
+		"conditions": {
+			"player_anim": "basic_punch",
+			"distance": { "op": "<=", "value": 83 }
+		},
+		"enemy_action": "basic_kick",
+		"weight": 0.5,
+		"wasUsed": 0
+	},
+	{
+		"ruleID": 6,
+		"conditions": {
+			"player_anim": "crouch_kick",
+			"distance": { "op": "<=", "value": 100 }
+		},
+		"enemy_action": "crouch_defense",
+		"weight": 0.5,
+		"wasUsed": 0
+	},
+	{
+		"ruleID": 7,
+		"conditions": {
+			"player_anim": "crouch_punch",
+			"distance": { "op": "<=", "value": 83 }
+		},
+		"enemy_action": "crouch_defense",
+		"weight": 0.5,
+		"wasUsed": 0
+	},
+	{
+		"ruleID": 8,
+		"conditions": {
+			"player_anim": "crouch_kick",
+			"distance": { "op": ">=", "value": 100 }
+		},
+		"enemy_action": "crouch_defense",
+		"weight": 0.5,
+		"wasUsed": 0
+	},
+	{
+		"ruleID": 9,
+		"conditions": {
+			"player_anim": "crouch_kick",
+			"distance": { "op": "<=", "value": 100 }
+		},
+		"enemy_action": "jump",
+		"weight": 0.5,
+		"wasUsed": 0
+	},
+	{
+		"ruleID": 10,
+		"conditions": {
+			"player_anim": "jump",
+			"distance": { "op": "<=", "value": 100 }
+		},
+		"enemy_action": "basic_kick",
+		"weight": 0.5,
+		"wasUsed": 0
+	},
+	{
+		"ruleID": 11,
+		"conditions": {
+			"player_anim": "jump",
+			"distance": { "op": "<=", "value": 83 }
+		},
+		"enemy_action": "basic_punch",
+		"weight": 0.5,
+		"wasUsed": 0
+	}
+]
 
-var rules: Array = []
-
-func _init(enemy_animation: AnimationPlayer, DS_char: CharacterBody2D, player_animation: AnimationPlayer, player_char: CharacterBody2D):
-	DS_anim = enemy_animation
-	player_anim = player_animation
-	enemy = DS_char
-	player = player_char
-
-func _ready():
-	_load_rules()
-
-func _load_rules():
-	rules = [
-		{
-			"ruleID": 1,
-			"rule_name": "crouch_kick",
-			"conditions": {
-				"distance": {
-					"op": "<=",
-					"value": 100
-				},
-				"player_animation": "crouch"
-			},
-			"action": "crouch_kick",
-			"weight": 0.1,
-			"wasUsed": 0
-		},
-				{
-			"ruleID": 2,
-			"rule_name": "crouch_punch",
-			"conditions": {
-				"distance": {
-					"op": "<=",
-					"value": 83
-				},
-				"player_animation": "crouch"
-			},
-			"action": "crouch_punch",
-			"weight": 0.1,
-			"wasUsed": 0
-		},
-				{
-			"ruleID": 3,
-			"rule_name": "basic_kick",
-			"conditions": {
-				"distance": {
-					"op": "<=",
-					"value": 100
-				},
-				"player_animation": "idle"
-			},
-			"action": "basic_kick",
-			"weight": 0.1,
-			"wasUsed": 0
-		},
-				{
-			"ruleID": 4,
-			"rule_name": "basic_punch",
-			"conditions": {
-				"distance": {
-					"op": "<=",
-					"value": 83
-				},
-				"player_animation": "idle"
-			},
-			"action": "basic_punch",
-			"weight": 0.1,
-			"wasUsed": 0
-		},
-						{
-			"ruleID": 5,
-			"rule_name": "walk_forward",
-			"conditions": {
-				"distance": {
-					"op": ">",
-					"value": 100
-				},
-				"player_animation": "idle"
-			},
-			"action": "basic_punch",
-			"weight": 0.1,
-			"wasUsed": 0
-		},
-						{
-			"ruleID": 6,
-			"rule_name": "walk_backward",
-			"conditions": {
-				"distance": {
-					"op": "<=",
-					"value": 50
-				},
-				"player_animation": "walk_backward"
-			},
-			"action": "walk_backward",
-			"weight": 0.1,
-			"wasUsed": 0
-		}
-	]
+# Optionally, add helper functions here, e.g. get_rules_by_condition, or random selection, etc.
+func get_rules() -> Array:
+	#print("Rules Returned:", rules)
+	return rules

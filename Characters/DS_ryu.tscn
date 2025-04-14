@@ -1,4 +1,4 @@
-[gd_scene load_steps=95 format=3 uid="uid://buwohkfqye76o"]
+[gd_scene load_steps=95 format=3 uid="uid://swj2ovs5wt1j"]
 
 [ext_resource type="Script" uid="uid://ph1ipitxaxon" path="res://Scripts/test.gd" id="1_hg6ee"]
 [ext_resource type="Texture2D" uid="uid://ceg3tovqvw3y0" path="res://Assets/Characters/Ryu - New Version.png" id="2_jlxt8"]

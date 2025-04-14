@@ -3,35 +3,32 @@ extends CharacterBody2D
 var Starthp = 100
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 var speed = 100
-@onready var AI_HP = $DS_HP
-@onready var animation = $DS_Animation
 
-# Reference to the enemy character
+@onready var AI_HP = $DummyHP
+@onready var animation = $Dummy_Animation
 @onready var enemy = get_parent().get_node("Player")
 @onready var enemy_animation = enemy.get_node("Animation")
 
-var ruleStorage: RuleBase
-
-
+var current_script: Array = []
+var rule_engine  # ScriptCreation instance
+var rules_base   # Rules instance
 
 func update_facing_direction():
 	if enemy.position.x > position.x:
-		$AnimatedSprite2D.flip_h = false  # Face right
-		$DS_Hitbox_Container.scale.x = 1
+		$AnimatedSprite2D.flip_h = false
+		$Dummy_Hitbox.scale.x = 1
 		$DS_LowerHurtbox.position.x = abs($DS_LowerHurtbox.position.x)
 		$DS_UpperHurtbox.position.x = abs($DS_UpperHurtbox.position.x)
 	else:
-		$AnimatedSprite2D.flip_h = true   # Face left
-		$DS_Hitbox_Container.scale.x = -1
-		$DS_LowerHurtbox.position.x = -abs($DS_LowerHurtbox.position.x)
-		$DS_UpperHurtbox.position.x = -abs($DS_UpperHurtbox.position.x)
-		
+		$AnimatedSprite2D.flip_h = true
+		$Dummy_Hitbox.scale.x = -1
+		$Dummy_LowerHurtbox.position.x = -abs($Dummy_LowerHurtbox.position.x)
+		$Dummy_UpperHurtbox.position.x = -abs($Dummy_UpperHurtbox.position.x)
+
 func _ready():
 	AI_HP.value = Starthp
-	ruleStorage = RuleBase.new(animation, self, enemy, enemy_animation)
-	
+	rules_base = Rules.new()
+	rule_engine = ScriptCreation.new(enemy, animation)
+
 func _physics_process(delta):
-	update_facing_direction()
-	if not is_on_floor():
-		velocity.y += gravity * delta
-	move_and_slide()
+	pass
