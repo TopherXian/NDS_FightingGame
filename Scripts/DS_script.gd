@@ -4,7 +4,7 @@ class_name ScriptCreation
 var enemy
 var anim
 var ai_self
-
+var max_script = 6
 var speed = 200
 
 func _init(enemy_ref, anim_ref):
@@ -25,6 +25,7 @@ func evaluate_and_execute(rules: Array):
 
 		if "player_anim" in conditions:
 			match_anim = (conditions["player_anim"] == current_anim)
+			print(match_anim)
 
 		if "distance" in conditions:
 			var op = conditions["distance"]["op"]
@@ -33,6 +34,7 @@ func evaluate_and_execute(rules: Array):
 
 		if match_anim and match_dist:
 			_execute_action(rule["enemy_action"])
+
 			break
 
 func compare_distance(op: String, dist: float, value: float) -> bool:
@@ -70,3 +72,7 @@ func _execute_action(action: String):
 			anim.play("jump")
 		_:
 			print("Unknown action: ", action)
+
+func script_generation():
+#	GENERATES THE SCRIPT UP TO MAX_SCRIPT
+	pass

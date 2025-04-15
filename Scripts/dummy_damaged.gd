@@ -28,6 +28,4 @@ func on_hurt_finished(animation):
 		anim_player.play("idle")
 	else:
 		anim_player.play("knocked_down")
-		
-	
 	
