@@ -564,7 +564,7 @@ position = Vector2(-1, 93)
 shape = SubResource("RectangleShape2D_4ll3w")
 
 [node name="Player" parent="." instance=ExtResource("2_4ll3w")]
-position = Vector2(-164, 9)
+position = Vector2(-55, 0)
 
 [node name="StaticBody2D2" type="StaticBody2D" parent="."]
 

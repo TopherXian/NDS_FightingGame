@@ -116,5 +116,4 @@ var rules: Array = [
 
 # Optionally, add helper functions here, e.g. get_rules_by_condition, or random selection, etc.
 func get_rules() -> Array:
-	#print("Rules Returned:", rules)
 	return rules

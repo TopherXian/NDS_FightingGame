@@ -17,8 +17,8 @@ func update_facing_direction():
 	if enemy.position.x > position.x:
 		$AnimatedSprite2D.flip_h = false
 		$Dummy_Hitbox.scale.x = 1
-		$DS_LowerHurtbox.position.x = abs($DS_LowerHurtbox.position.x)
-		$DS_UpperHurtbox.position.x = abs($DS_UpperHurtbox.position.x)
+		$Dummy_LowerHurtbox.position.x = abs($Dummy_LowerHurtbox.position.x)
+		$Dummy_LowerHurtbox.position.x = abs($Dummy_LowerHurtbox.position.x)
 	else:
 		$AnimatedSprite2D.flip_h = true
 		$Dummy_Hitbox.scale.x = -1
@@ -31,4 +31,7 @@ func _ready():
 	rule_engine = ScriptCreation.new(enemy, animation)
 
 func _physics_process(delta):
-	pass
+	update_facing_direction()
+	rule_engine.set_ai_reference(self)
+	rule_engine.evaluate_and_execute(rules_base.get_rules())
+	move_and_slide()
