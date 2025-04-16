@@ -38,6 +38,7 @@ func update_facing_direction():
 	else:
 		$AnimatedSprite2D.flip_h = true   # Face left
 		$Dummy_Hitbox.scale.x = -1
+		$Dummy_Hitbox.position.x = -abs($Dummy_Hitbox.position.x) # this method works technically, although collisions shapes doesn't react accordingly
 		$Dummy_LowerHurtbox.position.x = -abs($Dummy_LowerHurtbox.position.x)
 		$Dummy_UpperHurtbox.position.x = -abs($Dummy_UpperHurtbox.position.x)
 		print("character facing left")
