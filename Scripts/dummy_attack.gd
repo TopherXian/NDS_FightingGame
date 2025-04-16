@@ -11,8 +11,6 @@ func _init(anim: AnimationPlayer, enemy_instance: CharacterBody2D, player_char: 
 	enemy = enemy_instance
 	player = player_char
 
-
-	
 func get_basicAttacks():
 	var distance = enemy.global_position.distance_to(player.global_position)
 	if distance <= 83:

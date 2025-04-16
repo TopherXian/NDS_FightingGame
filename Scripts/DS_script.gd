@@ -1,27 +1,30 @@
 extends Node
 class_name ScriptCreation
 
-var enemy
-var anim
+var player
+var player_anim
+var animation
 var ai_self
+
 var max_script = 6
 var speed = 200
 
-func _init(enemy_ref, anim_ref):
-	enemy = enemy_ref
-	anim = anim_ref
+func _init(enemy_ref, playerAnim_ref, enemy_anim):
+	player = enemy_ref
+	player_anim = playerAnim_ref
+	animation = enemy_anim
 
 func set_ai_reference(ref):
 	ai_self = ref
 
 func evaluate_and_execute(rules: Array):
-	var current_anim = enemy.animation.current_animation
-	var dist = ai_self.global_position.distance_to(enemy.global_position)
+	var current_anim = player_anim.current_animation
+	var dist = ai_self.global_position.distance_to(player.global_position)
 
 	for rule in rules:
 		var conditions = rule["conditions"]
-		var match_anim = true
-		var match_dist = true
+		var match_anim = false
+		var match_dist = false
 
 		if "player_anim" in conditions:
 			match_anim = (conditions["player_anim"] == current_anim)
@@ -34,7 +37,6 @@ func evaluate_and_execute(rules: Array):
 
 		if match_anim and match_dist:
 			_execute_action(rule["enemy_action"])
-
 			break
 
 func compare_distance(op: String, dist: float, value: float) -> bool:
@@ -55,21 +57,21 @@ func compare_distance(op: String, dist: float, value: float) -> bool:
 func _execute_action(action: String):
 	match action:
 		"walk_forward":
-			anim.play("walk_forward")
+			animation.play("walk_forward")
 			ai_self.velocity.x = -speed
 		"walk_backward":
-			anim.play("walk_backward")
+			animation.play("walk_backward")
 			ai_self.velocity.x = speed
 		"basic_kick":
-			anim.play("basic_kick")
+			animation.play("basic_kick")
 		"basic_punch":
-			anim.play("basic_punch")
+			animation.play("basic_punch")
 		"standing_defense":
-			anim.play("standing_defense")
+			animation.play("standing_defense")
 		"crouch_defense":
-			anim.play("crouch_defense")
+			animation.play("crouch_defense")
 		"jump":
-			anim.play("jump")
+			animation.play("jump")
 		_:
 			print("Unknown action: ", action)
 

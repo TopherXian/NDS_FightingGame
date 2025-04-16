@@ -11,7 +11,8 @@ var rules: Array = [
 		},
 		"enemy_action": "walk_forward",
 		"weight": 0.5,
-		"wasUsed": 0
+		"wasUsed": 0,
+		"inScript": 0
 	},
 	{
 		"ruleID": 2,
@@ -21,7 +22,8 @@ var rules: Array = [
 		},
 		"enemy_action": "basic_kick",
 		"weight": 0.5,
-		"wasUsed": 0
+		"wasUsed": 0,
+		"inScript": 0
 	},
 	{
 		"ruleID": 3,
@@ -30,7 +32,8 @@ var rules: Array = [
 		},
 		"enemy_action": "walk_backward",
 		"weight": 0.5,
-		"wasUsed": 0
+		"wasUsed": 0,
+		"inScript": 0
 	},
 	{
 		"ruleID": 4,
@@ -40,7 +43,8 @@ var rules: Array = [
 		},
 		"enemy_action": "standing_defense",
 		"weight": 0.5,
-		"wasUsed": 0
+		"wasUsed": 0,
+		"inScript": 0
 	},
 	{
 		"ruleID": 5,
@@ -50,7 +54,8 @@ var rules: Array = [
 		},
 		"enemy_action": "basic_kick",
 		"weight": 0.5,
-		"wasUsed": 0
+		"wasUsed": 0,
+		"inScript": 0
 	},
 	{
 		"ruleID": 6,
@@ -60,7 +65,8 @@ var rules: Array = [
 		},
 		"enemy_action": "crouch_defense",
 		"weight": 0.5,
-		"wasUsed": 0
+		"wasUsed": 0,
+		"inScript": 0
 	},
 	{
 		"ruleID": 7,
@@ -70,7 +76,8 @@ var rules: Array = [
 		},
 		"enemy_action": "crouch_defense",
 		"weight": 0.5,
-		"wasUsed": 0
+		"wasUsed": 0,
+		"inScript": 0
 	},
 	{
 		"ruleID": 8,
@@ -80,7 +87,8 @@ var rules: Array = [
 		},
 		"enemy_action": "crouch_defense",
 		"weight": 0.5,
-		"wasUsed": 0
+		"wasUsed": 0,
+		"inScript": 0
 	},
 	{
 		"ruleID": 9,
@@ -90,7 +98,8 @@ var rules: Array = [
 		},
 		"enemy_action": "jump",
 		"weight": 0.5,
-		"wasUsed": 0
+		"wasUsed": 0,
+		"inScript": 0
 	},
 	{
 		"ruleID": 10,
@@ -100,7 +109,8 @@ var rules: Array = [
 		},
 		"enemy_action": "basic_kick",
 		"weight": 0.5,
-		"wasUsed": 0
+		"wasUsed": 0,
+		"inScript": 0
 	},
 	{
 		"ruleID": 11,
@@ -110,7 +120,8 @@ var rules: Array = [
 		},
 		"enemy_action": "basic_punch",
 		"weight": 0.5,
-		"wasUsed": 0
+		"wasUsed": 0,
+		"inScript": 0
 	}
 ]
 

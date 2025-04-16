@@ -43,7 +43,6 @@ func update_facing_direction():
 		$Dummy_UpperHurtbox.position.x = -abs($Dummy_UpperHurtbox.position.x)
 		print("character facing left")
 		movementClass.dummy_move(-speed)
-		
 	
 func _physics_process(delta):
 	update_facing_direction()
