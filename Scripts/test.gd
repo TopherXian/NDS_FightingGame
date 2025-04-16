@@ -30,7 +30,7 @@ func _on_dummy_upper_hurtbox_area_entered(area: Area2D) -> void:
 func update_facing_direction():
 	if enemy.position.x > position.x:
 		$AnimatedSprite2D.flip_h = false  # Face right
-		$Dummy_Hitbox.scale.x = 1
+		$Dummy_Hitbox.position.x = abs($Dummy_Hitbox.position.x) # this method works technically, although collisions shapes doesn't react accordingly
 		$Dummy_LowerHurtbox.position.x = abs($Dummy_LowerHurtbox.position.x)
 		$Dummy_UpperHurtbox.position.x = abs($Dummy_UpperHurtbox.position.x)
 		print("character facing right ")
