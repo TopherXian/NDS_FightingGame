@@ -19,12 +19,12 @@ var damageClass: DummyDamaged
 func update_facing_direction():
 	if enemy.position.x > position.x:
 		$AnimatedSprite2D.flip_h = false  # Face right
-		$Dummy_Hitbox.scale.x = 1
+		$Dummy_Hitbox.position.x = abs($Dummy_Hitbox.position.x)
 		$Dummy_LowerHurtbox.position.x = abs($Dummy_LowerHurtbox.position.x)
 		$Dummy_UpperHurtbox.position.x = abs($Dummy_UpperHurtbox.position.x)
 	else:
 		$AnimatedSprite2D.flip_h = true   # Face left
-		$Dummy_Hitbox.scale.x = -1
+		$Dummy_Hitbox.position.x = -abs($Dummy_Hitbox.position.x)
 		$Dummy_LowerHurtbox.position.x = -abs($Dummy_LowerHurtbox.position.x)
 		$Dummy_UpperHurtbox.position.x = -abs($Dummy_UpperHurtbox.position.x)
 

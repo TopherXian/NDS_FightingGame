@@ -33,12 +33,14 @@ func update_facing_direction():
 		$Dummy_Hitbox.scale.x = 1
 		$Dummy_LowerHurtbox.position.x = abs($Dummy_LowerHurtbox.position.x)
 		$Dummy_UpperHurtbox.position.x = abs($Dummy_UpperHurtbox.position.x)
+		print("character facing right ")
 		movementClass.dummy_move(speed)
 	else:
 		$AnimatedSprite2D.flip_h = true   # Face left
 		$Dummy_Hitbox.scale.x = -1
 		$Dummy_LowerHurtbox.position.x = -abs($Dummy_LowerHurtbox.position.x)
 		$Dummy_UpperHurtbox.position.x = -abs($Dummy_UpperHurtbox.position.x)
+		print("character facing left")
 		movementClass.dummy_move(-speed)
 		
 	
