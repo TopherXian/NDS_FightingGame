@@ -9,9 +9,9 @@ var ai_self
 var max_script = 6
 var speed = 200
 
-func _init(enemy_ref, playerAnim_ref, enemy_anim):
+func _init(enemy_ref, enemy_anim):
 	player = enemy_ref
-	player_anim = playerAnim_ref
+	player_anim = enemy_ref.animation
 	animation = enemy_anim
 
 func set_ai_reference(ref):
@@ -59,10 +59,16 @@ func _execute_action(action: String):
 	match action:
 		"walk_forward":
 			animation.play("walk_forward")
-			ai_self.velocity.x = -speed
+			if player.position.x > ai_self.position.x:
+				ai_self.velocity.x = speed
+			else:
+				ai_self.velocity.x = -speed
 		"walk_backward":
 			animation.play("walk_backward")
-			ai_self.velocity.x = speed
+			if player.position.x > ai_self.position.x:
+				ai_self.velocity.x = -speed
+			else:
+				ai_self.velocity.x = speed
 		"basic_kick":
 			animation.play("basic_kick")
 		"basic_punch":

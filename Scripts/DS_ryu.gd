@@ -33,7 +33,7 @@ func _ready():
 	damageClass = DummyDamaged.new()
 	damageClass.init($Dummy_Animation, $DummyHP, self)
 	rules_base = Rules.new()
-	rule_engine = ScriptCreation.new(player, player_animation, enemy_animation)
+	rule_engine = ScriptCreation.new(player, enemy_animation)
 
 func _physics_process(delta):
 	update_facing_direction()
