@@ -23,12 +23,12 @@ func evaluate_and_execute(rules: Array):
 
 	for rule in rules:
 		var conditions = rule["conditions"]
+		var ruleID = rule["ruleID"]
 		var match_anim = false
 		var match_dist = false
 
 		if "player_anim" in conditions:
 			match_anim = (conditions["player_anim"] == current_anim)
-			print(match_anim)
 
 		if "distance" in conditions:
 			var op = conditions["distance"]["op"]
@@ -37,6 +37,7 @@ func evaluate_and_execute(rules: Array):
 
 		if match_anim and match_dist:
 			_execute_action(rule["enemy_action"])
+			print(ruleID)
 			break
 
 func compare_distance(op: String, dist: float, value: float) -> bool:
