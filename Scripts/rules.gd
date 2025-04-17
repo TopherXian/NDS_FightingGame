@@ -164,3 +164,12 @@ func generate_and_update_script():
 func get_rules() -> Array:
 		print(current_script.size())
 		return current_script
+		
+# --- Optional: Add functions to modify rules or weights if needed ---
+# func update_rule_weight(rule_id: int, new_weight: float):
+#	 for rule in rules:
+#		 if rule.get("ruleID") == rule_id:
+#			 rule["weight"] = new_weight
+#			 print("Updated weight for rule %d to %f" % [rule_id, new_weight])
+#			 # Note: This change will only reflect in the *next* script generation cycle.
+#			 break

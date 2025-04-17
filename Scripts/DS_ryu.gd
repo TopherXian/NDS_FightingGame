@@ -84,3 +84,4 @@ func _exit_tree():
 func _on_update_timer_timeout():
 	print("Timer timeout: Updating AI script...")
 	rules_base.generate_and_update_script()
+	
