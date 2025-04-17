@@ -125,6 +125,30 @@ var rules: Array = [
 	}
 ]
 
-# Optionally, add helper functions here, e.g. get_rules_by_condition, or random selection, etc.
-func get_rules() -> Array:
-	return rules
+func get_new_script(script_count: int) -> Array:
+
+	if script_count <= 0:
+		return []
+
+	var sorted_rules = rules.duplicate() # Use duplicate() for a shallow copy
+
+	var n = sorted_rules.size()
+
+	var swapped: bool
+	for i in range(n - 1):
+		swapped = false
+
+		for j in range(n - i - 1):
+			if sorted_rules[j]["weight"] < sorted_rules[j+1]["weight"]:
+				var temp = sorted_rules[j]
+				sorted_rules[j] = sorted_rules[j+1]
+				sorted_rules[j+1] = temp
+				swapped = true
+
+		# Optimization: If no swaps occurred in a pass, the array is sorted
+		if not swapped:
+			break
+
+	var top_rules = sorted_rules.slice(0, script_count) # slice(start_inclusive, end_exclusive)
+	print(top_rules.size())
+	return top_rules

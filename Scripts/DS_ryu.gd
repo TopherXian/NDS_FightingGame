@@ -4,6 +4,7 @@ var Starthp = 100
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 var speed = 100
 
+var script_count = 6
 
 @onready var AI_HP = $DummyHP
 @onready var enemy_animation = $Dummy_Animation
@@ -40,7 +41,7 @@ func _physics_process(delta):
 	if not is_on_floor():
 		velocity.y += gravity * delta
 	rule_engine.set_ai_reference(self)
-	rule_engine.evaluate_and_execute(rules_base.get_rules())
+	rule_engine.evaluate_and_execute(rules_base.get_new_script(script_count))
 	#print(rule_engine.evaluate_and_execute(rules_base.get_rules()))
 	move_and_slide()
 	

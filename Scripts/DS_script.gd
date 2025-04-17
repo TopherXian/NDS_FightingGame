@@ -6,7 +6,6 @@ var player_anim
 var animation
 var ai_self
 
-var max_script = 6
 var speed = 200
 
 func _init(enemy_ref, enemy_anim):
