@@ -158,11 +158,12 @@ func generate_and_update_script():
 	current_script = sorted_rules.slice(0, actual_count) # slice(start_inclusive, end_exclusive)
 
 	print("Generated new script with %d rules." % current_script.size())
+	print(current_script)
 	# Optional: Print the actual script for debugging
 	# print("New Script:", current_script)
 
 func get_rules() -> Array:
-		print(current_script.size())
+		#print(current_script.size())
 		return current_script
 		
 # --- Optional: Add functions to modify rules or weights if needed ---

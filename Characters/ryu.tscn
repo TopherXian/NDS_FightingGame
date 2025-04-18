@@ -4107,5 +4107,9 @@ position = Vector2(20.1908, 1.01848)
 rotation = -0.378736
 shape = SubResource("RectangleShape2D_gxq58")
 
+[node name="PlayerTimer" type="Timer" parent="."]
+wait_time = 4.0
+autostart = true
+
 [connection signal="area_entered" from="Upper_Hurtbox" to="." method="_on_upper_hurtbox_area_entered"]
 [connection signal="area_entered" from="Lower_Hurtbox" to="." method="_on_lower_hurtbox_area_entered"]

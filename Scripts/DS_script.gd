@@ -36,7 +36,7 @@ func evaluate_and_execute(rules: Array):
 
 		if match_anim and match_dist:
 			_execute_action(rule["enemy_action"])
-			print(ruleID)
+			#print(ruleID)
 			break
 
 func compare_distance(op: String, dist: float, value: float) -> bool:

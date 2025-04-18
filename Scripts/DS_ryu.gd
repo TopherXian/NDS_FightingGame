@@ -3,18 +3,22 @@ extends CharacterBody2D
 var Starthp = 100
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 var speed = 100
-
+var lower_hits := 0
+var upper_hits := 0
 
 @onready var AI_HP = $DummyHP
 @onready var enemy_animation = $Dummy_Animation
 @onready var player = get_parent().get_node("Player")
 @onready var player_animation = player.get_node("Animation")
-
+@onready var opp_hit_taken = get_parent().get_node("OpponentDetails") 
 @export var update_interval : float = 4.0
 var _update_timer: Timer
 var rule_engine  # ScriptCreation instance
 var rules_base   # Rules instance
 var damageClass: DummyDamaged
+
+func _update_hit_text():
+	opp_hit_taken.text = "Lower Hits Taken: %d\nUpper Hits Taken: %d" % [lower_hits, upper_hits]
 
 
 func update_facing_direction():
@@ -46,15 +50,19 @@ func _physics_process(delta):
 	#print(rule_engine.evaluate_and_execute(rules_base.get_rules()))
 	move_and_slide()
 	
+
 func _on_dummy_lower_hurtbox_area_entered(area: Area2D) -> void:
 	if area.name == "Hitbox":
 		damageClass.take_damage()
-		
+		lower_hits += 1
+		_update_hit_text()
+
 func _on_dummy_upper_hurtbox_area_entered(area: Area2D) -> void:
 	if area.name == "Hitbox":
 		damageClass.take_damage()
+		upper_hits += 1
+		_update_hit_text()
 		
-
 func _process_timer():
 	_update_timer = Timer.new()
 	_update_timer.name = "ScriptUpdateTimer" # add timer identity
@@ -83,5 +91,8 @@ func _exit_tree():
 # --- Timer Callback Function ---
 func _on_update_timer_timeout():
 	print("Timer timeout: Updating AI script...")
+	lower_hits = 0
+	upper_hits = 0
+	_update_hit_text()
 	rules_base.generate_and_update_script()
 	

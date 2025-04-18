@@ -1,6 +1,14 @@
 extends CharacterBody2D
 
+var lower_hits := 0
+var upper_hits := 0
+
+
 @onready var animation = $"Animation"
+@onready var player_hit_taken = get_parent().get_node("PlayerDetails")
+@onready var timer = $PlayerTimer
+
+
 var Starthp = 100
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 var is_jumping = false
@@ -31,6 +39,9 @@ func _ready():
 	attack_system = Attacks.new(animation, self)      # Pass 'self' as the player instance
 	damaged_system = Damaged.new(animation, self)
 	$PlayerHP.value = Starthp
+	timer.one_shot = false     # Keep repeating every 4 seconds
+	# Connect signal (Godot 4 syntax)
+	timer.timeout.connect(_on_timer_timeout)
 	
 func _physics_process(delta):
 	update_facing_direction()
@@ -54,10 +65,22 @@ func _physics_process(delta):
 	
 	move_and_slide()
 
+func _update_hit_text():
+	player_hit_taken.text = "Lower Hits Taken: %d\nUpper Hits Taken: %d" % [lower_hits, upper_hits]
+	
 func _on_upper_hurtbox_area_entered(area: Area2D) -> void:
 	if area.name == "Dummy_Hitbox":
 		damaged_system.take_damage(10)
+		upper_hits += 1
+		_update_hit_text()
 
 func _on_lower_hurtbox_area_entered(area: Area2D) -> void:
 	if area.name == "Dummy_Hitbox":
 		damaged_system.take_damage(10)
+		lower_hits += 1
+		_update_hit_text()
+		
+func _on_timer_timeout() -> void:
+	upper_hits = 0
+	lower_hits = 0
+	_update_hit_text()
