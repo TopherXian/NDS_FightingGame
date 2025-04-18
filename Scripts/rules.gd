@@ -9,7 +9,9 @@ var rules: Array = [
 		"ruleID": 1,
 		"conditions": {
 			"player_anim": "walk_forward",
-			"distance": { "op": ">=", "value": 100 }
+			"distance": { "op": ">=", "value": 100 },
+			"upper_hits": { "op": ">=", "value": 1 },
+			"lower_hits": { "op": "<", "value": 1 }
 		},
 		"enemy_action": "walk_forward",
 		"weight": 0.5,
@@ -20,7 +22,9 @@ var rules: Array = [
 		"ruleID": 2,
 		"conditions": {
 			"player_anim": "walk_forward",
-			"distance": { "op": "<=", "value": 100 }
+			"distance": { "op": "<=", "value": 100 },
+			"upper_hits": { "op": ">=", "value": 0 },
+			"lower_hits": { "op": ">=", "value": 0 }
 		},
 		"enemy_action": "basic_kick",
 		"weight": 0.5,
@@ -30,7 +34,10 @@ var rules: Array = [
 	{
 		"ruleID": 3,
 		"conditions": {
-			"distance": { "op": "<=", "value": 50 }
+			"player_anim": "basic_punch",
+			"distance": { "op": "<=", "value": 50 },
+			"upper_hits": { "op": ">=", "value": 4 },
+			"lower_hits": { "op": ">=", "value": 0 }
 		},
 		"enemy_action": "walk_backward",
 		"weight": 0.5,
@@ -41,7 +48,9 @@ var rules: Array = [
 		"ruleID": 4,
 		"conditions": {
 			"player_anim": "basic_kick",
-			"distance": { "op": "<=", "value": 100 }
+			"distance": { "op": "<=", "value": 100 },
+			"upper_hits": { "op": ">=", "value": 2 },
+			"lower_hits": { "op": ">=", "value": 0 }
 		},
 		"enemy_action": "standing_defense",
 		"weight": 0.5,
@@ -52,7 +61,10 @@ var rules: Array = [
 		"ruleID": 5,
 		"conditions": {
 			"player_anim": "basic_punch",
-			"distance": { "op": "<=", "value": 83 }
+			"distance": { "op": "<=", "value": 83 },
+			"upper_hits": { "op": ">=", "value": 0 },
+			"lower_hits": { "op": ">=", "value": 0 }
+
 		},
 		"enemy_action": "basic_kick",
 		"weight": 0.5,
@@ -63,7 +75,9 @@ var rules: Array = [
 		"ruleID": 6,
 		"conditions": {
 			"player_anim": "crouch_kick",
-			"distance": { "op": "<=", "value": 100 }
+			"distance": { "op": "<=", "value": 100 },
+			"upper_hits": { "op": ">=", "value": 0 },
+			"lower_hits": { "op": ">=", "value": 1 }
 		},
 		"enemy_action": "crouch_defense",
 		"weight": 0.5,
@@ -74,7 +88,9 @@ var rules: Array = [
 		"ruleID": 7,
 		"conditions": {
 			"player_anim": "crouch_punch",
-			"distance": { "op": "<=", "value": 83 }
+			"distance": { "op": "<=", "value": 83 },
+			"upper_hits": { "op": ">=", "value": 0 },
+			"lower_hits": { "op": ">=", "value": 1 }
 		},
 		"enemy_action": "crouch_defense",
 		"weight": 0.5,
@@ -85,7 +101,9 @@ var rules: Array = [
 		"ruleID": 8,
 		"conditions": {
 			"player_anim": "crouch_kick",
-			"distance": { "op": ">=", "value": 100 }
+			"distance": { "op": ">=", "value": 100 },
+			"upper_hits": { "op": ">=", "value": 0 },
+			"lower_hits": { "op": ">=", "value": 1 }
 		},
 		"enemy_action": "crouch_defense",
 		"weight": 0.5,
@@ -96,7 +114,9 @@ var rules: Array = [
 		"ruleID": 9,
 		"conditions": {
 			"player_anim": "crouch_kick",
-			"distance": { "op": "<=", "value": 100 }
+			"distance": { "op": "<=", "value": 100 },
+			"upper_hits": { "op": ">=", "value": 0 },
+			"lower_hits": { "op": ">=", "value": 1 }
 		},
 		"enemy_action": "jump",
 		"weight": 0.5,
@@ -107,7 +127,9 @@ var rules: Array = [
 		"ruleID": 10,
 		"conditions": {
 			"player_anim": "jump",
-			"distance": { "op": "<=", "value": 100 }
+			"distance": { "op": "<=", "value": 100 },
+			"upper_hits": { "op": ">=", "value": 0 },
+			"lower_hits": { "op": ">=", "value": 0 }
 		},
 		"enemy_action": "basic_kick",
 		"weight": 0.5,
@@ -118,7 +140,9 @@ var rules: Array = [
 		"ruleID": 11,
 		"conditions": {
 			"player_anim": "jump",
-			"distance": { "op": "<=", "value": 83 }
+			"distance": { "op": "<=", "value": 83 },
+			"upper_hits": { "op": ">=", "value": 0 },
+			"lower_hits": { "op": ">=", "value": 0 }
 		},
 		"enemy_action": "basic_punch",
 		"weight": 0.5,
@@ -135,7 +159,6 @@ func generate_and_update_script():
 		current_script = []
 		return
 
-	# --- Sorting Logic (Your Bubble Sort) ---
 	# Note: For larger rule sets, consider Array.sort_custom() for better performance.
 	var sorted_rules = rules.duplicate() # Use duplicate() for a shallow copy
 	var n = sorted_rules.size()
@@ -151,7 +174,6 @@ func generate_and_update_script():
 				swapped = true
 		if not swapped:
 			break # Optimization: If no swaps, array is sorted
-	# --- End Sorting ---
 
 	# Slice to get the top N rules, ensuring we don't request more than available
 	var actual_count = min(script_count, sorted_rules.size())
