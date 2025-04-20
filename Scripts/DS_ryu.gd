@@ -29,12 +29,14 @@ func _update_hit_text():
 func update_facing_direction():
 	if player.position.x > position.x:
 		$AnimatedSprite2D.flip_h = false  # Face right
-		$Dummy_Hitbox.position.x = abs($Dummy_Hitbox.position.x)
+		#$Dummy_Hitbox.position.x = abs($Dummy_Hitbox.position.x)
+		#$DS_Hitbox_Container.scale.x = 1
 		$Dummy_LowerHurtbox.position.x = abs($Dummy_LowerHurtbox.position.x)
 		$Dummy_UpperHurtbox.position.x = abs($Dummy_UpperHurtbox.position.x)
 	else:
 		$AnimatedSprite2D.flip_h = true   # Face left
 		$Dummy_Hitbox.position.x = -abs($Dummy_Hitbox.position.x)
+		#$DS_Hitbox_Container.scale.x = -1
 		$Dummy_LowerHurtbox.position.x = -abs($Dummy_LowerHurtbox.position.x)
 		$Dummy_UpperHurtbox.position.x = -abs($Dummy_UpperHurtbox.position.x)
 
