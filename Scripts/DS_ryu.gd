@@ -3,8 +3,11 @@ extends CharacterBody2D
 var Starthp = 100
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 var speed = 100
+
 var lower_hits := 0
 var upper_hits := 0
+var lower_attacks := 0
+var upper_attacks := 0
 
 @onready var AI_HP = $DummyHP
 @onready var enemy_animation = $Dummy_Animation
@@ -18,8 +21,10 @@ var rules_base   # Rules instance
 var damageClass: DummyDamaged
 
 func _update_hit_text():
-	opp_hit_taken.text = "Lower Hits Taken: %d\nUpper Hits Taken: %d" % [lower_hits, upper_hits]
-
+	opp_hit_taken.text = "Lower Hits Taken: %d
+	\nUpper Hits Taken: %d
+	\nLower Attacks Hit: %d
+	\nUpper Attacks Hit: %d" % [lower_hits, upper_hits, lower_attacks, upper_attacks]
 
 func update_facing_direction():
 	if player.position.x > position.x:
@@ -37,6 +42,7 @@ func _ready():
 	$DummyHP.value = Starthp
 	damageClass = DummyDamaged.new()
 	damageClass.init($Dummy_Animation, $DummyHP, self)
+	
 	rules_base = Rules.new()
 	rule_engine = ScriptCreation.new(player, enemy_animation)
 	_process_timer()
@@ -63,6 +69,13 @@ func _on_dummy_upper_hurtbox_area_entered(area: Area2D) -> void:
 		upper_hits += 1
 		_update_hit_text()
 		
+func _on_dummy_hitbox_area_entered(area: Area2D) -> void:
+	if area.name == "Upper_Hurtbox":
+		upper_attacks += 1
+	elif area.name == "Lower_Hurtbox":
+		lower_attacks += 1
+	pass # Replace with function body.
+
 func _process_timer():
 	_update_timer = Timer.new()
 	_update_timer.name = "ScriptUpdateTimer" # add timer identity
@@ -81,7 +94,7 @@ func _process_timer():
 	_update_timer.start()
 
 	# Generate the first script immediately so it's not empty at the start
-	rules_base.generate_and_update_script()
+	rules_base.generate_and_update_script() 
 	print("Rules node ready. Initial script generated.")
 
 func _exit_tree():
@@ -91,8 +104,14 @@ func _exit_tree():
 # --- Timer Callback Function ---
 func _on_update_timer_timeout():
 	print("Timer timeout: Updating AI script...")
+#	LOWER AND UPPER SUCCESSFUL ATTACKS AND HITS TAKEN AS METRICS, 100 AS THE FULL HP
+	#rule_engine.calculate_fitness(lower_hits, upper_hits, upper_attacks, lower_attacks, 100)
 	lower_hits = 0
 	upper_hits = 0
+	upper_attacks = 0
+	lower_attacks = 0
 	_update_hit_text()
-	rules_base.generate_and_update_script()
 	
+	#rules_base.generate_and_update_script()
+	#for r in rules_base.generate_and_update_script():
+		#r["wasUsed"] = int(randomize(0))

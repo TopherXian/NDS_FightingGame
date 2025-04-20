@@ -15,8 +15,8 @@ var rules: Array = [
 		},
 		"enemy_action": "walk_forward",
 		"weight": 0.5,
-		"wasUsed": 0,
-		"inScript": 0
+		"wasUsed": false,
+		"inScript": false
 	},
 	{
 		"ruleID": 2,
@@ -28,8 +28,8 @@ var rules: Array = [
 		},
 		"enemy_action": "basic_kick",
 		"weight": 0.5,
-		"wasUsed": 0,
-		"inScript": 0
+		"wasUsed": false,
+		"inScript": false
 	},
 	{
 		"ruleID": 3,
@@ -41,8 +41,8 @@ var rules: Array = [
 		},
 		"enemy_action": "walk_backward",
 		"weight": 0.5,
-		"wasUsed": 0,
-		"inScript": 0
+		"wasUsed": false,
+		"inScript": false
 	},
 	{
 		"ruleID": 4,
@@ -54,8 +54,8 @@ var rules: Array = [
 		},
 		"enemy_action": "standing_defense",
 		"weight": 0.5,
-		"wasUsed": 0,
-		"inScript": 0
+		"wasUsed": false,
+		"inScript": false
 	},
 	{
 		"ruleID": 5,
@@ -68,8 +68,8 @@ var rules: Array = [
 		},
 		"enemy_action": "basic_kick",
 		"weight": 0.5,
-		"wasUsed": 0,
-		"inScript": 0
+		"wasUsed": false,
+		"inScript": false
 	},
 	{
 		"ruleID": 6,
@@ -79,10 +79,10 @@ var rules: Array = [
 			"upper_hits": { "op": ">=", "value": 0 },
 			"lower_hits": { "op": ">=", "value": 1 }
 		},
-		"enemy_action": "crouch_defense",
+		"enemy_action": "crouching_defense",
 		"weight": 0.5,
-		"wasUsed": 0,
-		"inScript": 0
+		"wasUsed": false,
+		"inScript": false
 	},
 	{
 		"ruleID": 7,
@@ -92,10 +92,10 @@ var rules: Array = [
 			"upper_hits": { "op": ">=", "value": 0 },
 			"lower_hits": { "op": ">=", "value": 1 }
 		},
-		"enemy_action": "crouch_defense",
+		"enemy_action": "crouching_defense",
 		"weight": 0.5,
-		"wasUsed": 0,
-		"inScript": 0
+		"wasUsed": false,
+		"inScript": false
 	},
 	{
 		"ruleID": 8,
@@ -105,10 +105,10 @@ var rules: Array = [
 			"upper_hits": { "op": ">=", "value": 0 },
 			"lower_hits": { "op": ">=", "value": 1 }
 		},
-		"enemy_action": "crouch_defense",
+		"enemy_action": "crouching_defense",
 		"weight": 0.5,
-		"wasUsed": 0,
-		"inScript": 0
+		"wasUsed": false,
+		"inScript": false
 	},
 	{
 		"ruleID": 9,
@@ -120,8 +120,8 @@ var rules: Array = [
 		},
 		"enemy_action": "jump",
 		"weight": 0.5,
-		"wasUsed": 0,
-		"inScript": 0
+		"wasUsed": false,
+		"inScript": false
 	},
 	{
 		"ruleID": 10,
@@ -133,8 +133,8 @@ var rules: Array = [
 		},
 		"enemy_action": "basic_kick",
 		"weight": 0.5,
-		"wasUsed": 0,
-		"inScript": 0
+		"wasUsed": false,
+		"inScript": false
 	},
 	{
 		"ruleID": 11,
@@ -146,15 +146,14 @@ var rules: Array = [
 		},
 		"enemy_action": "basic_punch",
 		"weight": 0.5,
-		"wasUsed": 0,
-		"inScript": 0
+		"wasUsed": false,
+		"inScript": false
 	}
 ]
 
 var current_script: Array
 
 func generate_and_update_script():
-
 	if script_count <= 0:
 		current_script = []
 		return
@@ -185,9 +184,11 @@ func generate_and_update_script():
 	# print("New Script:", current_script)
 
 func get_rules() -> Array:
+	return rules
+
+func get_DScript() -> Array:
 		#print(current_script.size())
 		return current_script
-		
 # --- Optional: Add functions to modify rules or weights if needed ---
 # func update_rule_weight(rule_id: int, new_weight: float):
 #	 for rule in rules:

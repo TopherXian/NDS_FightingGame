@@ -2,7 +2,8 @@ extends CharacterBody2D
 
 var lower_hits := 0
 var upper_hits := 0
-
+var lower_attacks := 0
+var upper_attacks := 0
 
 @onready var animation = $"Animation"
 @onready var player_hit_taken = get_parent().get_node("PlayerDetails")
@@ -66,7 +67,10 @@ func _physics_process(delta):
 	move_and_slide()
 
 func _update_hit_text():
-	player_hit_taken.text = "Lower Hits Taken: %d\nUpper Hits Taken: %d" % [lower_hits, upper_hits]
+	player_hit_taken.text = "Lower Hits Taken: %d
+	\nUpper Hits Taken: %d
+	\nLower Attacks Hit: %d
+	\nUpper Attacks Hit: %d" % [lower_hits, upper_hits, lower_attacks, upper_attacks]
 	
 func _on_upper_hurtbox_area_entered(area: Area2D) -> void:
 	if area.name == "Dummy_Hitbox":
@@ -79,8 +83,18 @@ func _on_lower_hurtbox_area_entered(area: Area2D) -> void:
 		damaged_system.take_damage(10)
 		lower_hits += 1
 		_update_hit_text()
-		
+
+func _on_hitbox_area_entered(area: Area2D) -> void:
+	if area.name == "Dummy_UpperHurtbox":
+		upper_attacks += 1
+	elif area.name == "Dummy_LowerHurtbox":
+		lower_attacks += 1
+	pass # Replace with function body.
+
+
 func _on_timer_timeout() -> void:
-	upper_hits = 0
 	lower_hits = 0
+	upper_hits = 0
+	upper_attacks = 0
+	lower_attacks = 0
 	_update_hit_text()

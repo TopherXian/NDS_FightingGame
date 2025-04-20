@@ -6,6 +6,10 @@ var player_anim
 var animation
 var ai_self
 
+var baseline = 0.5
+var WMAX = 1.0
+var WMIN = 0.1
+
 var speed = 150
 
 func _init(enemy_ref, enemy_anim):
@@ -50,7 +54,7 @@ func evaluate_and_execute(rules: Array):
 
 		if match_anim and match_dist and (match_upper_hits or match_lower_hits):
 			_execute_action(rule["enemy_action"])
-			print(ruleID)
+			print(rule)
 			break
 
 
@@ -95,8 +99,8 @@ func _execute_action(action: String):
 		"standing_defense":
 			if animation.current_animation != "standing_defense": animation.play("standing_defense")
 			ai_self.velocity.x = 0
-		"crouch_defense":
-			if animation.current_animation != "crouch_defense": animation.play("crouch_defense")
+		"crouching_defense":
+			if animation.current_animation != "crouching_defense": animation.play("crouching_defense")
 			ai_self.velocity.x = 0
 		"jump":
 			if ai_self.is_on_floor():
@@ -105,6 +109,18 @@ func _execute_action(action: String):
 		_:
 			animation.play("basic_punch")
 		
-func script_generation():
-#	GENERATES THE SCRIPT UP TO MAX_SCRIPT
-	pass
+func calulate_fitness(DS_lower_hits_taken : int, DS_upper_hits_taken : int, DS_upper_successful_attacks : int, DS_lower_successful_attacks : int, maxHP):
+	var bot_dmg_taken :=(10 * (DS_lower_hits_taken + DS_upper_hits_taken)) 
+	var bot_dmg_output := (10 * (DS_upper_successful_attacks + DS_lower_successful_attacks))
+	
+	var dmg_score = (bot_dmg_taken - bot_dmg_output)/maxHP
+	
+	var offensiveness = (0.002 * DS_upper_successful_attacks + 0.002 * DS_lower_successful_attacks)
+#	ADD FIRST THE FUNCTIONALITIES FOR THE CROUCHING AND STANDING DEFENSE
+	#var defensiveness = (0.003 * DS_standing_defended + 0.003 * DS_crouching_defended)
+	var penalties = (-0.005 * DS_lower_hits_taken + -0.005 * DS_upper_hits_taken)
+	#var raw = baseline + 0.5 + dmg_score + offensiveness + defensiveness + penalties
+	#return max(0.0, min(1.0, raw))
+	
+	
+# ADJUST WEIGHTS 
