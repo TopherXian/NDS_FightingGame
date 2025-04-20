@@ -69,12 +69,16 @@ func _on_dummy_upper_hurtbox_area_entered(area: Area2D) -> void:
 		upper_hits += 1
 		_update_hit_text()
 		
-func _on_dummy_hitbox_area_entered(area: Area2D) -> void:
+
+func _on_dummy_hitbox_area_shape_entered(area_rid: RID, area: Area2D, area_shape_index: int, local_shape_index: int) -> void:
 	if area.name == "Upper_Hurtbox":
 		upper_attacks += 1
+		print("UPPER_H")
 	elif area.name == "Lower_Hurtbox":
 		lower_attacks += 1
+		print("LOWER_H")
 	pass # Replace with function body.
+
 
 func _process_timer():
 	_update_timer = Timer.new()

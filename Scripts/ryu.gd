@@ -84,11 +84,13 @@ func _on_lower_hurtbox_area_entered(area: Area2D) -> void:
 		lower_hits += 1
 		_update_hit_text()
 
-func _on_hitbox_area_entered(area: Area2D) -> void:
+func _on_hitbox_area_shape_entered(area_rid: RID, area: Area2D, area_shape_index: int, local_shape_index: int) -> void:
 	if area.name == "Dummy_UpperHurtbox":
+		print('UPPER_H')
 		upper_attacks += 1
 	elif area.name == "Dummy_LowerHurtbox":
 		lower_attacks += 1
+		print("LOWER_H")
 	pass # Replace with function body.
 
 

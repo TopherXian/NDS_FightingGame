@@ -3403,16 +3403,6 @@ position = Vector2(5.5, 15.5)
 scale = Vector2(0.999999, 0.999999)
 shape = SubResource("RectangleShape2D_lyne4")
 
-[node name="Dummy_Hitbox" type="Area2D" parent="."]
-position = Vector2(51, -18)
-monitoring = false
-monitorable = false
-metadata/_edit_group_ = true
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Dummy_Hitbox"]
-position = Vector2(-2.5, 3)
-shape = SubResource("RectangleShape2D_5eeq5")
-
 [node name="DummyHP" type="ProgressBar" parent="."]
 offset_left = -39.0
 offset_top = -92.0
@@ -3425,5 +3415,16 @@ offset_bottom = -65.0
 position = Vector2(0, 6)
 shape = SubResource("CapsuleShape2D_hxnh7")
 
+[node name="Dummy_Hitbox" type="Area2D" parent="."]
+position = Vector2(51, -18)
+monitoring = false
+monitorable = false
+metadata/_edit_group_ = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Dummy_Hitbox"]
+position = Vector2(-2.5, 3)
+shape = SubResource("RectangleShape2D_5eeq5")
+
 [connection signal="area_entered" from="Dummy_UpperHurtbox" to="." method="_on_dummy_upper_hurtbox_area_entered"]
 [connection signal="area_entered" from="Dummy_LowerHurtbox" to="." method="_on_dummy_lower_hurtbox_area_entered"]
+[connection signal="area_shape_entered" from="Dummy_Hitbox" to="." method="_on_dummy_hitbox_area_shape_entered"]
