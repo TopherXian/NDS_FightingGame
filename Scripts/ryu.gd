@@ -9,7 +9,6 @@ var upper_attacks := 0
 @onready var player_hit_taken = get_parent().get_node("PlayerDetails")
 @onready var timer = $PlayerTimer
 
-
 var Starthp = 100
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 var is_jumping = false

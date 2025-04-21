@@ -109,7 +109,7 @@ func _execute_action(action: String):
 		_:
 			animation.play("basic_punch")
 		
-func calulate_fitness(DS_lower_hits_taken : int, DS_upper_hits_taken : int, DS_upper_successful_attacks : int, DS_lower_successful_attacks : int, maxHP):
+func calculate_fitness(DS_lower_hits_taken : int, DS_upper_hits_taken : int, DS_upper_successful_attacks : int, DS_lower_successful_attacks : int, DS_standing_defended : int, DS_crouching_defended : int, maxHP):
 	var bot_dmg_taken :=(10 * (DS_lower_hits_taken + DS_upper_hits_taken)) 
 	var bot_dmg_output := (10 * (DS_upper_successful_attacks + DS_lower_successful_attacks))
 	
@@ -117,10 +117,13 @@ func calulate_fitness(DS_lower_hits_taken : int, DS_upper_hits_taken : int, DS_u
 	
 	var offensiveness = (0.002 * DS_upper_successful_attacks + 0.002 * DS_lower_successful_attacks)
 #	ADD FIRST THE FUNCTIONALITIES FOR THE CROUCHING AND STANDING DEFENSE
-	#var defensiveness = (0.003 * DS_standing_defended + 0.003 * DS_crouching_defended)
+	var defensiveness = (0.003 * DS_standing_defended + 0.003 * DS_crouching_defended)
 	var penalties = (-0.005 * DS_lower_hits_taken + -0.005 * DS_upper_hits_taken)
-	#var raw = baseline + 0.5 + dmg_score + offensiveness + defensiveness + penalties
-	#return max(0.0, min(1.0, raw))
+	var raw = baseline + 0.5 + dmg_score + offensiveness + defensiveness + penalties
+	return max(0.0, min(1.0, raw))
 	
+func adjust_script_weights(script : Array, fitness: int):
+	
+	pass
 	
 # ADJUST WEIGHTS 

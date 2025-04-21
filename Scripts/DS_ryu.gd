@@ -8,6 +8,8 @@ var lower_hits := 0
 var upper_hits := 0
 var lower_attacks := 0
 var upper_attacks := 0
+var standing_defense := 0
+var crouching_defense := 0
 
 @onready var AI_HP = $DummyHP
 @onready var enemy_animation = $Dummy_Animation
@@ -24,7 +26,9 @@ func _update_hit_text():
 	opp_hit_taken.text = "Lower Hits Taken: %d
 	\nUpper Hits Taken: %d
 	\nLower Attacks Hit: %d
-	\nUpper Attacks Hit: %d" % [lower_hits, upper_hits, lower_attacks, upper_attacks]
+	\nUpper Attacks Hit: %d
+	\nStanding Defense: %d
+	\nCrouching Defense: %d" % [lower_hits, upper_hits, lower_attacks, upper_attacks, standing_defense, crouching_defense]
 
 func update_facing_direction():
 	if player.position.x > position.x:
@@ -63,6 +67,10 @@ func _on_dummy_lower_hurtbox_area_entered(area: Area2D) -> void:
 	if area.name == "Hitbox":
 		if enemy_animation.current_animation == "standing_defense" or enemy_animation.current_animation == "crouching_defense":
 			damageClass.take_damage(7)
+			if enemy_animation.current_animation == "standing_defense":
+				standing_defense += 1
+			elif enemy_animation.current_animation == "crouching_defense":
+				crouching_defense += 1
 		else:
 			damageClass.take_damage(10)
 		lower_hits += 1
@@ -72,6 +80,10 @@ func _on_dummy_upper_hurtbox_area_entered(area: Area2D) -> void:
 	if area.name == "Hitbox":
 		if enemy_animation.current_animation == "standing_defense" or enemy_animation.current_animation == "crouching_defense":
 			damageClass.take_damage(7)
+			if enemy_animation.current_animation == "standing_defense":
+				standing_defense += 1
+			elif enemy_animation.current_animation == "crouching_defense":
+				crouching_defense += 1
 		else:
 			damageClass.take_damage(10)
 		upper_hits += 1
@@ -99,7 +111,7 @@ func _process_timer():
 	# Connect the timeout signal to our update function
 	_update_timer.timeout.connect(_on_update_timer_timeout)
 
-	# 4. Add the Timer as a child of this node so it gets processed by the scene tree
+	# 4. Add the Timer accs a child of this node so it gets processed by the scene tree
 	add_child(_update_timer)
 
 	# Start the timer (if autostart is false or you want to control it)
@@ -117,11 +129,17 @@ func _exit_tree():
 func _on_update_timer_timeout():
 	print("Timer timeout: Updating AI script...")
 #	LOWER AND UPPER SUCCESSFUL ATTACKS AND HITS TAKEN AS METRICS, 100 AS THE FULL HP
-	#rule_engine.calculate_fitness(lower_hits, upper_hits, upper_attacks, lower_attacks, 100)
+	var fitness = rule_engine.calculate_fitness(lower_hits, upper_hits, upper_attacks, lower_attacks, standing_defense, crouching_defense, 100)
+	print(fitness)
+	var script = rules_base.get_DScript()
+	rule_engine.adjust_script_weights(script, fitness)
+	
 	lower_hits = 0
 	upper_hits = 0
 	upper_attacks = 0
 	lower_attacks = 0
+	standing_defense = 0
+	crouching_defense = 0
 	_update_hit_text()
 	
 	#rules_base.generate_and_update_script()
