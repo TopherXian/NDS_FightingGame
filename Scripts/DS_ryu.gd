@@ -61,13 +61,19 @@ func _physics_process(delta):
 
 func _on_dummy_lower_hurtbox_area_entered(area: Area2D) -> void:
 	if area.name == "Hitbox":
-		damageClass.take_damage()
+		if enemy_animation.current_animation == "standing_defense" or enemy_animation.current_animation == "crouching_defense":
+			damageClass.take_damage(7)
+		else:
+			damageClass.take_damage(10)
 		lower_hits += 1
 		_update_hit_text()
 
 func _on_dummy_upper_hurtbox_area_entered(area: Area2D) -> void:
 	if area.name == "Hitbox":
-		damageClass.take_damage()
+		if enemy_animation.current_animation == "standing_defense" or enemy_animation.current_animation == "crouching_defense":
+			damageClass.take_damage(7)
+		else:
+			damageClass.take_damage(10)
 		upper_hits += 1
 		_update_hit_text()
 		

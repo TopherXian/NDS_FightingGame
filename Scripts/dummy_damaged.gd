@@ -10,8 +10,8 @@ func init(anim: AnimationPlayer, hp: ProgressBar, enemy_instance: CharacterBody2
 	anim_player = anim
 	enemy = enemy_instance
 
-func take_damage() -> void:
-	hp_bar.value -= 10
+func take_damage(damage_value: int) -> void:
+	hp_bar.value -= damage_value
 	enemy.velocity.x = -10
 	enemy.velocity.y = 0
 	anim_player.play("hurt")
