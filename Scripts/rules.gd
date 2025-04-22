@@ -2,186 +2,165 @@
 extends Node
 class_name Rules
 
-@export var script_count : int = 6       
+@export var script_count : int = 12      
 
 var rules: Array = [
+	# --- Original Rules (1-11) ---
 	{
 		"ruleID": 1,
-		"conditions": {
-			"player_anim": "walk_forward",
-			"distance": { "op": ">=", "value": 100 },
-			"upper_hits": { "op": ">=", "value": 1 },
-			"lower_hits": { "op": "<", "value": 1 }
-		},
-		"enemy_action": "walk_forward",
-		"weight": 0.5,
-		"wasUsed": false,
-		"inScript": false
+		"conditions": { "player_anim": "walk_forward", "distance": { "op": ">=", "value": 100 }, "upper_hits": { "op": ">=", "value": 1 }, "lower_hits": { "op": "<", "value": 1 } },
+		"enemy_action": "walk_forward", "weight": 0.5, "wasUsed": false, "inScript": false
 	},
 	{
 		"ruleID": 2,
-		"conditions": {
-			"player_anim": "walk_forward",
-			"distance": { "op": "<=", "value": 100 },
-			"upper_hits": { "op": ">=", "value": 0 },
-			"lower_hits": { "op": ">=", "value": 0 }
-		},
-		"enemy_action": "basic_kick",
-		"weight": 0.5,
-		"wasUsed": false,
-		"inScript": false
+		"conditions": { "player_anim": "walk_forward", "distance": { "op": "<=", "value": 100 }, "upper_hits": { "op": ">=", "value": 0 }, "lower_hits": { "op": ">=", "value": 0 } },
+		"enemy_action": "basic_kick", "weight": 0.8, "wasUsed": false, "inScript": false # Increased weight
 	},
 	{
 		"ruleID": 3,
-		"conditions": {
-			"player_anim": "basic_punch",
-			"distance": { "op": "<=", "value": 50 },
-			"upper_hits": { "op": ">=", "value": 4 },
-			"lower_hits": { "op": ">=", "value": 0 }
-		},
-		"enemy_action": "walk_backward",
-		"weight": 0.5,
-		"wasUsed": false,
-		"inScript": false
+		"conditions": { "player_anim": "basic_punch", "distance": { "op": "<=", "value": 50 }, "upper_hits": { "op": ">=", "value": 4 }, "lower_hits": { "op": ">=", "value": 0 } },
+		"enemy_action": "walk_backward", "weight": 0.6, "wasUsed": false, "inScript": false
 	},
 	{
 		"ruleID": 4,
-		"conditions": {
-			"player_anim": "basic_kick",
-			"distance": { "op": "<=", "value": 100 },
-			"upper_hits": { "op": ">=", "value": 2 },
-			"lower_hits": { "op": ">=", "value": 0 }
-		},
-		"enemy_action": "standing_defense",
-		"weight": 0.5,
-		"wasUsed": false,
-		"inScript": false
+		"conditions": { "player_anim": "basic_kick", "distance": { "op": "<=", "value": 100 }, "upper_hits": { "op": ">=", "value": 2 }, "lower_hits": { "op": ">=", "value": 0 } },
+		"enemy_action": "standing_defense", "weight": 0.7, "wasUsed": false, "inScript": false
 	},
 	{
 		"ruleID": 5,
-		"conditions": {
-			"player_anim": "basic_punch",
-			"distance": { "op": "<=", "value": 83 },
-			"upper_hits": { "op": ">=", "value": 0 },
-			"lower_hits": { "op": ">=", "value": 0 }
-
-		},
-		"enemy_action": "basic_kick",
-		"weight": 0.5,
-		"wasUsed": false,
-		"inScript": false
+		"conditions": { "player_anim": "basic_punch", "distance": { "op": "<=", "value": 83 }, "upper_hits": { "op": ">=", "value": 0 }, "lower_hits": { "op": ">=", "value": 0 } },
+		"enemy_action": "basic_kick", "weight": 0.9, "wasUsed": false, "inScript": false # Increased weight
 	},
 	{
 		"ruleID": 6,
-		"conditions": {
-			"player_anim": "crouch_kick",
-			"distance": { "op": "<=", "value": 100 },
-			"upper_hits": { "op": ">=", "value": 0 },
-			"lower_hits": { "op": ">=", "value": 1 }
-		},
-		"enemy_action": "crouching_defense",
-		"weight": 0.5,
-		"wasUsed": false,
-		"inScript": false
+		"conditions": { "player_anim": "crouch_kick", "distance": { "op": "<=", "value": 100 }, "upper_hits": { "op": ">=", "value": 0 }, "lower_hits": { "op": ">=", "value": 1 } },
+		"enemy_action": "crouching_defense", "weight": 0.4, "wasUsed": false, "inScript": false
 	},
 	{
 		"ruleID": 7,
-		"conditions": {
-			"player_anim": "crouch_punch",
-			"distance": { "op": "<=", "value": 83 },
-			"upper_hits": { "op": ">=", "value": 0 },
-			"lower_hits": { "op": ">=", "value": 1 }
-		},
-		"enemy_action": "crouching_defense",
-		"weight": 0.5,
-		"wasUsed": false,
-		"inScript": false
+		"conditions": { "player_anim": "crouch_punch", "distance": { "op": "<=", "value": 83 }, "upper_hits": { "op": ">=", "value": 0 }, "lower_hits": { "op": ">=", "value": 1 } },
+		"enemy_action": "crouching_defense", "weight": 0.45, "wasUsed": false, "inScript": false
 	},
 	{
 		"ruleID": 8,
-		"conditions": {
-			"player_anim": "crouch_kick",
-			"distance": { "op": ">=", "value": 100 },
-			"upper_hits": { "op": ">=", "value": 0 },
-			"lower_hits": { "op": ">=", "value": 1 }
-		},
-		"enemy_action": "crouching_defense",
-		"weight": 0.5,
-		"wasUsed": false,
-		"inScript": false
+		"conditions": { "player_anim": "crouch_kick", "distance": { "op": ">=", "value": 100 }, "upper_hits": { "op": ">=", "value": 0 }, "lower_hits": { "op": ">=", "value": 1 } },
+		"enemy_action": "crouching_defense", "weight": 0.3, "wasUsed": false, "inScript": false
 	},
 	{
 		"ruleID": 9,
-		"conditions": {
-			"player_anim": "crouch_kick",
-			"distance": { "op": "<=", "value": 100 },
-			"upper_hits": { "op": ">=", "value": 0 },
-			"lower_hits": { "op": ">=", "value": 1 }
-		},
-		"enemy_action": "jump",
-		"weight": 0.5,
-		"wasUsed": false,
-		"inScript": false
+		"conditions": { "player_anim": "crouch_kick", "distance": { "op": "<=", "value": 100 }, "upper_hits": { "op": ">=", "value": 0 }, "lower_hits": { "op": ">=", "value": 1 } },
+		"enemy_action": "jump", "weight": 0.35, "wasUsed": false, "inScript": false
 	},
 	{
 		"ruleID": 10,
-		"conditions": {
-			"player_anim": "jump",
-			"distance": { "op": "<=", "value": 100 },
-			"upper_hits": { "op": ">=", "value": 0 },
-			"lower_hits": { "op": ">=", "value": 0 }
-		},
-		"enemy_action": "basic_kick",
-		"weight": 0.5,
-		"wasUsed": false,
-		"inScript": false
+		"conditions": { "player_anim": "jump", "distance": { "op": "<=", "value": 100 }, "upper_hits": { "op": ">=", "value": 0 }, "lower_hits": { "op": ">=", "value": 0 } },
+		"enemy_action": "basic_kick", "weight": 0.75, "wasUsed": false, "inScript": false # Increased weight
 	},
 	{
 		"ruleID": 11,
-		"conditions": {
-			"player_anim": "jump",
-			"distance": { "op": "<=", "value": 83 },
-			"upper_hits": { "op": ">=", "value": 0 },
-			"lower_hits": { "op": ">=", "value": 0 }
-		},
-		"enemy_action": "basic_punch",
-		"weight": 0.5,
-		"wasUsed": false,
-		"inScript": false
+		"conditions": { "player_anim": "jump", "distance": { "op": "<=", "value": 83 }, "upper_hits": { "op": ">=", "value": 0 }, "lower_hits": { "op": ">=", "value": 0 } },
+		"enemy_action": "basic_punch", "weight": 0.85, "wasUsed": false, "inScript": false # Increased weight
+	},
+	# --- New Rules (12-22) ---
+	{
+		"ruleID": 12, # Player walking back, enemy closes distance
+		"conditions": { "player_anim": "walk_backward", "distance": { "op": ">=", "value": 50 }, "upper_hits": { "op": "<=", "value": 1 }, "lower_hits": { "op": "<=", "value": 1 } },
+		"enemy_action": "walk_forward", "weight": 0.6, "wasUsed": false, "inScript": false
+	},
+	{
+		"ruleID": 13, # Player defending high, enemy tries a punch
+		"conditions": { "player_anim": "standing_defense", "distance": { "op": "<=", "value": 70 }, "upper_hits": { "op": ">=", "value": 1 }, "lower_hits": { "op": "<=", "value": 1 } },
+		"enemy_action": "basic_punch", "weight": 0.65, "wasUsed": false, "inScript": false
+	},
+	{
+		"ruleID": 14, # Player defending low, enemy tries a kick (potential counter)
+		"conditions": { "player_anim": "crouching_defense", "distance": { "op": "<=", "value": 90 }, "upper_hits": { "op": "<=", "value": 1 }, "lower_hits": { "op": ">=", "value": 1 } },
+		"enemy_action": "basic_kick", "weight": 0.6, "wasUsed": false, "inScript": false
+	},
+	{
+		"ruleID": 15, # Player walking forward far away, enemy jumps in
+		"conditions": { "player_anim": "walk_forward", "distance": { "op": ">=", "value": 150 }, "upper_hits": { "op": "==", "value": 0 }, "lower_hits": { "op": "==", "value": 0 } },
+		"enemy_action": "jump", "weight": 0.4, "wasUsed": false, "inScript": false
+	},
+	{
+		"ruleID": 16, # Player punch blocked/missed close range, enemy counter punches
+		"conditions": { "player_anim": "basic_punch", "distance": { "op": "<=", "value": 60 }, "upper_hits": { "op": "==", "value": 0 }, "lower_hits": { "op": "==", "value": 0 } },
+		"enemy_action": "basic_punch", "weight": 0.7, "wasUsed": false, "inScript": false
+	},
+	{
+		"ruleID": 17, # Player kick blocked/missed medium range, enemy backs away
+		"conditions": { "player_anim": "basic_kick", "distance": { "op": "<=", "value": 110 }, "upper_hits": { "op": "==", "value": 0 }, "lower_hits": { "op": "==", "value": 0 } },
+		"enemy_action": "walk_backward", "weight": 0.55, "wasUsed": false, "inScript": false
+	},
+	{
+		"ruleID": 18, # Player jumps from far away, enemy walks forward
+		"conditions": { "player_anim": "jump", "distance": { "op": ">=", "value": 120 }, "upper_hits": { "op": "==", "value": 0 }, "lower_hits": { "op": "==", "value": 0 } },
+		"enemy_action": "walk_forward", "weight": 0.6, "wasUsed": false, "inScript": false
+	},
+	{
+		"ruleID": 19, # Player low punch connects often, enemy jumps away
+		"conditions": { "player_anim": "crouch_punch", "distance": { "op": "<=", "value": 70 }, "upper_hits": { "op": "==", "value": 0 }, "lower_hits": { "op": ">=", "value": 3 } },
+		"enemy_action": "jump", "weight": 0.5, "wasUsed": false, "inScript": false
+	},
+	{
+		"ruleID": 20, # Player walking forward taking upper hits, enemy defends high
+		"conditions": { "player_anim": "walk_forward", "distance": { "op": "<=", "value": 120 }, "upper_hits": { "op": ">=", "value": 2 }, "lower_hits": { "op": "<=", "value": 1 } },
+		"enemy_action": "standing_defense", "weight": 0.65, "wasUsed": false, "inScript": false
+	},
+	{
+		"ruleID": 21, # Player defending under pressure, enemy backs off
+		"conditions": { "player_anim": "standing_defense", "distance": { "op": "<=", "value": 50 }, "upper_hits": { "op": ">=", "value": 3 }, "lower_hits": { "op": ">=", "value": 2 } },
+		"enemy_action": "walk_backward", "weight": 0.4, "wasUsed": false, "inScript": false
+	},
+	{
+		"ruleID": 22, # Player kicks from far, enemy closes distance
+		"conditions": { "player_anim": "basic_kick", "distance": { "op": ">=", "value": 130 }, "upper_hits": { "op": "==", "value": 0 }, "lower_hits": { "op": "==", "value": 0 } },
+		"enemy_action": "walk_forward", "weight": 0.55, "wasUsed": false, "inScript": false
 	}
 ]
 
 var current_script: Array
 
 func generate_and_update_script():
+	for rule in rules:
+		if rule.has("inScript"):
+			rule["inScript"] = false
+		else:
+			printerr("Warning: Rule %s is missing 'inScript' key." % rule.get("ruleID", "UNKNOWN"))
+			rule["inScript"] = false # Add it if missing
+
 	if script_count <= 0:
 		current_script = []
-		return
+		print("Script count is zero or negative. No script generated.")
+		return # Exit early
 
-	# Note: For larger rule sets, consider Array.sort_custom() for better performance.
-	var sorted_rules = rules.duplicate() # Use duplicate() for a shallow copy
-	var n = sorted_rules.size()
-	var swapped: bool
-	for i in range(n - 1):
-		swapped = false
-		for j in range(n - i - 1):
-			# Sort descending by weight. Use .get() for safety if 'weight' might be missing.
-			if sorted_rules[j].get("weight", 0.0) < sorted_rules[j+1].get("weight", 0.0):
-				var temp = sorted_rules[j]
-				sorted_rules[j] = sorted_rules[j+1]
-				sorted_rules[j+1] = temp
-				swapped = true
-		if not swapped:
-			break # Optimization: If no swaps, array is sorted
+	# --- Step 2: Sort a *copy* of rules by weight (descending) ---
+	var sorted_rules = rules.duplicate() # Shallow copy is sufficient
+	sorted_rules.sort_custom(func(a, b): 
+		# Sort descending. Handle missing 'weight' key gracefully.
+		return a.get("weight", 0.0) > b.get("weight", 0.0)
+	)
 
-	# Slice to get the top N rules, ensuring we don't request more than available
+	# --- Step 3: Slice to get the top N rules ---
 	var actual_count = min(script_count, sorted_rules.size())
-	current_script = sorted_rules.slice(0, actual_count) # slice(start_inclusive, end_exclusive)
+	# Get the slice containing the dictionaries of the top rules
+	var top_rules_slice = sorted_rules.slice(0, actual_count) 
 
-	print("Generated new script with %d rules." % current_script.size())
-	#print(current_script)
-	# Optional: Print the actual script for debugging
-	# print("New Script:", current_script)
+	# --- Step 4: Modify the 'inScript' flag to true *within the sliced array* ---
+	for rule_in_slice in top_rules_slice:
+		if rule_in_slice.has("inScript"):
+			rule_in_slice["inScript"] = true
+		else:
+			# This shouldn't happen if the original rules have the key, but handle defensively
+			printerr("Warning: Rule %s in slice is missing 'inScript' key." % rule_in_slice.get("ruleID", "UNKNOWN"))
+			rule_in_slice["inScript"] = true # Add and set to true
+
+	# --- Step 5: Assign the modified slice to current_script ---
+	current_script = top_rules_slice
+
+	print("Generated new script with %d rules. 'inScript' set to true within this script." % current_script.size())
+	# Optional: Print the actual script for debugging (notice 'inScript' should be true)
+	#print("New Script:", current_script)
 
 func get_rules() -> Array:
 	return rules

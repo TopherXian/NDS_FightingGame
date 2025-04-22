@@ -54,7 +54,8 @@ func evaluate_and_execute(rules: Array):
 
 		if match_anim and match_dist and (match_upper_hits or match_lower_hits):
 			_execute_action(rule["enemy_action"])
-			#print(rule)
+			rule["wasUsed"] = true
+			print(rule)
 			break
 
 

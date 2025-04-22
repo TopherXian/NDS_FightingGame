@@ -58,14 +58,14 @@ func _ready():
 	
 	rules_base = Rules.new()
 	rule_engine = ScriptCreation.new(player, enemy_animation)
+	rule_engine.set_ai_reference(self)
 	_process_timer()
 
 func _physics_process(delta):
 	update_facing_direction()
 	if not is_on_floor():
 		velocity.y += gravity * delta
-	rule_engine.set_ai_reference(self)
-	rule_engine.evaluate_and_execute(rules_base.get_rules())
+	rule_engine.evaluate_and_execute(rules_base.get_DScript())
 	#print(rule_engine.evaluate_and_execute(rules_base.get_rules()))
 	move_and_slide()
 	
@@ -106,10 +106,8 @@ func _on_dummy_upper_hurtbox_area_entered(area: Area2D) -> void:
 func _on_dummy_hitbox_area_shape_entered(area_rid: RID, area: Area2D, area_shape_index: int, local_shape_index: int) -> void:
 	if area.name == "Upper_Hurtbox":
 		upper_attacks += 1
-		print("UPPER_H")
 	elif area.name == "Lower_Hurtbox":
 		lower_attacks += 1
-		print("LOWER_H")
 	pass # Replace with function body.
 
 
