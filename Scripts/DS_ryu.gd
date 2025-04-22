@@ -11,6 +11,13 @@ var upper_attacks := 0
 var standing_defense := 0
 var crouching_defense := 0
 
+const HITBOX_NAME: StringName = &"Hitbox"
+const STANDING_DEFENSE_ANIM: StringName = &"standing_defense"
+const CROUCHING_DEFENSE_ANIM: StringName = &"crouching_defense"
+
+@export var defense_damage: int = 7
+@export var normal_damage: int = 10
+
 @onready var AI_HP = $DummyHP
 @onready var enemy_animation = $Dummy_Animation
 @onready var player = get_parent().get_node("Player")
@@ -64,30 +71,36 @@ func _physics_process(delta):
 	
 
 func _on_dummy_lower_hurtbox_area_entered(area: Area2D) -> void:
-	if area.name == "Hitbox":
-		if enemy_animation.current_animation == "standing_defense" or enemy_animation.current_animation == "crouching_defense":
-			damageClass.take_damage(7)
-			if enemy_animation.current_animation == "standing_defense":
-				standing_defense += 1
-			elif enemy_animation.current_animation == "crouching_defense":
-				crouching_defense += 1
-		else:
-			damageClass.take_damage(10)
-		lower_hits += 1
-		_update_hit_text()
+	if area.name != HITBOX_NAME:
+		return
+	match enemy_animation.current_animation:
+		STANDING_DEFENSE_ANIM:
+			damageClass.take_damage(defense_damage)
+			standing_defense += 1
+		CROUCHING_DEFENSE_ANIM:
+			damageClass.take_damage(defense_damage)
+			crouching_defense += 1
+		_:
+			damageClass.take_damage(normal_damage)
+			
+	upper_hits += 1
+	_update_hit_text()
 
 func _on_dummy_upper_hurtbox_area_entered(area: Area2D) -> void:
-	if area.name == "Hitbox":
-		if enemy_animation.current_animation == "standing_defense" or enemy_animation.current_animation == "crouching_defense":
-			damageClass.take_damage(7)
-			if enemy_animation.current_animation == "standing_defense":
-				standing_defense += 1
-			elif enemy_animation.current_animation == "crouching_defense":
-				crouching_defense += 1
-		else:
-			damageClass.take_damage(10)
-		upper_hits += 1
-		_update_hit_text()
+	if area.name != HITBOX_NAME:
+		return
+	match enemy_animation.current_animation:
+		STANDING_DEFENSE_ANIM:
+			damageClass.take_damage(defense_damage)
+			standing_defense += 1
+		CROUCHING_DEFENSE_ANIM:
+			damageClass.take_damage(defense_damage)
+			crouching_defense += 1
+		_:
+			damageClass.take_damage(normal_damage)
+			
+	upper_hits += 1
+	_update_hit_text()
 		
 
 func _on_dummy_hitbox_area_shape_entered(area_rid: RID, area: Area2D, area_shape_index: int, local_shape_index: int) -> void:

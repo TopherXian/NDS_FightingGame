@@ -4,6 +4,8 @@ var lower_hits := 0
 var upper_hits := 0
 var lower_attacks := 0
 var upper_attacks := 0
+var standing_defense := 0
+var crouching_defense := 0
 
 @onready var animation = $"Animation"
 @onready var player_hit_taken = get_parent().get_node("PlayerDetails")
@@ -72,14 +74,28 @@ func _update_hit_text():
 	\nUpper Attacks Hit: %d" % [lower_hits, upper_hits, lower_attacks, upper_attacks]
 	
 func _on_upper_hurtbox_area_entered(area: Area2D) -> void:
-	if area.name == "Dummy_Hitbox":
-		damaged_system.take_damage(10)
+		if area.name == "Dummy_Hitbox":
+			if animation.current_animation == "standing_defense" or animation.current_animation == "crouching_defense":
+				damaged_system.take_damage(7)
+				if animation.current_animation == "standing_defense":
+					standing_defense += 1
+				elif animation.current_animation == "crouching_defense":
+					crouching_defense += 1
+		else:
+			damaged_system.take_damage(10)
 		upper_hits += 1
 		_update_hit_text()
 
 func _on_lower_hurtbox_area_entered(area: Area2D) -> void:
 	if area.name == "Dummy_Hitbox":
-		damaged_system.take_damage(10)
+		if animation.current_animation == "standing_defense" or animation.current_animation == "crouching_defense":
+			damaged_system.take_damage(7)
+			if animation.current_animation == "standing_defense":
+				standing_defense += 1
+			elif animation.current_animation == "crouching_defense":
+				crouching_defense += 1
+		else:
+			damaged_system.take_damage(10)
 		lower_hits += 1
 		_update_hit_text()
 
@@ -98,4 +114,6 @@ func _on_timer_timeout() -> void:
 	upper_hits = 0
 	upper_attacks = 0
 	lower_attacks = 0
+	standing_defense = 0
+	crouching_defense = 0
 	_update_hit_text()
