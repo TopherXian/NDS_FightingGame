@@ -9,6 +9,7 @@ var ai_self
 var baseline = 0.5
 var WMAX = 1.0
 var WMIN = 0.1
+var scaling_factor = 0.1
 
 var speed = 150
 
@@ -55,7 +56,7 @@ func evaluate_and_execute(rules: Array):
 		if match_anim and match_dist and (match_upper_hits or match_lower_hits):
 			_execute_action(rule["enemy_action"])
 			rule["wasUsed"] = true
-			print(rule)
+			#print(rule)
 			break
 
 
@@ -124,7 +125,36 @@ func calculate_fitness(DS_lower_hits_taken : int, DS_upper_hits_taken : int, DS_
 	return max(0.0, min(1.0, raw))
 	
 func adjust_script_weights(script : Array, fitness: int):
+	var adjustment = (fitness - baseline) * scaling_factor
+	var used_rules = []
+	var unused_rules = []
+	for rules in script:
+		if rules["wasUsed"] == true:
+			used_rules.append(rules)
+		elif rules["wasUsed"] == false:
+			unused_rules.append(rules)
+		else:
+			return script
+	var compensation = (len(used_rules) * adjustment) / len(unused_rules)
 	
-	pass
+	for rules in script:
+		if rules.get("wasUsed") == true:
+			rules["weight"] += adjustment
+		else:
+			rules["weight"] += compensation
+	# Clamp weight between WMIN and WMAX
+		rules["weight"] = clamp(rules["weight"], WMIN, WMAX)
+	print(script)
+	return script
 	
-# ADJUST WEIGHTS 
+func update_rulebase(rulebase: Array, script: Array) -> Array:
+	
+	var script_dict := {}
+	# Build dictionary from script using ruleID as key
+	for r in script:
+		script_dict[r["ruleID"]] = r
+	# Update rulebase weights from script_dict
+	for r in rulebase:
+		if script_dict.has(r["ruleID"]):
+			r["weight"] = script_dict[r["ruleID"]]["weight"]
+	return rulebase

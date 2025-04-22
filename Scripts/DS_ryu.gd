@@ -139,12 +139,14 @@ func _exit_tree():
 # --- Timer Callback Function ---
 func _on_update_timer_timeout():
 	print("Timer timeout: Updating AI script...")
+	var rulebase = rules_base.get_rules()
 #	LOWER AND UPPER SUCCESSFUL ATTACKS AND HITS TAKEN AS METRICS, 100 AS THE FULL HP
 	var fitness = rule_engine.calculate_fitness(lower_hits, upper_hits, upper_attacks, lower_attacks, standing_defense, crouching_defense, 100)
 	print(fitness)
 	var script = rules_base.get_DScript()
-	rule_engine.adjust_script_weights(script, fitness)
-	
+
+	var updated_weights = rule_engine.adjust_script_weights(script, fitness)
+	rule_engine.update_rulebase(rulebase, updated_weights)
 	lower_hits = 0
 	upper_hits = 0
 	upper_attacks = 0
