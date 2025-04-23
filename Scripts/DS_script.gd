@@ -129,8 +129,7 @@ func append_executed_rule(rule: Dictionary) -> void:
 	var id = rule["ruleID"]
 	
 	if not executed_rules.has(id):
-		executed_rules[id] = {"ruleID": rule["ruleID"], "weight": rule["weight"]} 
-		#executed_rules[id] = rule # pwede man ari I-log for full details
+		executed_rules[id] = rule
 
 func get_executed_rules() -> Array:
 	return executed_rules.values()

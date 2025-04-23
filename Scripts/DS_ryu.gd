@@ -172,48 +172,23 @@ func append_script_to_log() -> void:
 	var file = FileAccess.open(log_file_path, FileAccess.READ_WRITE)
 	
 	var executed_rules = rule_engine.get_executed_rules()
-	
+	executed_rules = JSON.stringify(executed_rules)
+	var stringtified_latest_script = JSON.stringify(latest_script)
+	print(executed_rules)
 	if file:
 		file.seek_end() # Move to the end to append
 		var timestamp = Time.get_datetime_string_from_system(false, true) 
 
-		# --- Custom Formatting Logic ---
-		# 1. Start building the string list for the rules
-		var rule_lines: PackedStringArray = [] # Use PackedStringArray for efficiency
-
-		# 2. Iterate through each rule dictionary in the input array
-		for rule in executed_rules:
-			# Check if it's a dictionary with the required keys
-			if rule is Dictionary and rule.has("ruleID") and rule.has("weight"):
-				var id = rule["ruleID"]
-				var weight = rule["weight"]
-				
-				# Format the string for this rule according to the desired format
-				# Note: Fixed the likely typo "weight"" to "\"weight\""
-				# Adjust float formatting (e.g., "%.4f" % weight) if needed
-				var formatted_line = "\t\t\"ruleID\": %s, \"weight\": %s" % [id, weight] 
-				rule_lines.append(formatted_line)
-			else:
-				# Optional: Add a placeholder for invalid entries
-				rule_lines.append("\t\t[Invalid/Incomplete Rule Data: %s]" % str(rule))
-
-		# 3. Join the formatted lines with newline characters
-		# This creates one large string block with internal newlines
-		var combined_rules_string = "\n".join(rule_lines) 
-
-		# --- Writing to File ---
-		# Write the timestamp header
+		file.store_line("--- Script Generated ---")
+		if not executed_rules.is_empty():
+			file.store_line(stringtified_latest_script)
+			
 		file.store_line("--- %s | Timestamp: %s ---" % ["Rules Used Log", timestamp])
 		
 		# Write the combined formatted rule string block
 		# store_line is fine here as combined_rules_string contains the newlines
-		if not combined_rules_string.is_empty():
-			file.store_line(combined_rules_string)
-
-		# Add an extra newline *after* the block for visual separation in the log file
-		# Only add if we actually wrote content
-		if not combined_rules_string.is_empty():
-			file.store_line("") 
+		if not executed_rules.is_empty():
+			file.store_line(executed_rules)
 
 		file.close() 
 		# print("Successfully appended custom formatted script state to log: ", log_file_path)
