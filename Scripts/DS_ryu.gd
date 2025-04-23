@@ -11,6 +11,8 @@ var upper_attacks := 0
 var standing_defense := 0
 var crouching_defense := 0
 
+var log_messages := []
+
 const HITBOX_NAME: StringName = &"Hitbox"
 const STANDING_DEFENSE_ANIM: StringName = &"standing_defense"
 const CROUCHING_DEFENSE_ANIM: StringName = &"crouching_defense"
@@ -23,6 +25,8 @@ const CROUCHING_DEFENSE_ANIM: StringName = &"crouching_defense"
 @onready var player = get_parent().get_node("Player")
 @onready var player_animation = player.get_node("Animation")
 @onready var opp_hit_taken = get_parent().get_node("OpponentDetails") 
+@onready var playerHP = player.get_node("PlayerHP")
+
 @export var update_interval : float = 4.0
 var _update_timer: Timer
 var rule_engine  # ScriptCreation instance
@@ -70,8 +74,14 @@ func _physics_process(delta):
 		velocity.y += gravity * delta
 	rule_engine.evaluate_and_execute(latest_script)
 	#print(rule_engine.evaluate_and_execute(rules_base.get_rules()))
-	move_and_slide()
 	
+	move_and_slide()
+
+func _process(delta):
+	var current_hp = playerHP.value
+	if current_hp <= 0 or Starthp <= 0:
+		save_training_log()
+		get_tree().quit()
 
 func _on_dummy_lower_hurtbox_area_entered(area: Area2D) -> void:
 	if area.name != HITBOX_NAME:
@@ -152,13 +162,18 @@ func _on_update_timer_timeout():
 	standing_defense = 0
 	crouching_defense = 0
 	_update_hit_text()
-	
 	get_latest_script()
 	
-	#rules_base.generate_and_update_script()
-	#for r in rules_base.generate_and_update_script():
-		#r["wasUsed"] = int(randomize(0))
-
 func get_latest_script() -> void:
 	rules_base.generate_and_update_script()
 	latest_script = rules_base.get_DScript()
+	print(latest_script)
+
+func log_message(latest_script: Array) -> void:
+	log_messages.append(latest_script)
+
+func save_training_log() -> void:
+	var file := FileAccess.open("res://training.txt", FileAccess.WRITE)
+	for msg in log_messages:
+		file.store_line(msg)
+	file.close()

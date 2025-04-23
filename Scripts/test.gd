@@ -21,11 +21,11 @@ func _ready():
 
 func _on_dummy_lower_hurtbox_area_entered(area: Area2D) -> void:
 	if area.name == "Hitbox":
-		damageClass.take_damage()
+		damageClass.take_damage(10)
 		
 func _on_dummy_upper_hurtbox_area_entered(area: Area2D) -> void:
 	if area.name == "Hitbox":
-		damageClass.take_damage()
+		damageClass.take_damage(10)
 
 func update_facing_direction():
 	if enemy.position.x > position.x:

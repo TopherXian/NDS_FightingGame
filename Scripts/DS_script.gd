@@ -61,7 +61,7 @@ func evaluate_and_execute(rules: Array):
 		if match_all:
 			_execute_action(rule["enemy_action"])
 			rule["wasUsed"] = true
-			print("Executing Rule ID:", rule.get("ruleID", "UNKNOWN"))
+			#print("Executing Rule ID:", rule.get("ruleID", "UNKNOWN"), "Weight: ", rule.get("weight", "UNKOWN"))
 			break # Execute only the first matching rule
 
 
