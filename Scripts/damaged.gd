@@ -16,7 +16,10 @@ func take_damage(amount: int):
 
 	hp_bar.value -= amount
 	if hp_bar.value > 0:
+		player.velocity.x = -10
+		player.velocity.y = 0
 		animation_player.play("hurt")
+		
 	else:
 		is_knocked_down = true
-		animation_player.play("knockdown")
+		animation_player.play("knocked_down")

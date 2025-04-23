@@ -1,0 +1,67 @@
+[gd_scene load_steps=2 format=3 uid="uid://bkkf60aapjatx"]
+
+[ext_resource type="Script" uid="uid://bgek1qknybw0w" path="res://Scripts/Menu_Buttons/main_menu_buttons.gd" id="1_06t4h"]
+
+[node name="Main_Menu" type="Node2D"]
+script = ExtResource("1_06t4h")
+
+[node name="Dynamic Scripting" type="Button" parent="."]
+offset_left = 43.0
+offset_top = 85.0
+offset_right = 229.0
+offset_bottom = 150.0
+text = "Dynamic Scripting"
+
+[node name="Decision Trees" type="Button" parent="."]
+offset_left = 238.0
+offset_top = 85.0
+offset_right = 424.0
+offset_bottom = 150.0
+text = "Decision Trees"
+
+[node name="Player" type="Button" parent="."]
+offset_left = 433.0
+offset_top = 85.0
+offset_right = 619.0
+offset_bottom = 150.0
+text = "Player"
+
+[node name="Neuro-Dynamic Scripting" type="Button" parent="."]
+offset_left = 630.0
+offset_top = 84.0
+offset_right = 816.0
+offset_bottom = 149.0
+text = "Neuro-Dynamic Scripting"
+
+[node name="Dynamic Scripting2" type="Button" parent="."]
+offset_left = 43.0
+offset_top = 352.0
+offset_right = 229.0
+offset_bottom = 417.0
+text = "Dynamic Scripting"
+
+[node name="Decision Trees2" type="Button" parent="."]
+offset_left = 238.0
+offset_top = 352.0
+offset_right = 424.0
+offset_bottom = 417.0
+text = "Decision Trees"
+
+[node name="Player2" type="Button" parent="."]
+offset_left = 433.0
+offset_top = 352.0
+offset_right = 619.0
+offset_bottom = 417.0
+text = "Player"
+
+[node name="Neuro-Dynamic Scripting2" type="Button" parent="."]
+offset_left = 630.0
+offset_top = 351.0
+offset_right = 832.0
+offset_bottom = 416.0
+text = "Neuro-Dynamic Scripting"
+
+[connection signal="pressed" from="Dynamic Scripting" to="." method="_on_dynamic_scripting_pressed"]
+[connection signal="pressed" from="Decision Trees" to="." method="_on_decision_trees_pressed"]
+[connection signal="pressed" from="Player" to="." method="_on_player_pressed"]
+[connection signal="pressed" from="Neuro-Dynamic Scripting" to="." method="_on_neuro_dynamic_scripting_pressed"]

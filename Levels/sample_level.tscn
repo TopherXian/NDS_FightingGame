@@ -538,7 +538,7 @@ size = Vector2(20, 203)
 size = Vector2(20, 204)
 
 [node name="Node2D" type="Node2D"]
-position = Vector2(219, 122)
+position = Vector2(405, 232)
 script = ExtResource("1_g5jrl")
 
 [node name="TileMap" type="TileMap" parent="."]
@@ -564,9 +564,7 @@ position = Vector2(-1, 93)
 shape = SubResource("RectangleShape2D_4ll3w")
 
 [node name="Player" parent="." instance=ExtResource("2_4ll3w")]
-
-[node name="Dummy_Ryu" parent="." instance=ExtResource("3_4ll3w")]
-position = Vector2(150, 5)
+position = Vector2(-77, 0)
 
 [node name="StaticBody2D2" type="StaticBody2D" parent="."]
 
@@ -579,3 +577,40 @@ shape = SubResource("RectangleShape2D_g5jrl")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D3"]
 position = Vector2(224, -18)
 shape = SubResource("RectangleShape2D_ma6ne")
+
+[node name="Dummy_Ryu" parent="." instance=ExtResource("3_4ll3w")]
+position = Vector2(87, 3)
+
+[node name="TimerLabel" type="Label" parent="."]
+offset_left = -29.0
+offset_top = -103.0
+offset_right = 11.0
+offset_bottom = -80.0
+text = "90"
+horizontal_alignment = 1
+vertical_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 91.0
+autostart = true
+
+[node name="PlayerDetails" type="Label" parent="."]
+offset_left = -206.0
+offset_top = -109.0
+offset_right = -166.0
+offset_bottom = -86.0
+text = "Player"
+
+[node name="OpponentDetails" type="Label" parent="."]
+offset_left = 29.0
+offset_top = -108.0
+offset_right = 108.0
+offset_bottom = -85.0
+text = "Lower Hits Taken: 
+Upper Hits Taken:
+Lower Attacks Hit: 
+Upper Attacks Hit:
+Standing Defense:
+Crouching Defense: "
+horizontal_alignment = 2
