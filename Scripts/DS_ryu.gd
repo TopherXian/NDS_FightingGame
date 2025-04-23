@@ -11,8 +11,6 @@ var upper_attacks := 0
 var standing_defense := 0
 var crouching_defense := 0
 
-var log_messages := []
-
 const HITBOX_NAME: StringName = &"Hitbox"
 const STANDING_DEFENSE_ANIM: StringName = &"standing_defense"
 const CROUCHING_DEFENSE_ANIM: StringName = &"crouching_defense"
@@ -32,7 +30,7 @@ var _update_timer: Timer
 var rule_engine  # ScriptCreation instance
 var rules_base   # Rules instance
 var damageClass: DummyDamaged
-var latest_script
+var latest_script: Array
 
 func _update_hit_text():
 	opp_hit_taken.text = "Lower Hits Taken: %d
@@ -80,7 +78,7 @@ func _physics_process(delta):
 func _process(delta):
 	var current_hp = playerHP.value
 	if current_hp <= 0 or Starthp <= 0:
-		save_training_log()
+		append_script_to_log()
 		get_tree().quit()
 
 func _on_dummy_lower_hurtbox_area_entered(area: Area2D) -> void:
@@ -163,17 +161,64 @@ func _on_update_timer_timeout():
 	crouching_defense = 0
 	_update_hit_text()
 	get_latest_script()
+	append_script_to_log()
 	
 func get_latest_script() -> void:
 	rules_base.generate_and_update_script()
 	latest_script = rules_base.get_DScript()
-	print(latest_script)
 
-func log_message(latest_script: Array) -> void:
-	log_messages.append(latest_script)
+func append_script_to_log() -> void:
+	var log_file_path := "res://training.txt" 
+	var file = FileAccess.open(log_file_path, FileAccess.READ_WRITE)
+	
+	var executed_rules = rule_engine.get_executed_rules()
+	
+	if file:
+		file.seek_end() # Move to the end to append
+		var timestamp = Time.get_datetime_string_from_system(false, true) 
 
-func save_training_log() -> void:
-	var file := FileAccess.open("res://training.txt", FileAccess.WRITE)
-	for msg in log_messages:
-		file.store_line(msg)
-	file.close()
+		# --- Custom Formatting Logic ---
+		# 1. Start building the string list for the rules
+		var rule_lines: PackedStringArray = [] # Use PackedStringArray for efficiency
+
+		# 2. Iterate through each rule dictionary in the input array
+		for rule in executed_rules:
+			# Check if it's a dictionary with the required keys
+			if rule is Dictionary and rule.has("ruleID") and rule.has("weight"):
+				var id = rule["ruleID"]
+				var weight = rule["weight"]
+				
+				# Format the string for this rule according to the desired format
+				# Note: Fixed the likely typo "weight"" to "\"weight\""
+				# Adjust float formatting (e.g., "%.4f" % weight) if needed
+				var formatted_line = "\t\t\"ruleID\": %s, \"weight\": %s" % [id, weight] 
+				rule_lines.append(formatted_line)
+			else:
+				# Optional: Add a placeholder for invalid entries
+				rule_lines.append("\t\t[Invalid/Incomplete Rule Data: %s]" % str(rule))
+
+		# 3. Join the formatted lines with newline characters
+		# This creates one large string block with internal newlines
+		var combined_rules_string = "\n".join(rule_lines) 
+
+		# --- Writing to File ---
+		# Write the timestamp header
+		file.store_line("--- %s | Timestamp: %s ---" % ["Rules Used Log", timestamp])
+		
+		# Write the combined formatted rule string block
+		# store_line is fine here as combined_rules_string contains the newlines
+		if not combined_rules_string.is_empty():
+			file.store_line(combined_rules_string)
+
+		# Add an extra newline *after* the block for visual separation in the log file
+		# Only add if we actually wrote content
+		if not combined_rules_string.is_empty():
+			file.store_line("") 
+
+		file.close() 
+		# print("Successfully appended custom formatted script state to log: ", log_file_path)
+	else:
+		var error_code = FileAccess.get_open_error()
+		print(error_code)
+
+	rule_engine.clear_executed_rules()

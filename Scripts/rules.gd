@@ -171,7 +171,7 @@ func get_rules() -> Array:
 	return rules
 
 func get_DScript() -> Array:
-		#print(current_script)
+		#print(current_script) 
 		return current_script
 # --- Optional: Add functions to modify rules or weights if needed ---
 # func update_rule_weight(rule_id: int, new_weight: float):

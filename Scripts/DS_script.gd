@@ -6,6 +6,8 @@ var player_anim
 var animation
 var ai_self
 
+var executed_rules: Dictionary = {}
+
 var speed = 150
 
 func _init(enemy_ref, enemy_anim):
@@ -61,6 +63,8 @@ func evaluate_and_execute(rules: Array):
 		if match_all:
 			_execute_action(rule["enemy_action"])
 			rule["wasUsed"] = true
+			append_executed_rule(rule)
+			#print(rule)
 			#print("Executing Rule ID:", rule.get("ruleID", "UNKNOWN"), "Weight: ", rule.get("weight", "UNKOWN"))
 			break # Execute only the first matching rule
 
@@ -115,4 +119,21 @@ func _execute_action(action: String):
 				ai_self.velocity.y = -400
 		_:
 			animation.play("idle")
-			ai_self.velocity.x = 0
+			ai_self.velocity.x = 0 
+
+func append_executed_rule(rule: Dictionary) -> void:
+	if not rule is Dictionary or not rule.has("ruleID"):
+		printerr("Invalid rule format passed to append_executed_rule: ", rule)
+		return
+
+	var id = rule["ruleID"]
+	
+	if not executed_rules.has(id):
+		executed_rules[id] = {"ruleID": rule["ruleID"], "weight": rule["weight"]} 
+		#executed_rules[id] = rule # pwede man ari I-log for full details
+
+func get_executed_rules() -> Array:
+	return executed_rules.values()
+
+func clear_executed_rules() -> void:
+	executed_rules.clear()

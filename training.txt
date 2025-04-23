@@ -1,0 +1,32 @@
+
+
+--- Rules Used Log | Timestamp: 2025-04-23 18:39:19 ---
+		"ruleID": 18, "weight": 0.6
+		"ruleID": 5, "weight": 0.9
+		"ruleID": 12, "weight": 0.6
+		"ruleID": 20, "weight": 0.65
+		"ruleID": 2, "weight": 0.8
+		"ruleID": 4, "weight": 0.7
+
+
+
+--- Rules Used Log | Timestamp: 2025-04-23 18:39:23 ---
+		"ruleID": 12, "weight": 0.5992
+		"ruleID": 11, "weight": 0.8492
+		"ruleID": 10, "weight": 0.7492
+
+
+
+--- Rules Used Log | Timestamp: 2025-04-23 18:39:27 ---
+		"ruleID": 10, "weight": 0.7473
+
+--- Rules Used Log | Timestamp: 2025-04-23 18:40:00 ---
+		"ruleID": 18, "weight": 0.6
+		"ruleID": 5, "weight": 0.9
+		"ruleID": 4, "weight": 0.7
+
+
+--- Rules Used Log | Timestamp: 2025-04-23 18:40:03 ---
+		"ruleID": 12, "weight": 0.59953333333333
+		"ruleID": 5, "weight": 0.8986
+
