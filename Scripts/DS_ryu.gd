@@ -61,6 +61,7 @@ func _ready():
 	rule_engine = ScriptCreation.new(player, enemy_animation)
 	rule_engine.set_ai_reference(self)
 	get_latest_script()
+	print("Rules node ready. Initial script generated.")
 	_process_timer()
 
 func _physics_process(delta):
@@ -85,7 +86,7 @@ func _on_dummy_lower_hurtbox_area_entered(area: Area2D) -> void:
 		_:
 			damageClass.take_damage(normal_damage)
 			
-	upper_hits += 1
+	lower_hits += 1
 	_update_hit_text()
 
 func _on_dummy_upper_hurtbox_area_entered(area: Area2D) -> void:
@@ -130,10 +131,6 @@ func _process_timer():
 	# Start the timer (if autostart is false or you want to control it)
 	_update_timer.start()
 
-	# Generate the first script immediately so it's not empty at the start
-	rules_base.generate_and_update_script() 
-	print("Rules node ready. Initial script generated.")
-
 func _exit_tree():
 	if _update_timer and _update_timer.is_connected("timeout", Callable(self,"_on_update_timer_timeout")):
 		_update_timer.timeout.disconnect(Callable(self,"_on_update_timer_timeout"))
@@ -143,12 +140,11 @@ func _on_update_timer_timeout():
 	print("Timer timeout: Updating AI script...")
 	var rulebase = rules_base.get_rules()
 #	LOWER AND UPPER SUCCESSFUL ATTACKS AND HITS TAKEN AS METRICS, 100 AS THE FULL HP
-	var fitness = rule_engine.calculate_fitness(lower_hits, upper_hits, upper_attacks, lower_attacks, standing_defense, crouching_defense, 100)
-	print(fitness)
-	get_latest_script()
+	var fitness = rules_base.calculate_fitness(lower_hits, upper_hits, upper_attacks, lower_attacks, standing_defense, crouching_defense, Starthp)
+	print("fitness: %s" % fitness)
 	
-	var updated_weights = rule_engine.adjust_script_weights(latest_script, fitness)
-	rule_engine.update_rulebase(rulebase, updated_weights)
+	rules_base.adjust_script_weights(fitness) #update weights of the current_script
+	rules_base.update_rulebase()
 	lower_hits = 0
 	upper_hits = 0
 	upper_attacks = 0
@@ -156,6 +152,8 @@ func _on_update_timer_timeout():
 	standing_defense = 0
 	crouching_defense = 0
 	_update_hit_text()
+	
+	get_latest_script()
 	
 	#rules_base.generate_and_update_script()
 	#for r in rules_base.generate_and_update_script():

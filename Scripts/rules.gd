@@ -2,7 +2,12 @@
 extends Node
 class_name Rules
 
-@export var script_count : int = 12      
+@export var script_count : int = 12  
+
+var baseline = 0.5
+var WMAX = 1.0
+var WMIN = 0.1
+var scaling_factor = 0.1    
 
 var rules: Array = [
 	# --- Original Rules (1-11) ---
@@ -166,7 +171,7 @@ func get_rules() -> Array:
 	return rules
 
 func get_DScript() -> Array:
-		print(current_script)
+		#print(current_script)
 		return current_script
 # --- Optional: Add functions to modify rules or weights if needed ---
 # func update_rule_weight(rule_id: int, new_weight: float):
@@ -176,3 +181,52 @@ func get_DScript() -> Array:
 #			 print("Updated weight for rule %d to %f" % [rule_id, new_weight])
 #			 # Note: This change will only reflect in the *next* script generation cycle.
 #			 break
+func calculate_fitness(DS_lower_hits_taken : int, DS_upper_hits_taken : int, DS_upper_successful_attacks : int, DS_lower_successful_attacks : int, DS_standing_defended : int, DS_crouching_defended : int, maxHP):
+	var bot_dmg_taken :=(10 * (DS_lower_hits_taken + DS_upper_hits_taken)) 
+	var bot_dmg_output := (10 * (DS_upper_successful_attacks + DS_lower_successful_attacks))
+	
+	var dmg_score = (bot_dmg_taken - bot_dmg_output)/maxHP
+	
+	var offensiveness = (0.002 * DS_upper_successful_attacks + 0.002 * DS_lower_successful_attacks)
+#	ADD FIRST THE FUNCTIONALITIES FOR THE CROUCHING AND STANDING DEFENSE
+	var defensiveness = (0.003 * DS_standing_defended + 0.003 * DS_crouching_defended)
+	var penalties = (-0.005 * DS_lower_hits_taken + -0.005 * DS_upper_hits_taken)
+	var raw = baseline + dmg_score + offensiveness + defensiveness + penalties
+	return max(0.0, min(1.0, raw))
+	
+func adjust_script_weights(fitness: float) -> void:
+	var adjustment = (fitness - baseline) * scaling_factor
+	var used_rules = []
+	var unused_rules = []
+	var compensation
+	
+	for rules in current_script:
+		if rules["wasUsed"] == true:
+			used_rules.append(rules)
+		elif rules["wasUsed"] == false:
+			unused_rules.append(rules)
+			
+	if len(unused_rules) > 0: # Check if there are any unused rules
+		compensation = (len(used_rules) * adjustment) / float(len(unused_rules)) # Ensure float division
+	else:
+		pass
+	
+	for rule in current_script:
+		if rule.get("wasUsed") == true:
+			rule["weight"] += adjustment
+		else:
+			rule["weight"] += compensation
+	# Clamp weight between WMIN and WMAX
+		rule["weight"] = clamp(rule["weight"], WMIN, WMAX)
+	#print(current_script)
+	
+func update_rulebase() -> void:
+	
+	var script_dict := {}
+	# Build dictionary from script using ruleID as key
+	for r in current_script:
+		script_dict[r["ruleID"]] = r
+	# Update rulebase weights from script_dict
+	for r in rules:
+		if script_dict.has(r["ruleID"]):
+			r["weight"] = script_dict[r["ruleID"]]["weight"]
