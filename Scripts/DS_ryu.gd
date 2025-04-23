@@ -28,6 +28,7 @@ var _update_timer: Timer
 var rule_engine  # ScriptCreation instance
 var rules_base   # Rules instance
 var damageClass: DummyDamaged
+var latest_script
 
 func _update_hit_text():
 	opp_hit_taken.text = "Lower Hits Taken: %d
@@ -59,13 +60,14 @@ func _ready():
 	rules_base = Rules.new()
 	rule_engine = ScriptCreation.new(player, enemy_animation)
 	rule_engine.set_ai_reference(self)
+	get_latest_script()
 	_process_timer()
 
 func _physics_process(delta):
 	update_facing_direction()
 	if not is_on_floor():
 		velocity.y += gravity * delta
-	rule_engine.evaluate_and_execute(rules_base.get_DScript())
+	rule_engine.evaluate_and_execute(latest_script)
 	#print(rule_engine.evaluate_and_execute(rules_base.get_rules()))
 	move_and_slide()
 	
@@ -143,9 +145,9 @@ func _on_update_timer_timeout():
 #	LOWER AND UPPER SUCCESSFUL ATTACKS AND HITS TAKEN AS METRICS, 100 AS THE FULL HP
 	var fitness = rule_engine.calculate_fitness(lower_hits, upper_hits, upper_attacks, lower_attacks, standing_defense, crouching_defense, 100)
 	print(fitness)
-	var script = rules_base.get_DScript()
-
-	var updated_weights = rule_engine.adjust_script_weights(script, fitness)
+	get_latest_script()
+	
+	var updated_weights = rule_engine.adjust_script_weights(latest_script, fitness)
 	rule_engine.update_rulebase(rulebase, updated_weights)
 	lower_hits = 0
 	upper_hits = 0
@@ -158,3 +160,7 @@ func _on_update_timer_timeout():
 	#rules_base.generate_and_update_script()
 	#for r in rules_base.generate_and_update_script():
 		#r["wasUsed"] = int(randomize(0))
+
+func get_latest_script() -> void:
+	rules_base.generate_and_update_script()
+	latest_script = rules_base.get_DScript()

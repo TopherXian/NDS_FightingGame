@@ -144,7 +144,7 @@ func adjust_script_weights(script : Array, fitness: int):
 			rules["weight"] += compensation
 	# Clamp weight between WMIN and WMAX
 		rules["weight"] = clamp(rules["weight"], WMIN, WMAX)
-	print(script)
+	#print(script)
 	return script
 	
 func update_rulebase(rulebase: Array, script: Array) -> Array:
