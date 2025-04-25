@@ -647,7 +647,31 @@ tracks/14/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(-9, -2)]
+"values": [Vector2(39, -37)]
+}
+tracks/15/type = "value"
+tracks/15/imported = false
+tracks/15/enabled = true
+tracks/15/path = NodePath("../Dummy_UpperHurtbox/CollisionShape2D:rotation")
+tracks/15/interp = 1
+tracks/15/loop_wrap = true
+tracks/15/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/16/type = "value"
+tracks/16/imported = false
+tracks/16/enabled = true
+tracks/16/path = NodePath("../CollisionShape2D:rotation")
+tracks/16/interp = 1
+tracks/16/loop_wrap = true
+tracks/16/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
 }
 
 [sub_resource type="Animation" id="Animation_5eeq5"]
@@ -1188,6 +1212,18 @@ tracks/13/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [Vector2(35, -19)]
+}
+tracks/14/type = "value"
+tracks/14/imported = false
+tracks/14/enabled = true
+tracks/14/path = NodePath("../Dummy_LowerHurtbox:position")
+tracks/14/interp = 1
+tracks/14/loop_wrap = true
+tracks/14/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(-4, 17)]
 }
 
 [sub_resource type="Animation" id="Animation_v1hdx"]
@@ -2467,6 +2503,18 @@ tracks/14/keys = {
 "update": 0,
 "values": [Vector2(-9, -37)]
 }
+tracks/15/type = "value"
+tracks/15/imported = false
+tracks/15/enabled = true
+tracks/15/path = NodePath("../Dummy_UpperHurtbox/CollisionShape2D:rotation")
+tracks/15/interp = 1
+tracks/15/loop_wrap = true
+tracks/15/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_hxnh7"]
 radius = 20.0
@@ -2900,6 +2948,30 @@ tracks/15/keys = {
 "update": 0,
 "values": [Vector2(60, -33)]
 }
+tracks/16/type = "value"
+tracks/16/imported = false
+tracks/16/enabled = true
+tracks/16/path = NodePath("../CollisionShape2D:rotation")
+tracks/16/interp = 1
+tracks/16/loop_wrap = true
+tracks/16/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/17/type = "value"
+tracks/17/imported = false
+tracks/17/enabled = true
+tracks/17/path = NodePath("../Dummy_UpperHurtbox/CollisionShape2D:rotation")
+tracks/17/interp = 1
+tracks/17/loop_wrap = true
+tracks/17/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.5708]
+}
 
 [sub_resource type="Animation" id="Animation_cdvxo"]
 resource_name = "walk_backward"
@@ -3294,7 +3366,6 @@ metadata/_edit_group_ = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Dummy_UpperHurtbox"]
 position = Vector2(7, 13)
-rotation = 1.5708
 shape = SubResource("RectangleShape2D_cdvxo")
 
 [node name="Dummy_LowerHurtbox" type="Area2D" parent="."]
@@ -3319,7 +3390,7 @@ position = Vector2(0, 6)
 shape = SubResource("CapsuleShape2D_hxnh7")
 
 [node name="Dummy_Hitbox" type="Area2D" parent="."]
-position = Vector2(-9, -2)
+position = Vector2(39, -37)
 monitoring = false
 monitorable = false
 metadata/_edit_group_ = true

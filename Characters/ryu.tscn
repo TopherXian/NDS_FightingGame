@@ -580,7 +580,7 @@ animations = [{
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_6eweh"]
 radius = 22.0
-height = 98.0
+height = 94.0
 
 [sub_resource type="Animation" id="Animation_dmqg8"]
 length = 0.001
@@ -630,7 +630,7 @@ tracks/3/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(-14, 9)]
+"values": [Vector2(9, 10)]
 }
 tracks/4/type = "value"
 tracks/4/imported = false
@@ -666,7 +666,7 @@ tracks/6/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(-7, 8)]
+"values": [Vector2(-8, 8)]
 }
 tracks/7/type = "value"
 tracks/7/imported = false
@@ -678,7 +678,7 @@ tracks/7/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(-2.5, 10.5)]
+"values": [Vector2(0.5, 11)]
 }
 tracks/8/type = "value"
 tracks/8/imported = false
@@ -690,7 +690,7 @@ tracks/8/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(34, 35)]
+"values": [Vector2(52, 35)]
 }
 tracks/9/type = "value"
 tracks/9/imported = false
@@ -702,7 +702,7 @@ tracks/9/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(39, 51)]
+"values": [Vector2(49, 52)]
 }
 tracks/10/type = "value"
 tracks/10/imported = false
@@ -726,7 +726,7 @@ tracks/11/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(20.1908, 1.01848)]
+"values": [Vector2(-1.2042, 1.01848)]
 }
 tracks/12/type = "value"
 tracks/12/imported = false
@@ -738,7 +738,7 @@ tracks/12/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [-0.378736]
+"values": [0.0]
 }
 tracks/13/type = "value"
 tracks/13/imported = false
@@ -750,7 +750,7 @@ tracks/13/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(59.1984, 13.1926)]
+"values": [Vector2(16.4084, 13.1926)]
 }
 tracks/14/type = "value"
 tracks/14/imported = false
@@ -762,7 +762,7 @@ tracks/14/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [false]
+"values": [true]
 }
 tracks/15/type = "value"
 tracks/15/imported = false
@@ -774,7 +774,7 @@ tracks/15/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [false]
+"values": [true]
 }
 tracks/16/type = "value"
 tracks/16/imported = false
@@ -822,7 +822,7 @@ tracks/19/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [98.0]
+"values": [94.0]
 }
 tracks/20/type = "value"
 tracks/20/imported = false
@@ -834,7 +834,7 @@ tracks/20/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(2, 5)]
+"values": [Vector2(11, 0)]
 }
 tracks/21/type = "value"
 tracks/21/imported = false
@@ -4110,13 +4110,13 @@ _data = {
 }
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_6eweh"]
-size = Vector2(34, 35)
+size = Vector2(52, 35)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_dmqg8"]
-size = Vector2(39, 51)
+size = Vector2(49, 52)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_gxq58"]
-size = Vector2(59.1984, 13.1926)
+size = Vector2(16.4084, 13.1926)
 
 [node name="Player" type="CharacterBody2D"]
 script = ExtResource("1_dmqg8")
@@ -4137,24 +4137,22 @@ libraries = {
 
 [node name="Upper_Hurtbox" type="Area2D" parent="."]
 position = Vector2(-19, -33)
-monitoring = false
-monitorable = false
 metadata/_edit_group_ = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Upper_Hurtbox"]
-position = Vector2(-7, 8)
+position = Vector2(-8, 8)
 shape = SubResource("RectangleShape2D_6eweh")
 
 [node name="Lower_Hurtbox" type="Area2D" parent="."]
-position = Vector2(-14, 9)
+position = Vector2(9, 10)
 metadata/_edit_group_ = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Lower_Hurtbox"]
-position = Vector2(-2.5, 10.5)
+position = Vector2(0.5, 11)
 shape = SubResource("RectangleShape2D_dmqg8")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(2, 5)
+position = Vector2(11, 0)
 shape = SubResource("CapsuleShape2D_6eweh")
 
 [node name="PlayerHP" type="ProgressBar" parent="."]
@@ -4175,8 +4173,7 @@ metadata/_edit_group_ = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox_Container/Hitbox"]
 modulate = Color(0.72549, 0.494118, 0.160784, 1)
-position = Vector2(20.1908, 1.01848)
-rotation = -0.378736
+position = Vector2(-1.2042, 1.01848)
 shape = SubResource("RectangleShape2D_gxq58")
 
 [node name="PlayerTimer" type="Timer" parent="."]

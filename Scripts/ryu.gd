@@ -7,6 +7,13 @@ var upper_attacks := 0
 var standing_defense := 0
 var crouching_defense := 0
 
+const HITBOX_NAME: StringName = &"Dummy_Hitbox"
+const STANDING_DEFENSE_ANIM: StringName = &"standing_defense"
+const CROUCHING_DEFENSE_ANIM: StringName = &"crouching_defense"
+
+@export var defense_damage: int = 7
+@export var normal_damage: int = 10
+
 @onready var animation = $"Animation"
 @onready var player_hit_taken = get_parent().get_node("PlayerDetails")
 @onready var timer = $PlayerTimer
@@ -74,28 +81,32 @@ func _update_hit_text():
 	\nUpper Attacks Hit: %d" % [lower_hits, upper_hits, lower_attacks, upper_attacks]
 	
 func _on_upper_hurtbox_area_entered(area: Area2D) -> void:
-		if area.name == "Dummy_Hitbox":
-			if animation.current_animation == "standing_defense" or animation.current_animation == "crouching_defense":
-				damaged_system.take_damage(7)
-				if animation.current_animation == "standing_defense":
-					standing_defense += 1
-				elif animation.current_animation == "crouching_defense":
-					crouching_defense += 1
-		else:
-			damaged_system.take_damage(10)
+		if area.name != HITBOX_NAME:
+			return
+		match animation.current_animation:
+			STANDING_DEFENSE_ANIM:
+				damaged_system.take_damage(defense_damage)
+				standing_defense += 1
+			CROUCHING_DEFENSE_ANIM:
+				damaged_system.take_damage(defense_damage)
+				crouching_defense += 1
+			_:
+				damaged_system.take_damage(normal_damage)
 		upper_hits += 1
 		_update_hit_text()
 
 func _on_lower_hurtbox_area_entered(area: Area2D) -> void:
-	if area.name == "Dummy_Hitbox":
-		if animation.current_animation == "standing_defense" or animation.current_animation == "crouching_defense":
-			damaged_system.take_damage(7)
-			if animation.current_animation == "standing_defense":
+		if area.name != HITBOX_NAME:
+			return
+		match animation.current_animation:
+			STANDING_DEFENSE_ANIM:
+				damaged_system.take_damage(defense_damage)
 				standing_defense += 1
-			elif animation.current_animation == "crouching_defense":
+			CROUCHING_DEFENSE_ANIM:
+				damaged_system.take_damage(defense_damage)
 				crouching_defense += 1
-		else:
-			damaged_system.take_damage(10)
+			_:
+				damaged_system.take_damage(normal_damage)
 		lower_hits += 1
 		_update_hit_text()
 
