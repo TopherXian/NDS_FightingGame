@@ -22,7 +22,7 @@ var movement_system = null # <-- You likely need this too based on HumanControll
 
 # --- Constants for Hurtbox Handling (Moved from ryu.txt & DS_ryu.txt) ---
 # Adjust OPPONENT_HITBOX_NAME based on what the opponent's hitbox Area2D is named
-const OPPONENT_HITBOX_NAME: StringName = &"Hitbox" # Example, might be "Dummy_Hitbox" for Player 1, "Hitbox" for Player 2
+var OPPONENT_HITBOX_NAME: StringName # Example, might be "Dummy_Hitbox" for Player 1, "Hitbox" for Player 2
 const STANDING_DEFENSE_ANIM: StringName = &"standing_defense"
 const CROUCHING_DEFENSE_ANIM: StringName = &"crouching_defense"
 
@@ -72,6 +72,12 @@ func _get_lower_hurtbox():
 	else:
 		return get_node("Dummy_LowerHurtbox")
 
+func _get_opponent_hitbox():
+	if character_id == "Player2":
+		return &"Hitbox"
+	else:
+		return &"Dummy_Hitbox"
+
 # UI Labels for Stats (Optional, assign in Inspector or get from parent)
 @onready var stats_label: Label = null # e.g., get_parent().get_node("PlayerDetails") - Assign appropriately
 
@@ -93,6 +99,7 @@ func _ready():
 	sprite = _get_sprite()
 	hp_bar = _get_progress_bar()
 	hitbox_container = _get_hitbox()
+	OPPONENT_HITBOX_NAME = _get_opponent_hitbox()
 	# Find Opponent (Assuming parent node has both player and dummy)
 	# This is a common pattern, adjust if your level structure is different
 	for child in get_parent().get_children():
@@ -231,25 +238,28 @@ func _physics_process(delta):
 
 func update_facing_direction():
 	if not is_instance_valid(opponent): return # Opponent might be defeated/removed
-
 	var direction_to_opponent = opponent.global_position.x - global_position.x
 	if abs(direction_to_opponent) > 1.0: # Add a small tolerance
 		if direction_to_opponent > 0:
 			sprite.flip_h = false  # Face right
-			#if hitbox_container.name == "Hitbox":
-			hitbox_container.scale.x = 1
+			if character_id == "Player1":
+				hitbox_container.scale.x = 1
+				hitbox_container.position.x = abs(hitbox_container.position.x)
+			else:
+				hitbox_container.position.x = abs(hitbox_container.position.x)
 			# Adjust hurtbox positions if they are offset (use absolute values)
-			upper_hurtbox.position.x = abs(upper_hurtbox.position.x)
-			lower_hurtbox.position.x = abs(lower_hurtbox.position.x)
+			#upper_hurtbox.position.x = abs(upper_hurtbox.position.x)
+			#lower_hurtbox.position.x = abs(lower_hurtbox.position.x)
 		else:
 			sprite.flip_h = true   # Face left
-			#if hitbox_container.name == "Hitbox":
-			hitbox_container.scale.x = -1
-			#else:
-				#hitbox_container.position.x = -abs(hitbox_container.position.x)
+			if character_id == "Player1":
+				hitbox_container.scale.x = -1
+				hitbox_container.position.x = -abs(hitbox_container.position.x)
+			else:
+				hitbox_container.position.x = -abs(hitbox_container.position.x)
 			# Adjust hurtbox positions if they are offset (use negative absolute values)
-			upper_hurtbox.position.x = -abs(upper_hurtbox.position.x)
-			lower_hurtbox.position.x = -abs(lower_hurtbox.position.x)
+			#upper_hurtbox.position.x = -abs(upper_hurtbox.position.x)
+			#lower_hurtbox.position.x = -abs(lower_hurtbox.position.x)
 
 
 # --- Damage Handling ---
@@ -286,8 +296,8 @@ func apply_damage(damage_amount: int, is_upper_hit: bool):
 	else: # Basic fallback if no damaged system
 		animation_player.play("hurt")
 		# Basic knockback
-		var knockback_dir = -1 if sprite.flip_h else 1 # Knock away from facing dir
-		velocity.x = knockback_dir * 50 # Small knockback
+		var knockback_dir = 1 if sprite.flip_h else -1 # Knock away from facing dir
+		velocity.x = knockback_dir * 30 # Small knockback
 
 	# Check for defeat
 	if health <= 0:
