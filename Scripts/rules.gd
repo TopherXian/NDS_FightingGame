@@ -200,11 +200,11 @@ func adjust_script_weights(fitness: float) -> void:
 	var unused_rules = []
 	var compensation
 	
-	for rules in current_script:
-		if rules["wasUsed"] == true:
-			used_rules.append(rules)
-		elif rules["wasUsed"] == false:
-			unused_rules.append(rules)
+	for rule in current_script:
+		if rule["wasUsed"] == true:
+			used_rules.append(rule)
+		elif rule["wasUsed"] == false:
+			unused_rules.append(rule)
 			
 	if len(unused_rules) > 0: # Check if there are any unused rules
 		compensation = (len(used_rules) * adjustment) / float(len(unused_rules)) # Ensure float division

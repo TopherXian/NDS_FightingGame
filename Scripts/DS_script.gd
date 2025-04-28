@@ -10,10 +10,10 @@ var executed_rules: Dictionary = {}
 
 var speed = 150
 
-func _init(enemy_ref, enemy_anim):
+func _init(enemy_ref, enemy_anim, animation_player):
 	player = enemy_ref
-	player_anim = enemy_ref.animation
-	animation = enemy_anim
+	player_anim = enemy_anim
+	animation = animation_player
 
 func set_ai_reference(ref):
 	ai_self = ref
@@ -21,16 +21,16 @@ func set_ai_reference(ref):
 func evaluate_and_execute(rules: Array):
 	var current_anim = player_anim.current_animation
 	var dist = ai_self.global_position.distance_to(player.global_position)
-	var current_lower_hits = ai_self.lower_hits # Get current hits from AI
-	var current_upper_hits = ai_self.upper_hits # Get current hits from AI
+	var current_lower_hits = ai_self.lower_hits_taken # Get current hits from AI
+	var current_upper_hits = ai_self.upper_hits_taken # Get current hits from AI
 
 	for rule in rules:
 		var conditions = rule["conditions"]
-		var ruleID = rule["ruleID"]
-		var match_anim = false
-		var match_dist = false
-		var match_upper_hits = false
-		var match_lower_hits = false
+		#var ruleID = rule["ruleID"]
+		#var match_anim = false
+		#var match_dist = false
+		#var match_upper_hits = false
+		#var match_lower_hits = false
 		var match_all = true
 		
 		if "player_anim" in conditions:

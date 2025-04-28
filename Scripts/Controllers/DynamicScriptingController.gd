@@ -26,9 +26,11 @@ func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer
 	fighter = fighter_node
 	animation_player = anim_player
 	opponent = opp_node
+	print(fighter)
+	print(opponent)
 
-	if is_instance_valid(opponent) and opponent.has_node("AnimationPlayer"): # Adjust path if needed
-		opponent_animation_player = opponent.get_node("AnimationPlayer")
+	if is_instance_valid(opponent) and opponent.has_node("Animation"): # Adjust path if needed
+		opponent_animation_player = opponent.get_node("Animation")
 	else:
 		printerr("DSController: Could not find opponent AnimationPlayer")
 		# Decide how to handle this - maybe disable rule conditions based on opponent anim?
@@ -43,18 +45,18 @@ func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer
 		else: printerr("DSController: Failed to load Rules.gd")
 	else: printerr("DSController: Rules.gd not found.")
 
-	if FileAccess.file_exists("res://Scripts/ScriptCreation.gd"):
-		var ScriptCreationClass = load("res://Scripts/ScriptCreation.gd")
+	if FileAccess.file_exists("res://Scripts/DS_script.gd"):
+		var ScriptCreationClass = load("res://Scripts/DS_script.gd")
 		if ScriptCreationClass:
 			# ScriptCreation needs opponent and opponent's anim player
 			if is_instance_valid(opponent) and is_instance_valid(opponent_animation_player) and is_instance_valid(animation_player):
 				rule_engine = ScriptCreationClass.new(opponent, opponent_animation_player, animation_player)
 				rule_engine.set_ai_reference(fighter) # Pass self-reference
 			else:
-				printerr("DSController: Missing references for ScriptCreation init.")
+				print("DSController: Missing references for ScriptCreation init.")
 				return # Cannot proceed
-		else: printerr("DSController: Failed to load ScriptCreation.gd")
-	else: printerr("DSController: ScriptCreation.gd not found.")
+		else: print("DSController: Failed to load ScriptCreation.gd")
+	else: print("DSController: ScriptCreation.gd not found.")
 
 
 	# --- Setup Update Timer (From DS_ryu.txt _ready) ---
@@ -73,7 +75,7 @@ func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer
 	print("Dynamic Scripting Controller Initialized for: ", fighter.name)
 
 
-func _physics_process(delta):
+func _physics_process(_delta):
 	if not is_instance_valid(fighter): return
 	if not is_instance_valid(rule_engine): return # Cannot execute without engine
 
@@ -85,8 +87,8 @@ func _physics_process(delta):
 		# Original ScriptCreation.evaluate_and_execute took the rules array.
 		# It should probably take the *generated script* array or just evaluate rules directly.
 		# Let's adapt it to evaluate the rules from the Rules class instance.
-		if rules_base.has_method("get_all_rules"):
-			var all_rules = rules_base.get_all_rules() # Assume Rules.gd has this method
+		if rules_base.has_method("get_rules"):
+			var all_rules = rules_base.get_rules() # Assume Rules.gd has this method
 			rule_engine.evaluate_and_execute(all_rules) # Pass all rules for evaluation
 		else:
 			printerr("DSController: Rules class missing get_all_rules() method.")
@@ -197,7 +199,7 @@ func append_script_to_log(context: String = "Update") -> void:
 		printerr("Failed to open log file: ", LOG_FILE_PATH)
 
 # --- Allow BaseFighter to notify this controller ---
-func notify_damage_taken(amount: int, is_upper: bool, defended: bool):
+func notify_damage_taken(_amount: int, _is_upper: bool, _defended: bool):
 	# AI can use this information immediately if needed
 	# print("DSController notified: Took ", amount, " damage. Upper: ", is_upper, " Defended: ", defended)
 	pass

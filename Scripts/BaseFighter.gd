@@ -40,7 +40,7 @@ func _get_animation() -> AnimationPlayer:
 	if has_node("Animation"):
 		return get_node("Animation")
 	else:
-		return get_node("Dummy_Animation")
+		return $Dummy_Animation
 
 func _get_sprite() -> Sprite2D:
 	if has_node("Sprite"):
@@ -190,8 +190,8 @@ func setup_controller(type: String):
 					active_controller = DSControllerClass.new()
 					add_child(active_controller) # Add as child
 					active_controller.init_controller(self, animation_player, opponent) # Pass references
-				else: printerr("Failed to load DynamicScriptingController.gd")
-			else: printerr("DynamicScriptingController.gd not found.")
+				else: print("Failed to load DynamicScriptingController.gd")
+			else: print("DynamicScriptingController.gd not found.")
 
 		"Decision Tree":
 			if FileAccess.file_exists("res://Scripts/AI/DecisionTreeController.gd"): # Assuming path
