@@ -23,8 +23,8 @@ func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer
 
 	# --- Instantiate control components ---
 	# Ensure the class scripts exist and paths are correct
-	if FileAccess.file_exists("res://Scripts/Movements.gd"):
-		var MovementsClass = load("res://Scripts/Movements.gd")
+	if FileAccess.file_exists("res://Scripts/Movement.gd"):
+		var MovementsClass = load("res://Scripts/Movement.gd")
 		if MovementsClass:
 			movement_system = MovementsClass.new(animation_player, fighter)
 			# Pass opponent reference if Movements needs it (original didn't seem to)
@@ -40,38 +40,43 @@ func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer
 			# if attack_system.has_method("set_opponent"): attack_system.set_opponent(opponent)
 
 			# --- IMPORTANT: Connect attack system's finished signal ---
-			# BaseFighter needs to know when an attack animation finishes
-			# Option 1: Add a signal to Attacks.gd and emit it in _on_attack_finished
-			# Option 2: Connect directly to AnimationPlayer's signal IF Attacks connects reliably
-			# Let's assume Attacks.gd handles the connection and reset internally for now.
-			# If BaseFighter needs notification, Attacks.gd needs to emit a signal.
+			# (Your notes on signals remain relevant)
 
 		else: printerr("HumanController: Failed to load Attacks.gd")
 	else: printerr("HumanController: Attacks.gd not found.")
 
 	# Re-assign fighter's attack_system reference if BaseFighter needs it
-	# This feels a bit messy, indicates maybe Attacks/Movements should be children nodes?
-	if is_instance_valid(fighter) and fighter.has("attack_system"):
+	# Use 'in' to check for property existence
+	if is_instance_valid(fighter) and "attack_system" in fighter:
 		fighter.attack_system = attack_system
-	if is_instance_valid(fighter) and fighter.has("movement_system"):
+		print("Assigned attack_system to fighter.") # Optional: Add debug prints
+	# else: # Optional: Add debug prints
+		# if is_instance_valid(fighter): print("Fighter does not have 'attack_system' property.")
+		# else: print("Fighter instance is invalid before attack_system check.")
+
+	if is_instance_valid(fighter) and "movement_system" in fighter:
 		fighter.movement_system = movement_system
+		print("Assigned movement_system to fighter.") # Optional: Add debug prints
+	# else: # Optional: Add debug prints
+		# if is_instance_valid(fighter): print("Fighter does not have 'movement_system' property.")
+		# else: print("Fighter instance is invalid before movement_system check.")
 
 	print("Human Controller Initialized for: ", fighter.name)
 
 
-func _physics_process(delta):
+func _physics_process(_delta):
 	if not is_instance_valid(fighter): return # Fighter might be destroyed
 
 	# --- Handle Input ---
+	# Add checks here too, in case initialization failed
 	if is_instance_valid(movement_system):
 		movement_system.handle_movement() # Assumes handle_movement updates fighter.velocity
 		movement_system.handle_jump()     # Assumes handle_jump updates fighter.velocity
+	# else: print("Movement system invalid in _physics_process") # Optional debug
 
 	if is_instance_valid(attack_system):
 		attack_system.handle_punch()
 		attack_system.handle_kick()
+	# else: print("Attack system invalid in _physics_process") # Optional debug
 
-	# Note: The original ryu.txt had gravity application and move_and_slide
-	# directly in its _physics_process. BaseFighter now handles these.
-	# This controller just needs to modify fighter.velocity based on input.
-	# Ensure Movements/Attacks classes correctly modify fighter.velocity.
+	# BaseFighter handles gravity and move_and_slide

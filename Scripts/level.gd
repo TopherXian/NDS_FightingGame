@@ -21,5 +21,5 @@ func time_left():
 	var time = timer.time_left
 	return time
 
-func _process(delta):
+func _process(_delta):
 	label.text = "%02d" % int(time_left())

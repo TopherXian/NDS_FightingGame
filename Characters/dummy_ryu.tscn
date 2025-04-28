@@ -1,7 +1,7 @@
 [gd_scene load_steps=79 format=3 uid="uid://benbni2llwpep"]
 
 [ext_resource type="Texture2D" uid="uid://ceg3tovqvw3y0" path="res://Assets/Characters/Ryu - New Version.png" id="1_duwlu"]
-[ext_resource type="Script" uid="uid://dow62h73ij2n2" path="res://Scripts/DS_ryu.gd" id="1_hxnh7"]
+[ext_resource type="Script" uid="uid://bm7e2vrqtj3b0" path="res://Scripts/BaseFighter.gd" id="1_hxnh7"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_dmqg8"]
 atlas = ExtResource("1_duwlu")
@@ -672,6 +672,18 @@ tracks/16/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [0.0]
+}
+tracks/17/type = "value"
+tracks/17/imported = false
+tracks/17/enabled = true
+tracks/17/path = NodePath("..:character_id")
+tracks/17/interp = 1
+tracks/17/loop_wrap = true
+tracks/17/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": ["Player2"]
 }
 
 [sub_resource type="Animation" id="Animation_5eeq5"]
@@ -3348,6 +3360,7 @@ size = Vector2(15, 14)
 
 [node name="Dummy_Ryu" type="CharacterBody2D"]
 script = ExtResource("1_hxnh7")
+character_id = "Player2"
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(-4, -1)

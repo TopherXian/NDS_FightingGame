@@ -7,10 +7,10 @@ var player: CharacterBody2D
 var hp_bar
 var is_knocked_down = false
 
-func _init(anim: AnimationPlayer, player_instance: CharacterBody2D):
+func _init(anim: AnimationPlayer, player_instance: CharacterBody2D, hp):
 	animation_player = anim
 	player = player_instance
-	hp_bar = player_instance.get_node("PlayerHP")
+	hp_bar = hp
 
 func take_damage(amount: int):
 

@@ -34,8 +34,8 @@ func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer
 		# Decide how to handle this - maybe disable rule conditions based on opponent anim?
 
 	# --- Instantiate DS components ---
-	if FileAccess.file_exists("res://Scripts/Rules.gd"):
-		var RulesClass = load("res://Scripts/Rules.gd")
+	if FileAccess.file_exists("res://Scripts/rules.gd"):
+		var RulesClass = load("res://Scripts/rules.gd")
 		if RulesClass:
 			rules_base = RulesClass.new()
 			# Pass fighter reference if Rules need it (e.g., for fitness calc access)

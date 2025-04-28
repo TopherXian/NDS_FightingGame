@@ -14,6 +14,11 @@ var lower_attacks_landed: int = 0
 var upper_attacks_landed: int = 0
 var standing_defenses: int = 0
 var crouching_defenses: int = 0
+var upper_hurtbox: Area2D
+var lower_hurtbox: Area2D
+
+var attack_system = null # <-- ADD THIS LINE (or just 'var attack_system')
+var movement_system = null # <-- You likely need this too based on HumanController
 
 # --- Constants for Hurtbox Handling (Moved from ryu.txt & DS_ryu.txt) ---
 # Adjust OPPONENT_HITBOX_NAME based on what the opponent's hitbox Area2D is named
@@ -25,11 +30,47 @@ const CROUCHING_DEFENSE_ANIM: StringName = &"crouching_defense"
 @export var normal_damage_taken: int = 10    # Default damage taken if hit directly
 
 # --- Node References (Adjust paths as needed!) ---
-@onready var animation_player: AnimationPlayer = $AnimationPlayer # Or $Dummy_Animation if that's the name
-@onready var sprite: Sprite2D = $Sprite # Or $AnimatedSprite2D
-@onready var hp_bar: ProgressBar = $PlayerHP # Or $DummyHP
-@onready var hitbox_container: Node2D = $Hitbox_Container # Container for player's own hitbox(es)
+@onready var animation_player: AnimationPlayer # Or $Dummy_Animation if that's the name
+@onready var sprite: Sprite2D
+@onready var hp_bar: ProgressBar
+@onready var hitbox_container: Node2D # Container for player's own hitbox(es)
 @onready var opponent: CharacterBody2D = null # Will be set in _ready or level script
+
+func _get_animation() -> AnimationPlayer:
+	if has_node("Animation"):
+		return get_node("Animation")
+	else:
+		return get_node("Dummy_Animation")
+
+func _get_sprite() -> Sprite2D:
+	if has_node("Sprite"):
+		return get_node("Sprite")
+	else:
+		return get_node("AnimatedSprite2D")
+		
+func _get_progress_bar() -> ProgressBar:
+	if has_node("PlayerHP"):
+		return get_node("PlayerHP")
+	else:
+		return get_node("DummyHP")
+
+func _get_hitbox():
+	if has_node("Hitbox_Container"):
+		return get_node("Hitbox_Container")
+	else:
+		return get_node("Dummy_Hitbox")
+		
+func _get_upper_hurtbox():
+	if has_node("Upper_Hurtbox"):
+		return get_node("Upper_Hurtbox")
+	else:
+		return get_node("Dummy_UpperHurtbox")
+		
+func _get_lower_hurtbox():
+	if has_node("Lower_Hurtbox"):
+		return get_node("Lower_Hurtbox")
+	else:
+		return get_node("Dummy_LowerHurtbox")
 
 # UI Labels for Stats (Optional, assign in Inspector or get from parent)
 @onready var stats_label: Label = null # e.g., get_parent().get_node("PlayerDetails") - Assign appropriately
@@ -45,6 +86,13 @@ var active_controller: Node = null
 var damaged_system: Damaged # Instantiated based on controller type? Or always standard? Let's assume standard for now.
 
 func _ready():
+	
+	upper_hurtbox = _get_upper_hurtbox() # Adjust node name if different
+	lower_hurtbox = _get_lower_hurtbox() # Adjust node name if different
+	animation_player = _get_animation()
+	sprite = _get_sprite()
+	hp_bar = _get_progress_bar()
+	hitbox_container = _get_hitbox()
 	# Find Opponent (Assuming parent node has both player and dummy)
 	# This is a common pattern, adjust if your level structure is different
 	for child in get_parent().get_children():
@@ -85,8 +133,7 @@ func _ready():
 	setup_controller(control_type)
 
 	# Connect Hurtbox Signals (Connect these in the Godot Editor Inspector too!)
-	var upper_hurtbox = $Upper_Hurtbox # Adjust node name if different
-	var lower_hurtbox = $Lower_Hurtbox # Adjust node name if different
+
 	if upper_hurtbox and upper_hurtbox.has_signal("area_entered"):
 		if not upper_hurtbox.is_connected("area_entered", Callable(self, "_on_upper_hurtbox_area_entered")):
 			upper_hurtbox.connect("area_entered", Callable(self, "_on_upper_hurtbox_area_entered"))
@@ -101,7 +148,11 @@ func _ready():
 
 	# Connect own Hitbox Signals (To track when *this* character hits the opponent)
 	# Find the actual hitbox Area2D node, might be inside hitbox_container
-	var own_hitbox = hitbox_container.get_node("Hitbox") # Adjust name as needed
+	var own_hitbox
+	if hitbox_container.has_node("Hitbox"):
+		own_hitbox = hitbox_container.get_node("Hitbox")
+	else:
+		own_hitbox = hitbox_container
 	if own_hitbox and own_hitbox.has_signal("area_entered"):
 		if not own_hitbox.is_connected("area_entered", Callable(self, "_on_own_hitbox_area_entered")):
 			own_hitbox.connect("area_entered", Callable(self, "_on_own_hitbox_area_entered")) # Connect to a NEW function
@@ -185,16 +236,20 @@ func update_facing_direction():
 	if abs(direction_to_opponent) > 1.0: # Add a small tolerance
 		if direction_to_opponent > 0:
 			sprite.flip_h = false  # Face right
+			#if hitbox_container.name == "Hitbox":
 			hitbox_container.scale.x = 1
 			# Adjust hurtbox positions if they are offset (use absolute values)
-			# $Upper_Hurtbox.position.x = abs($Upper_Hurtbox.position.x)
-			# $Lower_Hurtbox.position.x = abs($Lower_Hurtbox.position.x)
+			upper_hurtbox.position.x = abs(upper_hurtbox.position.x)
+			lower_hurtbox.position.x = abs(lower_hurtbox.position.x)
 		else:
 			sprite.flip_h = true   # Face left
+			#if hitbox_container.name == "Hitbox":
 			hitbox_container.scale.x = -1
+			#else:
+				#hitbox_container.position.x = -abs(hitbox_container.position.x)
 			# Adjust hurtbox positions if they are offset (use negative absolute values)
-			# $Upper_Hurtbox.position.x = -abs($Upper_Hurtbox.position.x)
-			# $Lower_Hurtbox.position.x = -abs($Lower_Hurtbox.position.x)
+			upper_hurtbox.position.x = -abs(upper_hurtbox.position.x)
+			lower_hurtbox.position.x = -abs(lower_hurtbox.position.x)
 
 
 # --- Damage Handling ---
@@ -252,8 +307,8 @@ func die():
 	set_physics_process(false) # Stop processing physics
 	# Disable collisions?
 	$CollisionShape2D.disabled = true # Adjust node name
-	$Upper_Hurtbox.get_node("CollisionShape2D").disabled = true # Adjust node name
-	$Lower_Hurtbox.get_node("CollisionShape2D").disabled = true # Adjust node name
+	upper_hurtbox.get_node("CollisionShape2D").disabled = true # Adjust node name
+	lower_hurtbox.get_node("CollisionShape2D").disabled = true # Adjust node name
 	# Disable controller processing
 	if is_instance_valid(active_controller):
 		active_controller.set_physics_process(false)
