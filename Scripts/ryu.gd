@@ -11,7 +11,7 @@ var crouching_defense := 0
 @onready var player_hit_taken = get_parent().get_node("PlayerDetails")
 @onready var timer = $PlayerTimer
 
-var Starthp = 100
+var Starthp = 200
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 var is_jumping = false
 

@@ -1,6 +1,6 @@
 extends CharacterBody2D
 
-var Starthp = 100
+var Starthp = 200
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 var speed = 100
 
@@ -196,9 +196,8 @@ func append_script_to_log() -> void:
 	if file:
 		file.seek_end() # Move to the end to append
 		var timestamp = Time.get_datetime_string_from_system(false, true) 
-
-		file.store_line("--- Script Generated ---")
 		file.store_line("--- Parameters: %s ---" % stringified_parameters) # 👈 Write parameters here
+		file.store_line("--- Script Generated ---")
 		if not executed_rules.is_empty():
 			file.store_line(stringtified_latest_script)
 			

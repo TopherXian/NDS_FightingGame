@@ -1,6 +1,6 @@
 extends CharacterBody2D
 
-var Starthp = 100
+var Starthp = 200
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 var speed = 100
 
