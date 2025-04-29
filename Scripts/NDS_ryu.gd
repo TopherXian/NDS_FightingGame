@@ -10,7 +10,6 @@ var lower_attacks := 0
 var upper_attacks := 0
 var standing_defense := 0
 var crouching_defense := 0
-var previous_parameters = {}
 
 const HITBOX_NAME: StringName = &"Hitbox"
 const STANDING_DEFENSE_ANIM: StringName = &"standing_defense"
@@ -32,8 +31,6 @@ var rule_engine  # ScriptCreation instance
 var rules_base   # Rules instance
 var damageClass: DummyDamaged
 var latest_script: Array
-
-
 
 func _update_hit_text():
 	opp_hit_taken.text = "Lower Hits Taken: %d
@@ -63,7 +60,7 @@ func _ready():
 	damageClass.init($Dummy_Animation, $DummyHP, self)
 	
 	rules_base = Rules.new()
-	rule_engine = ScriptCreation.new(player, enemy_animation)
+	rule_engine = NDS_ScriptCreation.new(player, enemy_animation)
 	rule_engine.set_ai_reference(self)
 	get_latest_script()
 	print("Rules node ready. Initial script generated.")
@@ -149,12 +146,11 @@ func _exit_tree():
 # --- Timer Callback Function ---
 func _on_update_timer_timeout():
 	print("Timer timeout: Updating AI script...")
-	get_parameters()
-		
 	var rulebase = rules_base.get_rules()
 #	LOWER AND UPPER SUCCESSFUL ATTACKS AND HITS TAKEN AS METRICS, 100 AS THE FULL HP
 	var fitness = rules_base.calculate_fitness(lower_hits, upper_hits, upper_attacks, lower_attacks, standing_defense, crouching_defense, Starthp)
 	print("fitness: %s" % fitness)
+	
 	rules_base.adjust_script_weights(fitness) #update weights of the current_script
 	rules_base.update_rulebase()
 	lower_hits = 0
@@ -167,19 +163,6 @@ func _on_update_timer_timeout():
 	get_latest_script()
 	append_script_to_log()
 	
-func get_parameters():
-	previous_parameters = {
-		"lower_hits": lower_hits,
-		"upper_hits": upper_hits,
-		"upper_attacks": upper_attacks,
-		"lower_attacks": lower_attacks,
-		"standing_defense": standing_defense,
-		"crouching_defense": crouching_defense,
-		"current_hp": playerHP.value # 👈 Add this line
-	}
-	print("Stored parameters: %s" % previous_parameters)
-	
-	
 func get_latest_script() -> void:
 	rules_base.generate_and_update_script()
 	latest_script = rules_base.get_DScript()
@@ -191,14 +174,12 @@ func append_script_to_log() -> void:
 	var executed_rules = rule_engine.get_executed_rules()
 	executed_rules = JSON.stringify(executed_rules)
 	var stringtified_latest_script = JSON.stringify(latest_script)
-	var stringified_parameters = JSON.stringify(previous_parameters) # 👈 Convert your stored parameters
 	print(executed_rules)
 	if file:
 		file.seek_end() # Move to the end to append
 		var timestamp = Time.get_datetime_string_from_system(false, true) 
 
 		file.store_line("--- Script Generated ---")
-		file.store_line("--- Parameters: %s ---" % stringified_parameters) # 👈 Write parameters here
 		if not executed_rules.is_empty():
 			file.store_line(stringtified_latest_script)
 			
