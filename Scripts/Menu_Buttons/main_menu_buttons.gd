@@ -1,5 +1,5 @@
 # main_menu.gd
-extends Control # Or Node2D, whatever your root node is
+extends Node2D # Or Node2D, whatever your root node is
 
 # Define the available control types
 enum ControlType { HUMAN, DYNAMIC_SCRIPTING, DECISION_TREE, NEURO_DYNAMIC }

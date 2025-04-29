@@ -182,7 +182,8 @@ func append_script_to_log(context: String = "Update") -> void:
 
 		# Log the rules executed by the rule engine (if tracked)
 		if rule_engine.has_method("get_executed_rules"):
-			var executed_rules = rule_engine.get_executed_rules() # Assuming this returns something loggable
+			var executed_rules = rule_engine.get_executed_rules()
+			print(executed_rules) # Assuming this returns something loggable
 			var stringified_executed = JSON.stringify(executed_rules, "\t")
 			if stringified_executed:
 				file.store_line("Rules Executed in Last Cycle:")

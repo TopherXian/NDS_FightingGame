@@ -316,9 +316,11 @@ func die():
 	animation_player.play("knocked_down") # Or dedicated "death" animation
 	set_physics_process(false) # Stop processing physics
 	# Disable collisions?
-	$CollisionShape2D.disabled = true # Adjust node name
-	upper_hurtbox.get_node("CollisionShape2D").disabled = true # Adjust node name
-	lower_hurtbox.get_node("CollisionShape2D").disabled = true # Adjust node name
+	
+	$CollisionShape2D.set_deferred("disabled", true)
+	upper_hurtbox.get_node("CollisionShape2D").set_deferred("disabled", true) # Adjust node name if needed
+	lower_hurtbox.get_node("CollisionShape2D").set_deferred("disabled", true) # Adjust node name if needed
+	
 	# Disable controller processing
 	if is_instance_valid(active_controller):
 		active_controller.set_physics_process(false)

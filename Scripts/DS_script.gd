@@ -123,13 +123,14 @@ func _execute_action(action: String):
 
 func append_executed_rule(rule: Dictionary) -> void:
 	if not rule is Dictionary or not rule.has("ruleID"):
-		printerr("Invalid rule format passed to append_executed_rule: ", rule)
+		print("Invalid rule format passed to append_executed_rule: ", rule)
 		return
 
 	var id = rule["ruleID"]
 	
 	if not executed_rules.has(id):
 		executed_rules[id] = rule
+	#print(rule)
 
 func get_executed_rules() -> Array:
 	return executed_rules.values()
