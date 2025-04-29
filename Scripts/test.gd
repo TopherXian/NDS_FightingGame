@@ -12,6 +12,7 @@ var damageClass: DummyDamaged
 # Reference to the enemy character
 @onready var enemy = get_parent().get_node("Player")
 @onready var enemy_animation = enemy.get_node("Animation")
+
 func _ready():
 	$DummyHP.value = Starthp
 	damageClass = DummyDamaged.new()

@@ -564,7 +564,7 @@ position = Vector2(-1, 93)
 shape = SubResource("RectangleShape2D_4ll3w")
 
 [node name="Player" parent="." instance=ExtResource("2_4ll3w")]
-position = Vector2(-77, 0)
+position = Vector2(-70, 0)
 
 [node name="StaticBody2D2" type="StaticBody2D" parent="."]
 
@@ -579,7 +579,7 @@ position = Vector2(224, -18)
 shape = SubResource("RectangleShape2D_ma6ne")
 
 [node name="Dummy_Ryu" parent="." instance=ExtResource("3_4ll3w")]
-position = Vector2(87, 3)
+position = Vector2(64, 1)
 
 [node name="TimerLabel" type="Label" parent="."]
 offset_left = -29.0
@@ -603,16 +603,11 @@ offset_bottom = -86.0
 text = "Player"
 
 [node name="OpponentDetails" type="Label" parent="."]
-offset_left = 29.0
-offset_top = -108.0
-offset_right = 108.0
-offset_bottom = -85.0
-text = "Lower Hits Taken: 
-Upper Hits Taken:
-Lower Attacks Hit: 
-Upper Attacks Hit:
-Standing Defense:
-Crouching Defense: "
+offset_left = 125.0
+offset_top = -110.0
+offset_right = 204.0
+offset_bottom = -87.0
+text = "Opponent"
 horizontal_alignment = 2
 
 [node name="PauseLayer" type="CanvasLayer" parent="."]
