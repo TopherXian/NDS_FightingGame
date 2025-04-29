@@ -2,8 +2,8 @@
 extends CharacterBody2D
 
 # --- Shared Variables ---
-var health: int = 100
-@export var max_health: int = 100
+var health: int = 200
+@export var max_health: int = 200
 var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
 var is_jumping: bool = false # Track jump state if needed by multiple controllers
 
@@ -125,7 +125,6 @@ func _ready():
 	else:
 		print("WARNING: Damaged.gd not found at res://Scripts/Damaged.gd")
 
-
 	# Determine Control Type and Setup Controller
 	var control_type: String
 	if character_id == "Player1":
@@ -189,7 +188,7 @@ func setup_controller(type: String):
 				if DSControllerClass:
 					active_controller = DSControllerClass.new()
 					add_child(active_controller) # Add as child
-					active_controller.init_controller(self, animation_player, opponent) # Pass references
+					active_controller.init_controller(self, animation_player, opponent, hp_bar) # Pass references
 				else: print("Failed to load DynamicScriptingController.gd")
 			else: print("DynamicScriptingController.gd not found.")
 
@@ -201,7 +200,6 @@ func setup_controller(type: String):
 					add_child(active_controller)
 				else: printerr("Failed to load DecisionTreeController.gd")
 			else: printerr("DecisionTreeController.gd not found.")
-
 
 		"Neuro-Dynamic":
 			if FileAccess.file_exists("res://Scripts/AI/NeuroDynamicController.gd"): # Assuming path

@@ -7,6 +7,7 @@ var fighter: CharacterBody2D # Reference to the BaseFighter node
 var animation_player: AnimationPlayer
 var opponent: CharacterBody2D
 var opponent_animation_player: AnimationPlayer
+var opponent_HP: ProgressBar
 
 # --- DS Component Instances (From DS_ryu.txt) ---
 var rule_engine: ScriptCreation # Instance of DS_script.txt logic
@@ -18,19 +19,25 @@ var latest_script: Array = []   # The currently executing action sequence
 var _update_timer: Timer
 var speed = 150 # Movement speed for AI
 
+# --- Parameters (For training.txt) ---
+var previous_parameters = {}
+
 # --- Logging ---
 const LOG_FILE_PATH = "res://training.txt"
 
 
-func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer, opp_node: CharacterBody2D):
+func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer, opp_node: CharacterBody2D, playerHP: ProgressBar):
 	fighter = fighter_node
 	animation_player = anim_player
 	opponent = opp_node
+	opponent_HP = playerHP
 	print(fighter)
 	print(opponent)
 
 	if is_instance_valid(opponent) and opponent.has_node("Animation"): # Adjust path if needed
 		opponent_animation_player = opponent.get_node("Animation")
+	if is_instance_valid(opponent) and opponent.has_node("PlayerHP"):
+		var opponent_HP = opponent.get_node("PlayerHP")
 	else:
 		printerr("DSController: Could not find opponent AnimationPlayer")
 		# Decide how to handle this - maybe disable rule conditions based on opponent anim?
@@ -70,7 +77,7 @@ func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer
 	# --- Initial Script Generation ---
 	if is_instance_valid(rules_base):
 		get_latest_script()
-		append_script_to_log("Initial Script")
+		append_script_to_log("Initial Script", )
 
 	print("Dynamic Scripting Controller Initialized for: ", fighter.name)
 
@@ -78,7 +85,7 @@ func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer
 func _physics_process(_delta):
 	if not is_instance_valid(fighter): return
 	if not is_instance_valid(rule_engine): return # Cannot execute without engine
-
+	
 	# --- Execute current script step ---
 	# The original DS_ryu didn't show *how* the script array was executed frame-by-frame.
 	# ScriptCreation.evaluate_and_execute seems designed to pick *one* action based on current state.
@@ -103,7 +110,8 @@ func _on_timer_timeout():
 	if not is_instance_valid(fighter) or not is_instance_valid(rules_base): return
 
 	print("DS Timer Timeout - Updating Script for ", fighter.name)
-
+	
+	get_parameters()
 	# Calculate fitness based on performance since last update
 	# Need access to hit counters from BaseFighter
 	var fitness = calculate_fitness()
@@ -111,7 +119,7 @@ func _on_timer_timeout():
 	# Adjust weights and update rulebase
 	rules_base.adjust_script_weights(fitness)
 	rules_base.update_rulebase() # What does this do? Assumed to be part of Rules class logic
-
+	
 	# Reset counters in BaseFighter for the next interval
 	fighter.lower_hits_taken = 0
 	fighter.upper_hits_taken = 0
@@ -125,6 +133,17 @@ func _on_timer_timeout():
 	get_latest_script()
 	append_script_to_log("Timer Update")
 
+func get_parameters():
+	previous_parameters = {
+		"lower_hits": fighter.lower_hits_taken,
+		"upper_hits": fighter.upper_hits_taken,
+		"upper_attacks": fighter.upper_attacks_landed,
+		"lower_attacks": fighter.lower_attacks_landed,
+		"standing_defense": fighter.standing_defenses,
+		"crouching_defense": fighter.crouching_defenses,
+		"current_hp": opponent_HP.value # 👈 Add this line
+	}
+	print("Stored parameters: %s" % previous_parameters)	
 
 func calculate_fitness() -> float:
 	if not is_instance_valid(fighter) or not is_instance_valid(rules_base): return 0.0
@@ -162,12 +181,14 @@ func get_latest_script() -> void:
 # --- Logging (From DS_ryu.txt, modified slightly) ---
 func append_script_to_log(context: String = "Update") -> void:
 	if not is_instance_valid(rules_base) or not is_instance_valid(rule_engine): return
-
+	
+	var stringified_parameters = JSON.stringify(previous_parameters)
 	var file = FileAccess.open(LOG_FILE_PATH, FileAccess.READ_WRITE)
 	if file:
 		file.seek_end() # Move to the end to append
 		var timestamp = Time.get_datetime_string_from_system(false, true)
-
+		
+		file.store_line("--- Parameters: %s ---" % stringified_parameters) # 👈 Write parameters here
 		file.store_line("--- Script Generated (%s) | Timestamp: %s ---" % [context, timestamp])
 
 		# Log the generated script itself
