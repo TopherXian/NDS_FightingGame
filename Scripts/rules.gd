@@ -121,6 +121,36 @@ var rules: Array = [
 		"ruleID": 22, # Player kicks from far, enemy closes distance
 		"conditions": { "player_anim": "basic_kick", "distance": { "op": ">=", "value": 130 }, "upper_hits": { "op": "==", "value": 0 }, "lower_hits": { "op": "==", "value": 0 } },
 		"enemy_action": "walk_forward", "weight": 0.55, "wasUsed": false, "inScript": false
+	},
+	{
+		"ruleID": 23, # Player kicks from far, enemy closes distance
+		"conditions": { "player_anim": "basic_kick", "distance": { "op": ">=", "value": 130 }, "upper_hits": { "op": "==", "value": 0 }, "lower_hits": { "op": "==", "value": 0 } },
+		"enemy_action": "crouch_punch", "weight": 0.55, "wasUsed": false, "inScript": false
+	},
+	{
+		"ruleID": 24, # Player kicks from far, enemy closes distance
+		"conditions": { "player_anim": "basic_kick", "distance": { "op": ">=", "value": 130 }, "upper_hits": { "op": "==", "value": 0 }, "lower_hits": { "op": "==", "value": 0 } },
+		"enemy_action": "crouch_punch", "weight": 0.55, "wasUsed": false, "inScript": false
+	},
+	{
+		"ruleID": 25, # Player kicks from far, enemy closes distance
+		"conditions": { "player_anim": "basic_punch", "distance": { "op": ">=", "value": 130 }, "upper_hits": { "op": "==", "value": 0 }, "lower_hits": { "op": "==", "value": 0 } },
+		"enemy_action": "crouch_punch", "weight": 0.55, "wasUsed": false, "inScript": false
+	},
+	{
+		"ruleID": 26, # Player kicks from far, enemy closes distance
+		"conditions": { "player_anim": "basic_punch", "distance": { "op": ">=", "value": 130 }, "upper_hits": { "op": "==", "value": 0 }, "lower_hits": { "op": "==", "value": 0 } },
+		"enemy_action": "crouch_kick", "weight": 0.55, "wasUsed": false, "inScript": false
+	},
+	{
+		"ruleID": 27, # Player kicks from far, enemy closes distance
+		"conditions": { "player_anim": "basic_punch", "distance": { "op": ">=", "value": 130 }, "upper_hits": { "op": "==", "value": 0 }, "lower_hits": { "op": "==", "value": 0 } },
+		"enemy_action": "standing_defense", "weight": 0.55, "wasUsed": false, "inScript": false
+	},
+	{
+		"ruleID": 28, # Player kicks from far, enemy closes distance
+		"conditions": { "player_anim": "basic_kick", "distance": { "op": ">=", "value": 130 }, "upper_hits": { "op": "==", "value": 0 }, "lower_hits": { "op": "==", "value": 0 } },
+		"enemy_action": "standing_defense", "weight": 0.55, "wasUsed": false, "inScript": false
 	}
 ]
 
