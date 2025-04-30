@@ -64,6 +64,6 @@ func _connect_animation_finished():
 		animation.connect("animation_finished", Callable(self, "_on_attack_finished"))
 
 # Callback function to reset attack state when animation finishes
-func _on_attack_finished(anim):
+func _on_attack_finished(_anim):
 	is_attacking = false
 	animation.stop()

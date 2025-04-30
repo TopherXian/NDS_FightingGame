@@ -19,53 +19,71 @@ func handle_movement():
 	var left = Input.is_action_pressed("ui_left")
 	var crouch = Input.is_action_pressed("ui_down")
 
-	# Face the opponent automatically
+	# --- Check if attack_system is valid before using it ---
+	# Default to 'false' if the system isn't ready yet
+	var is_currently_attacking = false
+	if "attack_system" in player and player.attack_system != null:
+		 # You might need to check if 'is_attacking' exists too, depending on Attacks.gd
+		if "is_attacking" in player.attack_system:
+			is_currently_attacking = player.attack_system.is_attacking
+		 # else: print("Warning: attack_system exists but has no 'is_attacking' property.")
+	# else: print("Warning: player.attack_system is not valid in handle_movement.")
+
 
 	# If player is grounded and not attacking or jumping
-	if player.is_on_floor() and not player.is_jumping and not player.attack_system.is_attacking:
+	if player.is_on_floor() and not player.is_jumping and not is_currently_attacking: # Use the checked variable
 		# Move to the right
 		if right:
 			player.velocity.x = speed
-			animation.play("walk_forward")  # Play walk forward animation
+			animation.play("walk_forward")
 		# Move to the left
 		elif left:
 			player.velocity.x = -speed
-			animation.play("walk_backward")  # Play walk backward animation
+			animation.play("walk_backward")
 		# Handle idle state when no movement
 		else:
 			player.velocity.x = 0
-			animation.play("idle")  # Play idle animation when not moving
-		
-		# Handle crouch
-		if crouch:  # If the crouch button is being pressed
-			animation.play("crouch")  # Play the crouch animation
+			animation.play("idle")
+
+		# Handle crouch (Needs to be inside the grounded block, potentially adjusted logic)
+		if crouch:
+			animation.play("crouch")
 			player.velocity.x = 0
-			player.velocity.y = 0  # Stop any movement while crouching
-		else:
-			# Stop crouch animation when not crouching
-			if not right and not left: 
-				animation.play("idle")  # Stop crouch animation and go back to idle
+			# player.velocity.y = 0 # Probably not needed if applying gravity elsewhere
+		# This 'else' for stopping crouch might conflict with idle above.
+		# Consider simplifying crouch/idle logic. Example:
+		# elif not right and not left: # If not moving and not crouching (crouch handled above)
+		#     animation.play("idle")
 
 
 	# If player is in the air (not on the floor), allow free horizontal movement
-	elif not player.is_on_floor() and not player.attack_system.is_attacking:
+	# Check attack state here too
+	elif not player.is_on_floor() and not is_currently_attacking: # Use the checked variable
 		# Apply horizontal movement while in the air based on input
 		if right:
 			player.velocity.x = speed
-			if not animation.is_playing():
-				animation.play("jump")  # Ensure jump animation plays
 		elif left:
 			player.velocity.x = -speed
-			if not animation.is_playing():
-				animation.play("jump")  # Ensure jump animation plays
 		else:
 			player.velocity.x = 0
-			if not animation.is_playing():
-				animation.play("jump")  # Ensure jump animation plays
 
-# Handle jumping
+		# Only play jump animation if needed (maybe handled better in jump/landing logic)
+		if not animation.is_playing() or animation.current_animation != "jump":
+			 # Check if the jump animation exists before playing
+			if animation.has_animation("jump"):
+				animation.play("jump")
+
+
 func handle_jump():
-	if Input.is_action_just_pressed("ui_accept") and player.is_on_floor():
-		player.velocity.y = -450  # Apply jump velocity
-		player.is_jumping = true
-		animation.play("jump")  # Play jump animation
+	# Add check for attack system here too? Often can't jump while attacking.
+	var can_jump = true
+	if "attack_system" in player and player.attack_system != null:
+		if "is_attacking" in player.attack_system:
+			if player.attack_system.is_attacking:
+				can_jump = false # Prevent jumping while attacking
+
+	if Input.is_action_just_pressed("ui_accept") and player.is_on_floor() and can_jump:
+		player.velocity.y = -450
+		player.is_jumping = true # Make sure BaseFighter resets this on landing
+		if animation.has_animation("jump"): # Check if animation exists
+			animation.play("jump")

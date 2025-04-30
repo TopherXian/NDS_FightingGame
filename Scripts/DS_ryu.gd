@@ -11,6 +11,7 @@ var upper_attacks := 0
 var standing_defense := 0
 var crouching_defense := 0
 
+
 const HITBOX_NAME: StringName = &"Hitbox"
 const STANDING_DEFENSE_ANIM: StringName = &"standing_defense"
 const CROUCHING_DEFENSE_ANIM: StringName = &"crouching_defense"
@@ -60,7 +61,7 @@ func _ready():
 	damageClass.init($Dummy_Animation, $DummyHP, self)
 	
 	rules_base = Rules.new()
-	rule_engine = ScriptCreation.new(player, enemy_animation)
+	rule_engine = ScriptCreation.new(player, enemy_animation, player_animation)
 	rule_engine.set_ai_reference(self)
 	get_latest_script()
 	print("Rules node ready. Initial script generated.")

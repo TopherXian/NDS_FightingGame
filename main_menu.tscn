@@ -2,66 +2,55 @@
 
 [ext_resource type="Script" uid="uid://bgek1qknybw0w" path="res://Scripts/Menu_Buttons/main_menu_buttons.gd" id="1_06t4h"]
 
-[node name="Main_Menu" type="Node2D"]
+[node name="main_menu" type="Node2D"]
 script = ExtResource("1_06t4h")
 
-[node name="Dynamic Scripting" type="Button" parent="."]
-offset_left = 43.0
-offset_top = 85.0
-offset_right = 229.0
-offset_bottom = 150.0
-text = "Dynamic Scripting"
+[node name="TitleLabel" type="Label" parent="."]
+offset_left = 561.0
+offset_top = 7.0
+offset_right = 720.0
+offset_bottom = 46.0
+theme_override_font_sizes/font_size = 28
+text = "Neuro Fight"
 
-[node name="Decision Trees" type="Button" parent="."]
-offset_left = 238.0
-offset_top = 85.0
-offset_right = 424.0
-offset_bottom = 150.0
-text = "Decision Trees"
+[node name="Player1Options" type="VBoxContainer" parent="."]
+offset_left = 208.0
+offset_top = 109.0
+offset_right = 453.0
+offset_bottom = 221.0
 
-[node name="Player" type="Button" parent="."]
-offset_left = 433.0
-offset_top = 85.0
-offset_right = 619.0
-offset_bottom = 150.0
-text = "Player"
+[node name="P1Label" type="Label" parent="Player1Options"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 23
+text = "Player 1 (Ryu) Control:"
 
-[node name="Neuro-Dynamic Scripting" type="Button" parent="."]
-offset_left = 630.0
-offset_top = 84.0
-offset_right = 816.0
-offset_bottom = 149.0
-text = "Neuro-Dynamic Scripting"
+[node name="P1ControlSelector" type="OptionButton" parent="Player1Options"]
+layout_mode = 2
 
-[node name="Dynamic Scripting2" type="Button" parent="."]
-offset_left = 43.0
-offset_top = 352.0
-offset_right = 229.0
-offset_bottom = 417.0
-text = "Dynamic Scripting"
+[node name="Player2Options" type="VBoxContainer" parent="."]
+offset_left = 800.0
+offset_top = 106.0
+offset_right = 1139.0
+offset_bottom = 187.0
 
-[node name="Decision Trees2" type="Button" parent="."]
-offset_left = 238.0
-offset_top = 352.0
-offset_right = 424.0
-offset_bottom = 417.0
-text = "Decision Trees"
+[node name="P2Label" type="Label" parent="Player2Options"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 23
+text = "Player 2 (Dummy Ryu) Control:"
 
-[node name="Player2" type="Button" parent="."]
-offset_left = 433.0
-offset_top = 352.0
-offset_right = 619.0
-offset_bottom = 417.0
-text = "Player"
+[node name="P2ControlSelector" type="OptionButton" parent="Player2Options"]
+layout_mode = 2
 
-[node name="Neuro-Dynamic Scripting2" type="Button" parent="."]
-offset_left = 630.0
-offset_top = 351.0
-offset_right = 832.0
-offset_bottom = 416.0
-text = "Neuro-Dynamic Scripting"
+[node name="StartButton" type="Button" parent="."]
+offset_left = 566.0
+offset_top = 294.0
+offset_right = 727.0
+offset_bottom = 341.0
+theme_override_font_sizes/font_size = 28
+text = "Start Game"
 
-[connection signal="pressed" from="Dynamic Scripting" to="." method="_on_dynamic_scripting_pressed"]
-[connection signal="pressed" from="Decision Trees" to="." method="_on_decision_trees_pressed"]
-[connection signal="pressed" from="Player" to="." method="_on_player_pressed"]
-[connection signal="pressed" from="Neuro-Dynamic Scripting" to="." method="_on_neuro_dynamic_scripting_pressed"]
+[node name="ErrorLabel" type="Label" parent="."]
+offset_left = 408.0
+offset_top = 261.0
+offset_right = 448.0
+offset_bottom = 284.0

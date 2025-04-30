@@ -10,10 +10,10 @@ var executed_rules: Dictionary = {}
 
 var speed = 150
 
-func _init(enemy_ref, enemy_anim):
+func _init(enemy_ref, enemy_anim, animation_player):
 	player = enemy_ref
-	player_anim = enemy_ref.animation
-	animation = enemy_anim
+	player_anim = enemy_anim
+	animation = animation_player
 
 func set_ai_reference(ref):
 	ai_self = ref
@@ -21,16 +21,16 @@ func set_ai_reference(ref):
 func evaluate_and_execute(rules: Array):
 	var current_anim = player_anim.current_animation
 	var dist = ai_self.global_position.distance_to(player.global_position)
-	var current_lower_hits = ai_self.lower_hits # Get current hits from AI
-	var current_upper_hits = ai_self.upper_hits # Get current hits from AI
+	var current_lower_hits = ai_self.lower_hits_taken # Get current hits from AI
+	var current_upper_hits = ai_self.upper_hits_taken # Get current hits from AI
 
 	for rule in rules:
 		var conditions = rule["conditions"]
-		var ruleID = rule["ruleID"]
-		var match_anim = false
-		var match_dist = false
-		var match_upper_hits = false
-		var match_lower_hits = false
+		#var ruleID = rule["ruleID"]
+		#var match_anim = false
+		#var match_dist = false
+		#var match_upper_hits = false
+		#var match_lower_hits = false
 		var match_all = true
 		
 		if "player_anim" in conditions:
@@ -45,14 +45,14 @@ func evaluate_and_execute(rules: Array):
 				match_all = false
 				continue # Go to next rule
 		
-		if match_all and "upper_hits" in conditions:
+		if match_all or "upper_hits" in conditions:
 			var op = conditions["upper_hits"]["op"]
 			var value = conditions["upper_hits"]["value"]
 			if not _compare_numeric(op, current_upper_hits, value):
 				match_all = false
 				continue # Go to next rule
 			
-		if match_all and "lower_hits" in conditions:
+		if match_all or "lower_hits" in conditions:
 			var op = conditions["lower_hits"]["op"]
 			var value = conditions["lower_hits"]["value"]
 			if not _compare_numeric(op, current_lower_hits, value):
@@ -84,7 +84,7 @@ func _compare_numeric(op: String, current_value: int, rule_value: int) -> bool:
 		"==":
 			return current_value == rule_value # Simple comparison for now
 		_:
-			printerr("Unknown comparison operator: ", op)
+			print("Unknown comparison operator: ", op)
 			return false
 
 func _execute_action(action: String):
@@ -123,13 +123,14 @@ func _execute_action(action: String):
 
 func append_executed_rule(rule: Dictionary) -> void:
 	if not rule is Dictionary or not rule.has("ruleID"):
-		printerr("Invalid rule format passed to append_executed_rule: ", rule)
+		print("Invalid rule format passed to append_executed_rule: ", rule)
 		return
 
 	var id = rule["ruleID"]
 	
 	if not executed_rules.has(id):
 		executed_rules[id] = rule
+	#print(rule)
 
 func get_executed_rules() -> Array:
 	return executed_rules.values()
