@@ -16,6 +16,8 @@ var attack_logic: DummyAttack
 var is_defending: bool = false
 var is_attacking: bool = false # Track if AI is currently in an attack animation
 
+@export var proactive_attack_chance: float = 0.2
+
 # List of opponent attack animations that trigger defense
 const OPPONENT_ATTACKS = [&"basic_punch", &"basic_kick", &"heavy_punch", &"heavy_kick", &"crouch_punch", &"crouch_kick"]
 
@@ -62,51 +64,57 @@ func _physics_process(_delta):
 		fighter.velocity = Vector2.ZERO # Ensure velocity is zeroed
 		return
 
-	# --- Get Current State ---
+# --- Get Current State ---
 	var opponent_anim_name: StringName = &""
 	if is_instance_valid(opponent_animation_player):
 		opponent_anim_name = opponent_animation_player.current_animation
-	else:
-		# Handle case where opponent anim player isn't found
-		pass
 
-	# Reset flags at the start of the frame
+	# Reset flags
 	is_defending = false
 	var desired_attack: StringName = &""
 
-	# --- Decision Logic (Based on test.txt) ---
+	# --- Decision Logic ---
 
-	# 1. Check for Defense Condition
+	# 1. Check for Defense Condition (Reactive)
 	if opponent_anim_name in OPPONENT_ATTACKS:
-		# Opponent is attacking, attempt to defend
 		is_defending = true
-		fighter.velocity.x = 0 # Stop horizontal movement when defending
-		if animation_player.current_animation != "standing_defense": # Check if already defending
+		fighter.velocity.x = 0
+		if animation_player.current_animation != "standing_defense":
 			animation_player.play("standing_defense")
-			# Don't reset is_attacking flag here, defense is not an attack
 
-	# 2. If NOT Defending, consider Movement and Attack
-	if not is_defending and not is_attacking: # Only move/attack if not defending and not already attacking
-		# a. Decide Movement (uses DummyMovement logic)
-		if is_instance_valid(movement_logic):
-			movement_logic.decide_movement() # Sets fighter.velocity.x and plays walk anim if needed
+	# 2. If NOT Defending and NOT Attacking, consider Proactive Attack, Movement, and Reactive Attack
+	elif not is_attacking:
+		# a. Proactive Attack Check (NEW)
+		# Only check if not defending and on the floor
+		if fighter.is_on_floor() and randf() < proactive_attack_chance:
+			# Check distance using the attack logic helper
+			if is_instance_valid(attack_logic):
+				desired_attack = attack_logic.get_basic_attack_action()
+				if desired_attack != &"": # If an attack is valid at this range
+					print("DecisionTree: Proactive attack!") # For debugging
+					# Proceed to execute below
 
-		# b. Decide Attack (uses DummyAttack logic)
-		if is_instance_valid(attack_logic):
+		# b. Decide Movement (only if no attack was chosen proactively)
+		if desired_attack == &"" and is_instance_valid(movement_logic):
+			movement_logic.decide_movement()
+
+		# c. Decide Reactive Attack (only if no proactive attack chosen)
+		#    (This part might be redundant if proactive uses the same distance check)
+		if desired_attack == &"" and is_instance_valid(attack_logic):
+			# Check if basic attack is viable based on distance (reactive to position)
 			desired_attack = attack_logic.get_basic_attack_action()
 
-		# c. Execute Attack if one is desired and AI is in range/state to do so
+		# d. Execute Chosen Attack (if any)
 		if desired_attack != &"":
-			fighter.velocity.x = 0 # Stop moving when starting an attack
+			fighter.velocity.x = 0 # Stop moving
 			animation_player.play(desired_attack)
-			is_attacking = true # Set flag to prevent other actions during attack
+			is_attacking = true
 
-		# d. If no attack chosen and not moving, play idle
+		# e. Idle (if not moving, not attacking, on floor)
 		elif fighter.velocity.x == 0 and fighter.is_on_floor():
-			if animation_player.current_animation != "idle": # Check if already idle
-				animation_player.play("idle")
-
-	# Note: Gravity and move_and_slide() are handled by BaseFighter.gd
+			if animation_player.current_animation not in [&"idle", &"hurt", &"standing_defense", &"crouching_defense"]:
+				if not is_attacking:
+					animation_player.play("idle")
 
 # Called when any animation finishes on this character's AnimationPlayer
 func _on_animation_finished(anim_name: StringName):

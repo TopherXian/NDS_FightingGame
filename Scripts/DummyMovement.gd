@@ -28,7 +28,7 @@ func decide_movement():
 	var direction_to_opponent = opponent.global_position.x - fighter.global_position.x
 
 	# Only move if sufficiently far away
-	if distance >= 100:
+	if distance >= 70:
 		if direction_to_opponent > 0:
 			# Opponent is to the right, move right
 			fighter.velocity.x = speed

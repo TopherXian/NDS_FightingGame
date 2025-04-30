@@ -18,7 +18,7 @@ var rules: Array = [
 	},
 	{
 		"ruleID": 2,
-		"conditions": { "player_anim": "walk_forward", "distance": { "op": "<=", "value": 100 }, "upper_hits": { "op": ">=", "value": 0 }, "lower_hits": { "op": ">=", "value": 0 } },
+		"conditions": { "player_anim": "walk_forward", "distance": { "op": "<=", "value": 80 }, "upper_hits": { "op": ">=", "value": 0 }, "lower_hits": { "op": ">=", "value": 0 } },
 		"enemy_action": "basic_kick", "weight": 0.8, "wasUsed": false, "inScript": false # Increased weight
 	},
 	{

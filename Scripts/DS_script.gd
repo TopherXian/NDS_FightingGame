@@ -45,14 +45,14 @@ func evaluate_and_execute(rules: Array):
 				match_all = false
 				continue # Go to next rule
 		
-		if match_all and "upper_hits" in conditions:
+		if match_all or "upper_hits" in conditions:
 			var op = conditions["upper_hits"]["op"]
 			var value = conditions["upper_hits"]["value"]
 			if not _compare_numeric(op, current_upper_hits, value):
 				match_all = false
 				continue # Go to next rule
 			
-		if match_all and "lower_hits" in conditions:
+		if match_all or "lower_hits" in conditions:
 			var op = conditions["lower_hits"]["op"]
 			var value = conditions["lower_hits"]["value"]
 			if not _compare_numeric(op, current_lower_hits, value):
@@ -84,7 +84,7 @@ func _compare_numeric(op: String, current_value: int, rule_value: int) -> bool:
 		"==":
 			return current_value == rule_value # Simple comparison for now
 		_:
-			printerr("Unknown comparison operator: ", op)
+			print("Unknown comparison operator: ", op)
 			return false
 
 func _execute_action(action: String):
