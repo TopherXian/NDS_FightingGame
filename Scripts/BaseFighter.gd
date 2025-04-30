@@ -198,6 +198,7 @@ func setup_controller(type: String):
 				if DTControllerClass:
 					active_controller = DTControllerClass.new(self, animation_player, opponent) # Use constructor if it accepts args
 					add_child(active_controller)
+					active_controller.init_controller(self, animation_player, opponent, hp_bar)
 				else: printerr("Failed to load DecisionTreeController.gd")
 			else: printerr("DecisionTreeController.gd not found.")
 
