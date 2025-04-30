@@ -4120,6 +4120,10 @@ size = Vector2(16.4084, 13.1926)
 
 [node name="Player" type="CharacterBody2D"]
 script = ExtResource("1_dmqg8")
+max_health = null
+defense_damage_modifier = null
+normal_damage_taken = null
+character_id = null
 
 [node name="Sprite" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_rv41s")

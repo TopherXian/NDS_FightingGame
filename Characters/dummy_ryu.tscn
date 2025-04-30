@@ -3360,6 +3360,9 @@ size = Vector2(15, 14)
 
 [node name="Dummy_Ryu" type="CharacterBody2D"]
 script = ExtResource("1_hxnh7")
+max_health = null
+defense_damage_modifier = null
+normal_damage_taken = null
 character_id = "Player2"
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]

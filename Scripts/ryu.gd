@@ -19,6 +19,7 @@ const CROUCHING_DEFENSE_ANIM: StringName = &"crouching_defense"
 @onready var timer = $PlayerTimer
 
 var Starthp = 100
+var hp_bar: int
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 var is_jumping = false
 
@@ -46,8 +47,9 @@ func _ready():
 	# Initialize the movement system and attack system with necessary components
 	movement_system = Movements.new(animation, self)  # Pass 'self' as the player instance
 	attack_system = Attacks.new(animation, self)      # Pass 'self' as the player instance
-	damaged_system = Damaged.new(animation, self)
 	$PlayerHP.value = Starthp
+	hp_bar
+	damaged_system = Damaged.new(animation, self, hp_bar)
 	timer.one_shot = false     # Keep repeating every 4 seconds
 	# Connect signal (Godot 4 syntax)
 	timer.timeout.connect(_on_timer_timeout)

@@ -5,16 +5,16 @@ var anim_player: AnimationPlayer
 var hp_bar: ProgressBar
 var enemy: CharacterBody2D
 
-func init(anim: AnimationPlayer, hp: ProgressBar, enemy_instance: CharacterBody2D):
+func init(anim: AnimationPlayer, enemy_instance: CharacterBody2D, hp: ProgressBar):
 	hp_bar = hp
 	anim_player = anim
 	enemy = enemy_instance
 
 func take_damage(damage_value: int) -> void:
-	hp_bar.value -= damage_value
-	enemy.velocity.x = -10
-	enemy.velocity.y = 0
-	anim_player.play("hurt")
+	#hp_bar.value -= damage_value
+	#enemy.velocity.x = -100
+	#enemy.velocity.y = 0
+	#anim_player.play("hurt")
 	_connect_animation_physics()
 	
 

@@ -280,7 +280,7 @@ func apply_damage(damage_amount: int, is_upper_hit: bool):
 		final_damage = int(damage_amount * defense_damage_modifier)
 		crouching_defenses += 1
 		defended = true
-
+	
 	# Apply damage
 	health -= final_damage
 	hp_bar.value = health # Update HP bar directly here
@@ -292,8 +292,8 @@ func apply_damage(damage_amount: int, is_upper_hit: bool):
 		lower_hits_taken += 1
 
 	# Trigger damaged effects (animation, knockback) - Use Damaged system if it exists
-	if is_instance_valid(damaged_system) and damaged_system.has_method("trigger_damage_effects"):
-		damaged_system.trigger_damage_effects(final_damage, defended)
+	if is_instance_valid(damaged_system) and damaged_system.has_method("take_damage"):
+		damaged_system.take_damage(final_damage, sprite)
 	else: # Basic fallback if no damaged system
 		animation_player.play("hurt")
 		# Basic knockback
