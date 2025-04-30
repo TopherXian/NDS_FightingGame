@@ -3414,6 +3414,8 @@ modulate = Color(0.72549, 0.494118, 0.160784, 1)
 position = Vector2(-2.5, 3)
 shape = SubResource("RectangleShape2D_5eeq5")
 
+[node name="HurtTimer" type="Timer" parent="."]
+
 [connection signal="area_entered" from="Dummy_UpperHurtbox" to="." method="_on_dummy_upper_hurtbox_area_entered"]
 [connection signal="area_entered" from="Dummy_LowerHurtbox" to="." method="_on_dummy_lower_hurtbox_area_entered"]
 [connection signal="area_shape_entered" from="Dummy_Hitbox" to="." method="_on_dummy_hitbox_area_shape_entered"]

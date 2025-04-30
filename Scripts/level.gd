@@ -36,7 +36,7 @@ func _ready():
 		printerr("QuitButton not found in PauseMenu!")
 
 # --- Existing _process ---
-func _process(delta):
+func _process(_delta):
 	label.text = "%02d" % int(timer.time_left)
 
 # --- Input Handling for Pause ---

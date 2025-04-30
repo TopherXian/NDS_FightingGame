@@ -56,7 +56,7 @@ func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer
 	print("Decision Tree Controller Initialized for: ", fighter.name)
 
 
-func _physics_process(delta):
+func _physics_process(_delta):
 	if not is_instance_valid(fighter) or not is_instance_valid(opponent) or fighter.health <= 0:
 		# Stop processing if fighter/opponent invalid or fighter is defeated
 		fighter.velocity = Vector2.ZERO # Ensure velocity is zeroed
@@ -125,7 +125,7 @@ func _on_animation_finished(anim_name: StringName):
 
 
 # Optional: Allow BaseFighter to notify this controller if needed
-func notify_damage_taken(amount: int, is_upper: bool, defended: bool):
+func notify_damage_taken(_amount: int, _is_upper: bool, _defended: bool):
 	# AI could potentially react to getting hit, e.g., cancel current action
 	# print("DecisionTreeController notified: Took ", amount, " damage.")
 	# For this simple AI, maybe just print or ignore

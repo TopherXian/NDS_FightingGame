@@ -34,12 +34,12 @@ func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer
 	print(fighter)
 	print(opponent)
 
-	if is_instance_valid(opponent) and opponent.has_node("Animation"): # Adjust path if needed
-		opponent_animation_player = opponent.get_node("Animation")
-	if is_instance_valid(opponent) and opponent.has_node("PlayerHP"):
-		var opponent_HP = opponent.get_node("PlayerHP")
+	if is_instance_valid(opponent) and (opponent.has_node("Animation") or opponent.has_node("Dummy_Animation")): # Adjust path if needed
+		opponent_animation_player = opponent.get_node("Animation") if opponent.has_node("Animation") else opponent.get_node("Dummy_Animation")
+	if is_instance_valid(opponent) and (opponent.has_node("PlayerHP") or opponent.has_node("DummyHP")):
+		opponent_HP = opponent.get_node("PlayerHP") if opponent.has_node("PlayerHP") else opponent.get_node("DummyHP")
 	else:
-		printerr("DSController: Could not find opponent AnimationPlayer")
+		print("DSController: Could not find opponent AnimationPlayer")
 		# Decide how to handle this - maybe disable rule conditions based on opponent anim?
 
 	# --- Instantiate DS components ---
