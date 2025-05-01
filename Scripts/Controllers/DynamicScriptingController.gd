@@ -18,6 +18,9 @@ var latest_script: Array = []   # The currently executing action sequence
 @export var update_interval : float = 4.0 # How often to re-evaluate rules/script
 var _update_timer: Timer
 var speed = 150 # Movement speed for AI
+var is_hurt: bool = false
+var last_hurt_time: float = 0.0
+const HURT_RECOVERY_TIME: float = 0.4
 
 # --- Parameters (For training.txt) ---
 var previous_parameters = {}
@@ -80,17 +83,39 @@ func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer
 		append_script_to_log("Initial Script", )
 		log_game_info()
 
+	if animation_player and not animation_player.is_connected("animation_finished", Callable(self, "_on_animation_finished")):
+		animation_player.connect("animation_finished", Callable(self, "_on_animation_finished"))
+	reset_ai_state()
 	#print("Dynamic Scripting Controller Initialized for: ", fighter.name)
 
+func reset_ai_state():
+	is_hurt = false
+	fighter.velocity = Vector2.ZERO
 
 func _physics_process(_delta):
 	if not is_instance_valid(fighter): return
 	if not is_instance_valid(rule_engine): return # Cannot execute without engine
 
+
+	if is_hurt:
+		if Time.get_ticks_msec() - last_hurt_time > HURT_RECOVERY_TIME * 1000:
+			reset_ai_state()
+		return 
+			
 	if latest_script.size() == 0: return
+	
+	# Only process if not in hurt animation
+	if animation_player.current_animation != "hurt":
+		rule_engine.evaluate_and_execute(latest_script)
 	
 	rule_engine.evaluate_and_execute(latest_script) 
 
+func _on_animation_finished(anim_name: String):
+	if anim_name == "hurt":
+		# Force return to idle state
+		animation_player.play("idle")
+		reset_ai_state()
+		print("Recovered from hurt state")
 
 # --- Timer Timeout (From DS_ryu.txt) ---
 func _on_timer_timeout():
@@ -284,6 +309,7 @@ func get_executed_rule() -> String:
 		
 # --- Allow BaseFighter to notify this controller ---
 func notify_damage_taken(_amount: int, _is_upper: bool, _defended: bool):
-	# AI can use this information immediately if needed
-	# print("DSController notified: Took ", amount, " damage. Upper: ", is_upper, " Defended: ", defended)
-	pass
+	# Simply track hurt state without duplicating knockback logic
+	is_hurt = true
+	last_hurt_time = Time.get_ticks_msec()
+	fighter.velocity = Vector2.ZERO

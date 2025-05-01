@@ -264,10 +264,12 @@ func update_facing_direction():
 
 # --- Damage Handling ---
 func apply_damage(damage_amount: int, is_upper_hit: bool):
+	if animation_player.current_animation == "hurt":
+		return
 	if health <= 0: return # Already defeated
-
+	
 	var final_damage = damage_amount
-	var defended = false
+	var defended = false	
 
 	# Check defense state
 	var current_anim = animation_player.current_animation
@@ -284,6 +286,14 @@ func apply_damage(damage_amount: int, is_upper_hit: bool):
 	health -= final_damage
 	hp_bar.value = health # Update HP bar directly here
 
+	# Single source for damage reactions
+	if is_instance_valid(damaged_system):
+		damaged_system.take_damage(final_damage, sprite)
+	
+	# Notify controller AFTER damage is applied
+	if active_controller and active_controller.has_method("notify_damage_taken"):
+		active_controller.notify_damage_taken(damage_amount, is_upper_hit, defended)
+		
 	# Update hit counters
 	if is_upper_hit:
 		upper_hits_taken += 1
@@ -304,14 +314,8 @@ func apply_damage(damage_amount: int, is_upper_hit: bool):
 		die()
 		GameSettings.round_active = false
 		get_tree().call_group("game_controller", "on_round_end")
-
-	# Update Stats Display
+	
 	_update_stats_text()
-
-	# Notify Controller (Optional - if AI needs to react instantly to getting hit)
-	if is_instance_valid(active_controller) and active_controller.has_method("notify_damage_taken"):
-		active_controller.notify_damage_taken(final_damage, is_upper_hit, defended)
-
 
 func die():
 	if animation_player.current_animation != "knocked_down":
