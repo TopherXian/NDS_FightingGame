@@ -10,9 +10,6 @@ var executed_rules: Dictionary = {}
 
 var speed = 150
 
-#var last_action_time: float = 0.0
-#var ACTION_COOLDOWN: float = 0.4
-
 func _init(enemy_ref, enemy_anim, animation_player):
 	player = enemy_ref
 	player_anim = enemy_anim

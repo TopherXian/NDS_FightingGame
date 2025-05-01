@@ -1,6 +1,5 @@
 extends Node
 
-# Define the Attacks class to be referenced elsewhere
 class_name Attacks
 
 var animation : AnimationPlayer

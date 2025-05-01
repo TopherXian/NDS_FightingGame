@@ -211,91 +211,44 @@ func get_DScript() -> Array:
 #			 print("Updated weight for rule %d to %f" % [rule_id, new_weight])
 #			 # Note: This change will only reflect in the *next* script generation cycle.
 #			 break
+func calculate_fitness(DS_lower_hits_taken : int, DS_upper_hits_taken : int, DS_upper_successful_attacks : int, DS_lower_successful_attacks : int, DS_standing_defended : int, DS_crouching_defended : int, maxHP):
+	var bot_dmg_taken :=(10 * (DS_lower_hits_taken + DS_upper_hits_taken)) 
+	var bot_dmg_output := (10 * (DS_upper_successful_attacks + DS_lower_successful_attacks))
+	
+	var dmg_score = (bot_dmg_taken - bot_dmg_output)/maxHP
+	
+	var offensiveness = (0.002 * DS_upper_successful_attacks + 0.002 * DS_lower_successful_attacks)
+#	ADD FIRST THE FUNCTIONALITIES FOR THE CROUCHING AND STANDING DEFENSE
+	var defensiveness = (0.003 * DS_standing_defended + 0.003 * DS_crouching_defended)
+	var penalties = (-0.005 * DS_lower_hits_taken + -0.005 * DS_upper_hits_taken)
+	var raw = baseline + dmg_score + offensiveness + defensiveness + penalties
+	return max(0.0, min(1.0, raw))
 	
 func adjust_script_weights(fitness: float) -> void:
 	var adjustment = (fitness - baseline) * scaling_factor
 	var used_rules = []
 	var unused_rules = []
+	var compensation
 	
-	# Track changes for logging
-	var weight_changes = {}
-	
-	# Classify rules
 	for rule in current_script:
-		if rule["wasUsed"]:
+		if rule["wasUsed"] == true:
 			used_rules.append(rule)
-		else:
+		elif rule["wasUsed"] == false:
 			unused_rules.append(rule)
+			
+	if len(unused_rules) > 0: # Check if there are any unused rules
+		compensation = (len(used_rules) * adjustment) / float(len(unused_rules)) # Ensure float division
+	else:
+		pass
 	
-	# Calculate compensation more safely
-	var compensation = 0.0
-	if unused_rules.size() > 0:
-		compensation = (used_rules.size() * adjustment) / unused_rules.size()
-	
-	# Apply adjustments with clamping
 	for rule in current_script:
-		var original_weight = rule["weight"]
-		
-		if rule["wasUsed"]:
+		if rule.get("wasUsed") == true:
 			rule["weight"] += adjustment
 		else:
 			rule["weight"] += compensation
-		
-		# Apply nonlinear clamping
-		rule["weight"] = clamp(
-			rule["weight"] * (1.0 + 0.1 * randf()),  # Add slight randomness
-			WMIN, 
-			WMAX
-		)
-		
-		# Track meaningful changes
-		if abs(original_weight - rule["weight"]) > 0.01:
-			weight_changes[rule["ruleID"]] = {
-				"old": original_weight,
-				"new": rule["weight"]
-			}
-	
-	# Log weight changes
-	if weight_changes.size() > 0:
-		print("=== Weight Adjustments ===")
-		for rule_id in weight_changes:
-			var change = weight_changes[rule_id]
-			print("Rule %d: %.2f => %.2f" % [
-				rule_id, 
-				change["old"], 
-				change["new"]
-			])
-	else:
-		print("No significant weight changes this cycle")
-
-func calculate_fitness(DS_lower_hits_taken: int, DS_upper_hits_taken: int, 
-					  DS_upper_successful_attacks: int, DS_lower_successful_attacks: int,
-					  DS_standing_defended: int, DS_crouching_defended: int, 
-					  maxHP: int) -> float:
-	# Enhanced fitness calculation with kick spam penalty
-	var kick_ratio = float(DS_lower_successful_attacks) / max(DS_lower_successful_attacks + DS_upper_successful_attacks, 1)
-	var kick_spam_penalty = -0.1 * kick_ratio
-	
-	var bot_dmg_taken = 10 * (DS_lower_hits_taken + DS_upper_hits_taken)
-	var bot_dmg_output = 10 * (DS_upper_successful_attacks + DS_lower_successful_attacks)
-	
-	var dmg_score = (bot_dmg_output - bot_dmg_taken) / float(maxHP)
-	var offensiveness = 0.002 * (DS_upper_successful_attacks + DS_lower_successful_attacks)
-	var defensiveness = 0.003 * (DS_standing_defended + DS_crouching_defended)
-	var penalties = -0.005 * (DS_lower_hits_taken + DS_upper_hits_taken)
-	
-	var raw = baseline + dmg_score + offensiveness + defensiveness + penalties + kick_spam_penalty
-	var fitness = clamp(raw, 0.0, 1.0)
-	
-	print("\n=== Fitness Calculation ===")
-	print("Damage Score: %.2f" % dmg_score)
-	print("Offensiveness: %.2f" % offensiveness)
-	print("Defensiveness: %.2f" % defensiveness)
-	print("Penalties: %.2f" % penalties)
-	print("Kick Spam Penalty: %.2f" % kick_spam_penalty)
-	print("Final Fitness: %.2f\n" % fitness)
-	
-	return fitness
+	# Clamp weight between WMIN and WMAX
+		rule["weight"] = clamp(rule["weight"], WMIN, WMAX)
+	#print(current_script)
 	
 func update_rulebase() -> void:
 	
