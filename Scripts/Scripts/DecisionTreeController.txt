@@ -13,7 +13,7 @@ var movement_logic: DummyMovement
 var attack_logic: DummyAttack
 
 # --- State Machine ---
-enum State { IDLE, APPROACHING, ATTACKING, DEFENDING, REPOSITIONING, HURT }
+enum State { IDLE, APPROACHING, ATTACKING, DEFENDING, REPOSITIONING }
 var current_state: State = State.IDLE
 
 # --- Defense Logic ---
@@ -90,10 +90,6 @@ func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer
 
 
 func _physics_process(_delta):
-	
-	if current_state == State.HURT:
-		return
-		
 	if not is_instance_valid(fighter) or not is_instance_valid(opponent) or fighter.health <= 0:
 		if is_instance_valid(fighter): fighter.velocity = Vector2.ZERO
 		return
@@ -107,11 +103,6 @@ func _physics_process(_delta):
 
 	# --- State Machine Logic ---
 	match current_state:
-		
-		State.HURT:
-			# Wait for the hurt animation to finish (handled in _on_animation_finished)
-			fighter.velocity.x = 0 # Stop movement while hurt
-			
 		State.IDLE:
 			# Play idle animation if not already doing something important
 			if current_fighter_anim not in ATTACK_ANIMATIONS and \
@@ -301,7 +292,6 @@ func _play_animation(anim_name: StringName, force_restart: bool = false):
 
 # --- Signal Callbacks ---
 func _on_animation_finished(anim_name: StringName):
-
 	# Reset attacking flag if an attack animation finished [cite: 9]
 	if anim_name in ATTACK_ANIMATIONS:
 		is_attacking = false
@@ -310,10 +300,6 @@ func _on_animation_finished(anim_name: StringName):
 			_change_state(State.REPOSITIONING)
 		else:
 			_change_state(State.IDLE) # Default to idle after attacking
-			
-	if anim_name == "hurt":
-		# Return to IDLE after recovering from damage
-		_change_state(State.IDLE)
 
 	# If a non-looping defense animation finishes, transition
 	# if anim_name in DEFENSE_ANIMATIONS and not animation_player.get_animation(anim_name).loop:
@@ -331,8 +317,12 @@ func _on_reposition_timeout():
 	# print("Reposition finished.") # Debug
 
 
+# Optional: Allow BaseFighter to notify this controller if needed
 func notify_damage_taken(_amount: int, _is_upper: bool, _defended: bool):
-	# Immediately cancel attacks and transition to HURT state
+	# AI could potentially react to getting hit
+	# Example: If hit while attacking, cancel attack and go to IDLE (or a specific 'hurt reaction' state)
 	if is_attacking:
 		is_attacking = false
-	_change_state(State.HURT)
+		# Could force a transition to IDLE or REPOSITIONING here
+		# _change_state(State.IDLE)
+	pass
