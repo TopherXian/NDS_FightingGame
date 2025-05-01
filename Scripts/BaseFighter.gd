@@ -83,7 +83,7 @@ func _get_opponent_hitbox():
 
 # --- Controller ---
 var active_controller: Node = null
-
+var control_type: String
 # --- Character Identifier (Set in Inspector!) ---
 @export var character_id: String = "Player1" # "Player1" for Ryu, "Player2" for Dummy
 
@@ -123,7 +123,6 @@ func _ready():
 		print("WARNING: Damaged.gd not found at res://Scripts/Damaged.gd")
 
 	# Determine Control Type and Setup Controller
-	var control_type: String
 	if character_id == "Player1":
 		control_type = GameSettings.player1_control_type
 	elif character_id == "Player2":
@@ -232,6 +231,8 @@ func _physics_process(delta):
 	# Optional: Reset jump flag if grounded (depends on controller needs)
 	if is_on_floor():
 		is_jumping = false
+	
+	_update_executed_rule()
 
 
 
@@ -350,15 +351,15 @@ func _on_own_hitbox_area_entered(area: Area2D) -> void:
 
 func _update_stats_text():
 	# Determine correct label name based on character
-	var label_name = "PlayerDetails" if character_id == "Player1" else "OpponentDetails"
+	var parameters_label = "PlayerDetails" if character_id == "Player1" else "OpponentDetails"
 	
 	if stats_label == null:
 		# Try to find the correct label node
-		var label_node = get_parent().get_node(label_name)
+		var label_node = get_parent().get_node(parameters_label)
 		if label_node is Label:
 			stats_label = label_node
 		else:
-			print("Stats label '%s' not found for "%label_name, character_id)
+			print("Stats label '%s' not found for "%parameters_label, character_id)
 			return
 	
 	# Update text with current values
@@ -367,7 +368,45 @@ func _update_stats_text():
 		lower_attacks_landed, upper_attacks_landed,
 		standing_defenses, crouching_defenses
 	]
-# --- Public methods controllers might need ---
+
+func _update_executed_rule():
+	var label_name = "P1ExecutedR" if character_id == "Player1" else "P2ExecutedR"
+	var label_node = get_parent().get_node(label_name)
+	
+	if not label_node:
+		print("Executed Rule label '%s' not found" % label_name)
+		return
+	
+	var rule_text = "No rule"
+	if is_instance_valid(active_controller):
+		# Try general controller access first
+		if active_controller.has_method("get_executed_rule"):
+			rule_text = active_controller.get_executed_rule()
+		elif "current_rule" in active_controller:
+			rule_text = active_controller.current_rule
+		else:
+			# Controller-specific handling
+			match control_type:
+				"Dynamic Scripting":
+					if active_controller.has_method("get_executed_rule"):
+						rule_text = active_controller.get_executed_rule()
+						print(rule_text)
+				"Decision Tree":
+					if "last_executed_decision" in active_controller:
+						rule_text = active_controller.last_executed_decision
+				"Neuro-Dynamic":
+					if "current_action" in active_controller:
+						rule_text = active_controller.current_action
+				"Human":
+					rule_text = "Manual input"
+	
+	# Limit text length for display
+	if rule_text.length() > 20:
+		rule_text = rule_text.substr(0, 17) + "..."
+	
+	label_node.text = "Rule used: %s" % rule_text
+	#print("RULE TEXT:%s" % rule_text )
+	
 func get_opponent() -> CharacterBody2D:
 	return opponent
 

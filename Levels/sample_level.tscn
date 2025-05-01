@@ -669,3 +669,19 @@ text = "Resume"
 [node name="QuitButton" type="Button" parent="PauseLayer/PauseMenu/VBoxContainer"]
 layout_mode = 2
 text = "Quit to Menu"
+
+[node name="P1ExecutedR" type="Label" parent="."]
+offset_left = -211.0
+offset_top = 103.0
+offset_right = -76.0
+offset_bottom = 126.0
+theme_override_font_sizes/font_size = 11
+text = "Rule:"
+
+[node name="P2ExecutedR" type="Label" parent="."]
+offset_left = 69.0
+offset_top = 104.0
+offset_right = 187.0
+offset_bottom = 127.0
+theme_override_font_sizes/font_size = 11
+text = "Rule:"

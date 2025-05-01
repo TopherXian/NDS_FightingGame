@@ -275,7 +275,13 @@ func append_script_to_log(context: String = "Update") -> void:
 		file.close()
 	else:
 		print("Failed to open log file: ", LOG_FILE_PATH)
-
+		
+func get_executed_rule() -> String:
+	if is_instance_valid(rule_engine) and rule_engine.has_method("get_current_rule"):
+		return rule_engine.get_current_rule()
+	else: 
+		return "Failed to get rule"
+		
 # --- Allow BaseFighter to notify this controller ---
 func notify_damage_taken(_amount: int, _is_upper: bool, _defended: bool):
 	# AI can use this information immediately if needed
