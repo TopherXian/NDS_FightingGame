@@ -77,6 +77,16 @@ func _physics_process(_delta):
 	if is_instance_valid(attack_system):
 		attack_system.handle_punch()
 		attack_system.handle_kick()
-	# else: print("Attack system invalid in _physics_process") # Optional debug
 
-	# BaseFighter handles gravity and move_and_slide
+	if Engine.get_frames_drawn() % 240 == 0: # Every 4 seconds at 60 FPS
+		reset_counters()
+
+func reset_counters():
+	if is_instance_valid(fighter):
+		fighter.lower_hits_taken = 0
+		fighter.upper_hits_taken = 0
+		fighter.lower_attacks_landed = 0
+		fighter.upper_attacks_landed = 0
+		fighter.standing_defenses = 0
+		fighter.crouching_defenses = 0
+		fighter._update_stats_text()

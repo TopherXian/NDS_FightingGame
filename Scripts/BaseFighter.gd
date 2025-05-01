@@ -237,6 +237,7 @@ func _physics_process(delta):
 		is_jumping = false
 
 
+
 func update_facing_direction():
 	if not is_instance_valid(opponent): return # Opponent might be defeated/removed
 	var direction_to_opponent = opponent.global_position.x - global_position.x
@@ -360,21 +361,24 @@ func _on_own_hitbox_area_entered(area: Area2D) -> void:
 
 
 func _update_stats_text():
+	# Determine correct label name based on character
+	var label_name = "PlayerDetails" if character_id == "Player1" else "OpponentDetails"
+	
 	if stats_label == null:
-		# Try to find the label if not set in Inspector
-		# Adjust node path based on your scene structure (e.g., relative to parent)
-		var label_node = get_parent().find_child(character_id + "Details", true, false)
+		# Try to find the correct label node
+		var label_node = get_parent().get_node(label_name)
 		if label_node is Label:
 			stats_label = label_node
 		else:
-			#print("Warning: Stats label not found for ", character_id)
-			return # Exit if label not found
-
-	# Update the text (Using format from ryu.txt/DS_ryu.txt)
-	stats_label.text = "Lower Hits Taken: %d\nUpper Hits Taken: %d\nLower Attacks Hit: %d\nUpper Attacks Hit: %d\nStand Def: %d\nCrouch Def: %d" % [
-		lower_hits_taken, upper_hits_taken, lower_attacks_landed, upper_attacks_landed, standing_defenses, crouching_defenses
+			print("Stats label '%s' not found for "%label_name, character_id)
+			return
+	
+	# Update text with current values
+	stats_label.text = "%s\nLower Hits Taken: %d\nUpper Hits Taken: %d\nLower Attacks Hit: %d\nUpper Attacks Hit: %d\nStand Def: %d\nCrouch Def: %d" % [
+		character_id, lower_hits_taken, upper_hits_taken, 
+		lower_attacks_landed, upper_attacks_landed,
+		standing_defenses, crouching_defenses
 	]
-
 # --- Public methods controllers might need ---
 func get_opponent() -> CharacterBody2D:
 	return opponent

@@ -16,6 +16,9 @@ var attack_logic: DummyAttack
 var is_defending: bool = false
 var is_attacking: bool = false # Track if AI is currently in an attack animation
 
+var _update_timer: Timer
+@export var update_interval : float = 4.0
+
 @export var proactive_attack_chance: float = 0.2
 
 # List of opponent attack animations that trigger defense
@@ -56,7 +59,28 @@ func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer
 		animation_player.connect("animation_finished", Callable(self, "_on_animation_finished"))
 
 	print("Decision Tree Controller Initialized for: ", fighter.name)
+	
+	_update_timer = Timer.new()
+	_update_timer.wait_time = update_interval
+	_update_timer.one_shot = false # Make it repeat
+	_update_timer.timeout.connect(_on_timer_timeout)
+	add_child(_update_timer) # Add timer to the scene tree
+	_update_timer.start()
+	
+func _on_timer_timeout():
+	if not is_instance_valid(fighter): return	
+	# Reset counters
+	reset_counters()
 
+func reset_counters():
+	if is_instance_valid(fighter):
+		fighter.lower_hits_taken = 0
+		fighter.upper_hits_taken = 0
+		fighter.lower_attacks_landed = 0
+		fighter.upper_attacks_landed = 0
+		fighter.standing_defenses = 0 
+		fighter.crouching_defenses = 0
+		fighter._update_stats_text()
 
 func _physics_process(_delta):
 	if not is_instance_valid(fighter) or not is_instance_valid(opponent) or fighter.health <= 0:

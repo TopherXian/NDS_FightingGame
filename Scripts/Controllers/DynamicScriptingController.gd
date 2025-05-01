@@ -170,7 +170,6 @@ func log_game_info():
 		#])
 #LOG EXECUTED RULES 
 func log_info(script, header) -> void:
-	var executed_rules = rule_engine.get_executed_rules()
 	print("\n====== %s Rules ======" % header)
 	print("ID | Action            | Weight | In Script")
 	print("---|-------------------|--------|----------")
@@ -186,12 +185,15 @@ func log_info(script, header) -> void:
 	print("Total rules: %d\n" % script.size())
 
 func reset_counters():
+	# Reset numerical counters
 	fighter.lower_hits_taken = 0
 	fighter.upper_hits_taken = 0
 	fighter.lower_attacks_landed = 0
 	fighter.upper_attacks_landed = 0
 	fighter.standing_defenses = 0
 	fighter.crouching_defenses = 0
+	
+	# Force label update with fresh values
 	fighter._update_stats_text()
 
 func get_parameters():

@@ -193,7 +193,7 @@ func generate_and_update_script():
 	# --- Step 5: Assign the modified slice to current_script ---
 	current_script = top_rules_slice
 
-	print("Generated new script with %d rules. 'inScript' set to true within this script." % current_script.size())
+	#print("Generated new script with %d rules. 'inScript' set to true within this script." % current_script.size())
 	# Optional: Print the actual script for debugging (notice 'inScript' should be true)
 	#print("New Script:", current_script)
 
