@@ -85,7 +85,7 @@ var rules: Array = [
 	{
 		"ruleID": 15, # Player walking forward far away, enemy jumps in
 		"conditions": { "player_anim": "walk_forward", "distance": { "op": ">=", "value": 150 }, "upper_hits": { "op": "==", "value": 0 }, "lower_hits": { "op": "==", "value": 0 } },
-		"enemy_action": "jump", "weight": 0., "wasUsed": false, "inScript": false
+		"enemy_action": "jump", "weight": 0.5, "wasUsed": false, "inScript": false
 	},
 	{
 		"ruleID": 16, # Player punch blocked/missed close range, enemy counter punches
@@ -131,7 +131,7 @@ var rules: Array = [
 			"lower_hits": { "op": ">=", "value": 0 }
 		},
 		"enemy_action": "crouch_kick", 
-		"weight": 0.8,  # Higher priority
+		"weight": 0.5,  # Higher priority
 		"wasUsed": false,
 		"inScript": false
 	},
@@ -144,7 +144,7 @@ var rules: Array = [
 			"lower_hits": { "op": "==", "value": 0 }
 		},
 		"enemy_action": "walk_forward", 
-		"weight": 0.7,
+		"weight": 0.5,
 		"wasUsed": false,
 		"inScript": false
 	},
@@ -157,7 +157,7 @@ var rules: Array = [
 			"lower_hits": { "op": ">=", "value": 1 }
 		},
 		"enemy_action": "heavy_punch", 
-		"weight": 0.9,  # Very high priority
+		"weight": 0.5,  # Very high priority
 		"wasUsed": false,
 		"inScript": false
 	},
@@ -170,7 +170,7 @@ var rules: Array = [
 			"lower_hits": { "op": "==", "value": 0 }
 		},
 		"enemy_action": "jump", 
-		"weight": 0.6,
+		"weight": 0.5,
 		"wasUsed": false,
 		"inScript": false
 	},
@@ -183,7 +183,7 @@ var rules: Array = [
 			"lower_hits": { "op": "==", "value": 0 }
 		},
 		"enemy_action": "heavy_kick", 
-		"weight": 0.85,
+		"weight": 0.5,
 		"wasUsed": false,
 		"inScript": false
 	},
@@ -209,7 +209,7 @@ var rules: Array = [
 			"lower_hits": { "op": ">=", "value": 3 }
 		},
 		"enemy_action": "crouch_punch", 
-		"weight": 0.7,
+		"weight": 0.5,
 		"wasUsed": false,
 		"inScript": false
 	},
@@ -222,7 +222,7 @@ var rules: Array = [
 			"lower_hits": { "op": ">=", "value": 1 }
 		},
 		"enemy_action": "jump_attack", 
-		"weight": 0.65,
+		"weight": 0.5,
 		"wasUsed": false,
 		"inScript": false
 	}
@@ -298,30 +298,67 @@ func calculate_fitness(DS_lower_hits_taken : int, DS_upper_hits_taken : int, DS_
 	var raw = baseline + dmg_score + offensiveness + defensiveness + penalties
 	return max(0.0, min(1.0, raw))
 	
-func adjust_script_weights(fitness: float) -> void:
+func adjust_script_weights(fitness: float) -> Array:
 	var adjustment = (fitness - baseline) * scaling_factor
 	var used_rules = []
 	var unused_rules = []
+	var script_ids = []
 	var compensation
+	var PMAX = 0.4
+	var RMAX = 0.4
+	var raw_delta = 0
+	var delta = 0
+	var total_delta = 0
+	var redistribution = 0
 	
+	if fitness < baseline:
+		raw_delta = (PMAX * (baseline - fitness)) / baseline
+		delta = -min(PMAX, int(raw_delta))
+	else:
+		raw_delta = (RMAX * (fitness - baseline)) / (1 - baseline)
+		delta = min(RMAX, int(raw_delta))
+		
 	for rule in current_script:
 		if rule["wasUsed"] == true:
 			used_rules.append(rule)
 		elif rule["wasUsed"] == false:
 			unused_rules.append(rule)
 			
-	if len(unused_rules) > 0: # Check if there are any unused rules
-		compensation = (len(used_rules) * adjustment) / float(len(unused_rules)) # Ensure float division
-	else:
-		pass
-	
-	for rule in current_script:
-		if rule.get("wasUsed") == true:
-			rule["weight"] += adjustment
+	for r in current_script:
+		if r["wasUsed"]:
+			r["delta"] = delta
 		else:
-			rule["weight"] += compensation
-	# Clamp weight between WMIN and WMAX
-		rule["weight"] = clamp(rule["weight"], WMIN, WMAX)
+			r["delta"] = int(0.2 * delta)
+		
+	for r in current_script:
+		script_ids.append(r["ruleID"])
+	
+	redistribution = -total_delta / (len(rules) - len(current_script))
+	
+	for r in rules:
+		if r['ruleID'] not in script_ids:
+			r['weight'] += redistribution
+			r['weight'] = max(WMIN, min(WMAX, r['weight']))
+	for r in current_script:
+		r['weight'] += r['delta']
+		r['weight'] = max(WMIN, min(WMAX, r['weight']))
+		r.erase("delta")
+		
+	return current_script	
+	
+#		NOT USED ANYMORE
+	#if len(unused_rules) > 0: # Check if there are any unused rules
+		#compensation = (len(used_rules) * adjustment) / float(len(unused_rules)) # Ensure float division
+	#else:
+		#pass
+	#
+	#for rule in current_script:
+		#if rule.get("wasUsed") == true:
+			#rule["weight"] += adjustment
+		#else:
+			#rule["weight"] += compensation
+	## Clamp weight between WMIN and WMAX
+		#rule["weight"] = clamp(rule["weight"], WMIN, WMAX)
 	#print(current_script)
 	
 func update_rulebase() -> void:
