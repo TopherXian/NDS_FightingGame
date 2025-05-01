@@ -304,6 +304,8 @@ func apply_damage(damage_amount: int, is_upper_hit: bool):
 	# Check for defeat
 	if health <= 0:
 		die()
+		GameSettings.round_active = false
+		get_tree().call_group("game_controller", "on_round_end")
 
 	# Update Stats Display
 	_update_stats_text()
@@ -316,16 +318,16 @@ func apply_damage(damage_amount: int, is_upper_hit: bool):
 func die():
 	print(character_id, " defeated!")
 	animation_player.play("knocked_down") # Or dedicated "death" animation
-	set_physics_process(false) # Stop processing physics
+	#set_physics_process(false) # Stop processing physics
 	# Disable collisions?
 	
-	$CollisionShape2D.set_deferred("disabled", true)
-	upper_hurtbox.get_node("CollisionShape2D").set_deferred("disabled", true) # Adjust node name if needed
-	lower_hurtbox.get_node("CollisionShape2D").set_deferred("disabled", true) # Adjust node name if needed
-	
+	#$CollisionShape2D.set_deferred("disabled", true)
+	#upper_hurtbox.get_node("CollisionShape2D").set_deferred("disabled", true) # Adjust node name if needed
+	#lower_hurtbox.get_node("CollisionShape2D").set_deferred("disabled", true) # Adjust node name if needed
+	#
 	# Disable controller processing
-	if is_instance_valid(active_controller):
-		active_controller.set_physics_process(false)
+	#if is_instance_valid(active_controller):
+		#active_controller.set_physics_process(false)
 	# Potentially signal to the level manager that the round/match is over
 
 

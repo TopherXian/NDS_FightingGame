@@ -122,11 +122,19 @@ func _on_timer_timeout():
 	rules_base.update_rulebase()
 	
 	# Generate new script with logging
+	get_total_weights()
 	get_latest_script()
 	log_game_info()
 	
 	# Reset counters
 	reset_counters()
+
+func get_total_weights():
+	var rules = rules_base.get_rules()
+	var total_weight = 0
+	for rule in rules:
+		total_weight += rule["weight"]
+	print("Total Weights: ", total_weight)
 
 func log_game_info():
 	print("\n=========== New Cycle ===========")
