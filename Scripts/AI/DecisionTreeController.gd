@@ -90,8 +90,8 @@ func _physics_process(_delta):
 			# Check distance using the attack logic helper
 			if is_instance_valid(attack_logic):
 				desired_attack = attack_logic.get_basic_attack_action()
-				if desired_attack != &"": # If an attack is valid at this range
-					print("DecisionTree: Proactive attack!") # For debugging
+				#if desired_attack != &"": # If an attack is valid at this range
+					#print("DecisionTree: Proactive attack!") # For debugging
 					# Proceed to execute below
 
 		# b. Decide Movement (only if no attack was chosen proactively)

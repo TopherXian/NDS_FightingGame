@@ -139,8 +139,8 @@ func log_current_script():
 	script_rules.sort_custom(func(a, b): return a["weight"] > b["weight"])
 	
 	# Print top 5 rules
-	print("Top 5 Rules in Script:")
-	for i in range(min(5, script_rules.size())):
+	print("Rules in the Script:")
+	for i in range(min(17, script_rules.size())):
 		var rule = script_rules[i]
 		print("%d. [Rule %d] %s (Weight: %.2f)" % [
 			i+1,

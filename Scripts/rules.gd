@@ -256,17 +256,17 @@ func adjust_script_weights(fitness: float) -> void:
 			}
 	
 	# Log weight changes
-	if weight_changes.size() > 0:
-		print("=== Weight Adjustments ===")
-		for rule_id in weight_changes:
-			var change = weight_changes[rule_id]
-			print("Rule %d: %.2f => %.2f" % [
-				rule_id, 
-				change["old"], 
-				change["new"]
-			])
-	else:
-		print("No significant weight changes this cycle")
+	#if weight_changes.size() > 0:
+		#print("=== Weight Adjustments ===")
+		#for rule_id in weight_changes:
+			#var change = weight_changes[rule_id]
+			#print("Rule %d: %.2f => %.2f" % [
+				#rule_id, 
+				#change["old"], 
+				#change["new"]
+			#])
+	#else:
+		#print("No significant weight changes this cycle")
 
 func calculate_fitness(DS_lower_hits_taken: int, DS_upper_hits_taken: int, 
 					  DS_upper_successful_attacks: int, DS_lower_successful_attacks: int,
