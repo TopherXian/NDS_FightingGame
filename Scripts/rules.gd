@@ -201,16 +201,7 @@ func get_rules() -> Array:
 	return rules
 
 func get_DScript() -> Array:
-		#print(current_script) 
 		return current_script
-# --- Optional: Add functions to modify rules or weights if needed ---
-# func update_rule_weight(rule_id: int, new_weight: float):
-#	 for rule in rules:
-#		 if rule.get("ruleID") == rule_id:
-#			 rule["weight"] = new_weight
-#			 print("Updated weight for rule %d to %f" % [rule_id, new_weight])
-#			 # Note: This change will only reflect in the *next* script generation cycle.
-#			 break
 	
 func adjust_script_weights(fitness: float) -> void:
 	var adjustment = (fitness - baseline) * scaling_factor

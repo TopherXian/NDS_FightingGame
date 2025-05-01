@@ -132,10 +132,10 @@ func _ready():
 	elif character_id == "Player2":
 		control_type = GameSettings.player2_control_type
 	else:
-		printerr("ERROR: Unknown character_id: ", character_id)
+		print("ERROR: Unknown character_id: ", character_id)
 		control_type = "Human" # Fallback
 
-	print(character_id, " activating controller: ", control_type)
+	#print(character_id, " activating controller: ", control_type)
 	setup_controller(control_type)
 
 	# Connect Hurtbox Signals (Connect these in the Godot Editor Inspector too!)
@@ -144,13 +144,13 @@ func _ready():
 		if not upper_hurtbox.is_connected("area_entered", Callable(self, "_on_upper_hurtbox_area_entered")):
 			upper_hurtbox.connect("area_entered", Callable(self, "_on_upper_hurtbox_area_entered"))
 	else:
-		printerr("Upper Hurtbox node or signal not found!")
+		print("Upper Hurtbox node or signal not found!")
 
 	if lower_hurtbox and lower_hurtbox.has_signal("area_entered"):
 		if not lower_hurtbox.is_connected("area_entered", Callable(self, "_on_lower_hurtbox_area_entered")):
 			lower_hurtbox.connect("area_entered", Callable(self, "_on_lower_hurtbox_area_entered"))
 	else:
-		printerr("Lower Hurtbox node or signal not found!")
+		print("Lower Hurtbox node or signal not found!")
 
 	# Connect own Hitbox Signals (To track when *this* character hits the opponent)
 	# Find the actual hitbox Area2D node, might be inside hitbox_container
@@ -163,7 +163,7 @@ func _ready():
 		if not own_hitbox.is_connected("area_entered", Callable(self, "_on_own_hitbox_area_entered")):
 			own_hitbox.connect("area_entered", Callable(self, "_on_own_hitbox_area_entered")) # Connect to a NEW function
 	else:
-		printerr("Own Hitbox node or signal not found!")
+		print("Own Hitbox node or signal not found!")
 
 
 func setup_controller(type: String):
@@ -179,8 +179,8 @@ func setup_controller(type: String):
 					active_controller = HumanControllerClass.new()
 					add_child(active_controller) # Add as child
 					active_controller.init_controller(self, animation_player, opponent) # Pass references
-				else: printerr("Failed to load HumanController.gd")
-			else: printerr("HumanController.gd not found.")
+				else: print("Failed to load HumanController.gd")
+			else: print("HumanController.gd not found.")
 
 		"Dynamic Scripting":
 			if FileAccess.file_exists("res://Scripts/Controllers/DynamicScriptingController.gd"):
@@ -210,11 +210,11 @@ func setup_controller(type: String):
 				if NDControllerClass:
 					active_controller = NDControllerClass.new(self, animation_player, opponent) # Use constructor if it accepts args
 					add_child(active_controller)
-				else: printerr("Failed to load NeuroDynamicController.gd")
-			else: printerr("NeuroDynamicController.gd not found.")
+				else: print("Failed to load NeuroDynamicController.gd")
+			else: print("NeuroDynamicController.gd not found.")
 
 		_:
-			printerr("Error: Unknown control type: ", type)
+			print("Error: Unknown control type: ", type)
 			# Fallback to Human?
 			# setup_controller("Human")
 

@@ -49,19 +49,19 @@ func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer
 	# Use 'in' to check for property existence
 	if is_instance_valid(fighter) and "attack_system" in fighter:
 		fighter.attack_system = attack_system
-		print("Assigned attack_system to fighter.") # Optional: Add debug prints
+		#print("Assigned attack_system to fighter.") # Optional: Add debug prints
 	# else: # Optional: Add debug prints
 		# if is_instance_valid(fighter): print("Fighter does not have 'attack_system' property.")
 		# else: print("Fighter instance is invalid before attack_system check.")
 
 	if is_instance_valid(fighter) and "movement_system" in fighter:
 		fighter.movement_system = movement_system
-		print("Assigned movement_system to fighter.") # Optional: Add debug prints
+		#print("Assigned movement_system to fighter.") # Optional: Add debug prints
 	# else: # Optional: Add debug prints
 		# if is_instance_valid(fighter): print("Fighter does not have 'movement_system' property.")
 		# else: print("Fighter instance is invalid before movement_system check.")
 
-	print("Human Controller Initialized for: ", fighter.name)
+	#print("Human Controller Initialized for: ", fighter.name)
 
 
 func _physics_process(_delta):

@@ -78,8 +78,9 @@ func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer
 	if is_instance_valid(rules_base):
 		get_latest_script()
 		append_script_to_log("Initial Script", )
+		log_game_info()
 
-	print("Dynamic Scripting Controller Initialized for: ", fighter.name)
+	#print("Dynamic Scripting Controller Initialized for: ", fighter.name)
 
 
 func _physics_process(_delta):
@@ -122,14 +123,20 @@ func _on_timer_timeout():
 	
 	# Generate new script with logging
 	get_latest_script()
-	log_current_script()
+	log_game_info()
 	
 	# Reset counters
 	reset_counters()
 
-func log_current_script():
-	print("\n=== Active Script Rules ===")
+func log_game_info():
+	print("\n=========== New Cycle ===========")
 	var script_rules = rules_base.get_DScript()
+	var executed_rules = rule_engine.get_executed_rules()
+	
+	#Format and log generated script
+	log_info(script_rules, "Newly Generated")
+	#Format and log executed rules
+	log_info(executed_rules, "Executed")
 	
 	if script_rules.is_empty():
 		print("No active rules in script!")
@@ -139,7 +146,7 @@ func log_current_script():
 	script_rules.sort_custom(func(a, b): return a["weight"] > b["weight"])
 	
 	# Print top 5 rules
-	print("Top 5 Rules in Script:")
+	print("Top 5 Highest Weights:")
 	for i in range(min(5, script_rules.size())):
 		var rule = script_rules[i]
 		print("%d. [Rule %d] %s (Weight: %.2f)" % [
@@ -150,17 +157,33 @@ func log_current_script():
 		])
 	
 	# Action diversity	
-	var actions = {}
-	for rule in script_rules:
-		var action = rule["enemy_action"]
-		actions[action] = actions.get(action, 0) + 1
+	#var actions = {}
+	#for rule in script_rules:
+		#var action = rule["enemy_action"]
+		#actions[action] = actions.get(action, 0) + 1
 	
-	print("\nAction Distribution:")
-	for action in actions:
-		print("- %s: %d%%" % [
-			action, 
-			round(float(actions[action]) / script_rules.size() * 100)
-		])
+	#print("\nAction Distribution:")
+	#for action in actions:
+		#print("- %s: %d%%" % [
+			#action, 
+			#round(float(actions[action]) / script_rules.size() * 100)
+		#])
+#LOG EXECUTED RULES 
+func log_info(script, header) -> void:
+	var executed_rules = rule_engine.get_executed_rules()
+	print("\n====== %s Rules ======" % header)
+	print("ID | Action            | Weight | In Script")
+	print("---|-------------------|--------|----------")
+	
+	for rule in script:
+		var rule_id = str(rule.get("ruleID", "??")).rpad(3)
+		var action = str(rule.get("enemy_action", "unknown")).rpad(17)
+		var weight = "%.2f" % rule.get("weight", 0.0)
+		var in_script = "✓" if rule.get("inScript", false) else "✗"
+		
+		print("%s | %s | %s   | %s" % [rule_id, action, weight, in_script])
+	
+	print("Total rules: %d\n" % script.size())
 
 func reset_counters():
 	fighter.lower_hits_taken = 0
@@ -242,7 +265,6 @@ func append_script_to_log(context: String = "Update") -> void:
 		# Log the rules executed by the rule engine (if tracked)
 		if rule_engine.has_method("get_executed_rules"):
 			var executed_rules = rule_engine.get_executed_rules()
-			#print("executed_rules", executed_rules)Z # Assuming this returns something loggable
 			var stringified_executed = JSON.stringify(executed_rules, "\t")
 			if stringified_executed:
 				file.store_line("Rules Executed in Last Cycle:")
