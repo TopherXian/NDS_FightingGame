@@ -21,13 +21,17 @@ var can_defend: bool = true
 var defense_cooldown_timer: Timer
 const DEFENSE_COOLDOWN_TIME: float = 0.5 # Time in seconds before AI can defend again
 const DEFENSE_PROBABILITY: float = 0.8 # 80% chance to defend when conditions met
-const DEFENSE_TRIGGER_RANGE: float = 100.0 # How close opponent attack must be
+const DEFENSE_TRIGGER_RANGE: float = 75.0 # How close opponent attack must be
 
 # --- Attack Logic ---
 # Keep track if AI is currently in an attack animation (set by state, reset by signal)
 var is_attacking: bool = false
 # More nuanced attack chance (replace simple proactive chance)
-const ATTACK_OPPORTUNITY_RANGE: float = 85.0 # Max range to consider attacking
+const ATTACK_OPPORTUNITY_RANGE: float = 75.0 # Max range to consider attacking
+
+const PROACTIVE_ATTACK_CHANCE: float = 0.15 # 15% chance per second
+const PROACTIVE_APPROACH_CHANCE: float = 0.3 # 30% chance per second
+var idle_time: float = 0.0 # Track time spent in IDLE
 
 # --- Repositioning Logic ---
 var reposition_timer: Timer
@@ -113,6 +117,20 @@ func _physics_process(_delta):
 			fighter.velocity.x = 0 # Stop movement while hurt
 			
 		State.IDLE:
+			
+			idle_time += _delta # Track idle duration
+
+			# --- Proactive Transitions ---
+			if idle_time > 1.5: # Only act after 1.5s of inactivity
+			# Randomly attack even without opponent action
+				if randf() < PROACTIVE_ATTACK_CHANCE * _delta:
+					_change_state(State.ATTACKING)
+					idle_time = 0.0
+			# Randomly approach to close distance
+			elif randf() < PROACTIVE_APPROACH_CHANCE * _delta:
+				_change_state(State.APPROACHING)
+				idle_time = 0.0
+				
 			# Play idle animation if not already doing something important
 			if current_fighter_anim not in ATTACK_ANIMATIONS and \
 			   current_fighter_anim not in DEFENSE_ANIMATIONS and \
@@ -152,6 +170,7 @@ func _physics_process(_delta):
 					_change_state(State.ATTACKING)
 				else:
 					_change_state(State.IDLE) # Go idle if close but no attack opportunity
+					pass
 			# 2. Need to defend while approaching?
 			elif _should_defend(opponent_anim_name, distance):
 				_change_state(State.DEFENDING)
@@ -195,6 +214,8 @@ func _physics_process(_delta):
 
 # --- State Change Helper ---
 func _change_state(new_state: State):
+	if current_state == State.IDLE:
+		idle_time = 0.0 # Reset counter when leaving IDLE
 	if current_state == new_state: return # No change
 
 	# print("Changing state from %s to %s" % [State.keys()[current_state], State.keys()[new_state]]) # Debug
@@ -255,6 +276,14 @@ func _should_defend(opponent_anim, dist) -> bool:
 	return false
 
 func _should_attack(opponent_anim, dist) -> bool:
+	# Allow attacks even if slightly out of range
+	var effective_range = ATTACK_OPPORTUNITY_RANGE # +20% buffer
+	
+	if dist <= effective_range and not is_attacking:
+		# Original checks + allow attacks during mutual idle
+		if opponent_anim == &"idle" or opponent_anim == &"":
+			return randf() < 0.6 # 60% chance to attack idle opponent
+			
 	if is_attacking: return false # Already attacking
 	if dist <= ATTACK_OPPORTUNITY_RANGE:
 		# Basic condition: Attack if opponent is close and not attacking/defending
@@ -283,8 +312,10 @@ func _should_reposition(dist) -> bool:
 # --- Movement Helpers (Fallback if DummyMovement fails/missing) ---
 func _move_towards_opponent():
 	if not is_instance_valid(fighter) or not is_instance_valid(opponent): return
-	var direction = 1 if opponent.global_position.x > fighter.global_position.x else -1
-	fighter.velocity.x = direction * movement_logic.speed if is_instance_valid(movement_logic) else direction * 150 # Use default speed as fallback
+	var direction = sign(opponent.global_position.x - fighter.global_position.x)
+	fighter.velocity.x = direction * 300  # Use fixed speed if movement_logic is missing
+	# Force animation if needed
+	_play_animation("walk_forward", true)
 
 func _move_away_from_opponent():
 	if not is_instance_valid(fighter) or not is_instance_valid(opponent): return

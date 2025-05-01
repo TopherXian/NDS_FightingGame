@@ -2,7 +2,7 @@
 extends Node
 class_name Rules
 
-@export var script_count : int = 12  
+@export var script_count : int = 17
 
 var baseline = 0.5
 var WMAX = 1.0
@@ -122,35 +122,109 @@ var rules: Array = [
 		"conditions": { "player_anim": "basic_kick", "distance": { "op": ">=", "value": 130 }, "upper_hits": { "op": "==", "value": 0 }, "lower_hits": { "op": "==", "value": 0 } },
 		"enemy_action": "walk_forward", "weight": 0.5, "wasUsed": false, "inScript": false
 	},
-	{
-		"ruleID": 23, # Player kicks from far, enemy closes distance
-		"conditions": { "player_anim": "basic_kick", "distance": { "op": ">=", "value": 130 }, "upper_hits": { "op": "==", "value": 0 }, "lower_hits": { "op": "==", "value": 0 } },
-		"enemy_action": "crouch_punch", "weight": 0.5, "wasUsed": false, "inScript": false
+	{   #Close-range block breaker (crouch kick beats standing block)
+		"ruleID": 23,
+		"conditions": { 
+			"player_anim": "standing_defense", 
+			"distance": { "op": "<=", "value": 75 },  # Optimal attack range
+			"upper_hits": { "op": ">=", "value": 2 }, # Player blocks too much
+			"lower_hits": { "op": ">=", "value": 0 }
+		},
+		"enemy_action": "crouch_kick", 
+		"weight": 0.8,  # Higher priority
+		"wasUsed": false,
+		"inScript": false
 	},
-	{
-		"ruleID": 24, # Player kicks from far, enemy closes distance
-		"conditions": { "player_anim": "basic_kick", "distance": { "op": ">=", "value": 130 }, "upper_hits": { "op": "==", "value": 0 }, "lower_hits": { "op": "==", "value": 0 } },
-		"enemy_action": "crouch_punch", "weight": 0.5, "wasUsed": false, "inScript": false
+	{   # Dash-in when opponent keeps blocking
+		"ruleID": 24,
+		"conditions": { 
+			"player_anim": "standing_defense", 
+			"distance": { "op": ">", "value": 75 },  # Just outside optimal range
+			"upper_hits": { "op": ">=", "value": 3 }, # Multiple blocks detected
+			"lower_hits": { "op": "==", "value": 0 }
+		},
+		"enemy_action": "walk_forward", 
+		"weight": 0.7,
+		"wasUsed": false,
+		"inScript": false
 	},
-	{
-		"ruleID": 25, # Player kicks from far, enemy closes distance
-		"conditions": { "player_anim": "basic_punch", "distance": { "op": ">=", "value": 130 }, "upper_hits": { "op": "==", "value": 0 }, "lower_hits": { "op": "==", "value": 0 } },
-		"enemy_action": "crouch_punch", "weight": 0.5, "wasUsed": false, "inScript": false
+	{   # Block pressure combo (Punch -> Kick mixup)
+		"ruleID": 25,
+		"conditions": { 
+			"player_anim": "standing_defense", 
+			"distance": { "op": "<=", "value": 60 },  # Point blank range
+			"upper_hits": { "op": ">=", "value": 1 },
+			"lower_hits": { "op": ">=", "value": 1 }
+		},
+		"enemy_action": "heavy_punch", 
+		"weight": 0.9,  # Very high priority
+		"wasUsed": false,
+		"inScript": false
 	},
-	{
-		"ruleID": 26, # Player kicks from far, enemy closes distance
-		"conditions": { "player_anim": "basic_punch", "distance": { "op": ">=", "value": 130 }, "upper_hits": { "op": "==", "value": 0 }, "lower_hits": { "op": "==", "value": 0 } },
-		"enemy_action": "crouch_kick", "weight": 0.5, "wasUsed": false, "inScript": false
+	{   # Jump-in against passive blockers
+		"ruleID": 26,
+		"conditions": { 
+			"player_anim": "standing_defense", 
+			"distance": { "op": ">", "value": 90 },  # Far range
+			"upper_hits": { "op": ">=", "value": 2 }, # Historical blocks
+			"lower_hits": { "op": "==", "value": 0 }
+		},
+		"enemy_action": "jump", 
+		"weight": 0.6,
+		"wasUsed": false,
+		"inScript": false
 	},
-	{
-		"ruleID": 27, # Player kicks from far, enemy closes distance
-		"conditions": { "player_anim": "basic_punch", "distance": { "op": ">=", "value": 130 }, "upper_hits": { "op": "==", "value": 0 }, "lower_hits": { "op": "==", "value": 0 } },
-		"enemy_action": "standing_defense", "weight": 0.5, "wasUsed": false, "inScript": false
+	{   # Guard crush attempt
+		"ruleID": 27,
+		"conditions": { 
+			"player_anim": "standing_defense", 
+			"distance": { "op": "<=", "value": 65 },
+			"upper_hits": { "op": ">=", "value": 4 }, # Multiple consecutive blocks
+			"lower_hits": { "op": "==", "value": 0 }
+		},
+		"enemy_action": "heavy_kick", 
+		"weight": 0.85,
+		"wasUsed": false,
+		"inScript": false
 	},
-	{
-		"ruleID": 28, # Player kicks from far, enemy closes distance
-		"conditions": { "player_anim": "basic_kick", "distance": { "op": ">=", "value": 130 }, "upper_hits": { "op": "==", "value": 0 }, "lower_hits": { "op": "==", "value": 0 } },
-		"enemy_action": "standing_defense", "weight": 0.5, "wasUsed": false, "inScript": false
+	{   # Backdash reset
+		"ruleID": 28,
+		"conditions": { 
+			"player_anim": "standing_defense", 
+			"distance": { "op": "<", "value": 45 },  # Too close
+			"upper_hits": { "op": ">=", "value": 2 },
+			"lower_hits": { "op": ">=", "value": 2 }
+		},
+		"enemy_action": "walk_backward", 
+		"weight": 0.5,
+		"wasUsed": false,
+		"inScript": false
+	},
+	{   # Crouch mixup
+		"ruleID": 29,
+		"conditions": { 
+			"player_anim": "crouching_defense", 
+			"distance": { "op": "<=", "value": 75 },
+			"upper_hits": { "op": ">=", "value": 1 },
+			"lower_hits": { "op": ">=", "value": 3 }
+		},
+		"enemy_action": "crouch_punch", 
+		"weight": 0.7,
+		"wasUsed": false,
+		"inScript": false
+	},
+	{   # Universal overhead (if exists)
+		"ruleID": 30,
+		"conditions": { 
+			"player_anim": "crouching_defense", 
+			"distance": { "op": "<=", "value": 70 },
+			"upper_hits": { "op": ">=", "value": 3 },
+			"lower_hits": { "op": ">=", "value": 1 }
+		},
+		"enemy_action": "jump_attack", 
+		"weight": 0.65,
+		"wasUsed": false,
+		"inScript": false
 	}
 ]
 
