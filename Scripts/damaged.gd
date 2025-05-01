@@ -12,13 +12,14 @@ func _init(anim: AnimationPlayer, player_instance: CharacterBody2D, hp):
 	player = player_instance
 	hp_bar = hp
 
-func take_damage(amount: int):
+func take_damage(amount: int, sprite):
 
 	hp_bar.value -= amount
 	if hp_bar.value > 0:
-		player.velocity.x = -10
 		player.velocity.y = 0
 		animation_player.play("hurt")
+		var knockback_dir = 1 if sprite.flip_h else -1 # Knock away from facing dir
+		player.velocity.x = knockback_dir * 30
 		
 	else:
 		is_knocked_down = true

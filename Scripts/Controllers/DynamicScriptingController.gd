@@ -86,24 +86,10 @@ func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer
 func _physics_process(_delta):
 	if not is_instance_valid(fighter): return
 	if not is_instance_valid(rule_engine): return # Cannot execute without engine
-	
-	# --- Execute current script step ---
-	# The original DS_ryu didn't show *how* the script array was executed frame-by-frame.
-	# ScriptCreation.evaluate_and_execute seems designed to pick *one* action based on current state.
-	# Let's assume evaluate_and_execute is called each frame to determine the best action *now*.
-	if is_instance_valid(rules_base):
-		# Original ScriptCreation.evaluate_and_execute took the rules array.
-		# It should probably take the *generated script* array or just evaluate rules directly.
-		# Let's adapt it to evaluate the rules from the Rules class instance.
-		if rules_base.has_method("get_rules"):
-			var all_rules = rules_base.get_rules() # Assume Rules.gd has this method
-			rule_engine.evaluate_and_execute(all_rules) # Pass all rules for evaluation
-		else:
-			printerr("DSController: Rules class missing get_all_rules() method.")
 
-	# Note: ScriptCreation.evaluate_and_execute now directly modifies fighter.velocity
-	# and calls animation_player.play() based on the chosen rule action.
-	# BaseFighter handles gravity and move_and_slide.
+	if latest_script.size() == 0: return
+	
+	rule_engine.evaluate_and_execute(latest_script) 
 
 
 # --- Timer Timeout (From DS_ryu.txt) ---

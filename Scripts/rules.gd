@@ -187,7 +187,7 @@ func generate_and_update_script():
 			rule_in_slice["inScript"] = true
 		else:
 			# This shouldn't happen if the original rules have the key, but handle defensively
-			printerr("Warning: Rule %s in slice is missing 'inScript' key." % rule_in_slice.get("ruleID", "UNKNOWN"))
+			print("Warning: Rule %s in slice is missing 'inScript' key." % rule_in_slice.get("ruleID", "UNKNOWN"))
 			rule_in_slice["inScript"] = true # Add and set to true
 
 	# --- Step 5: Assign the modified slice to current_script ---

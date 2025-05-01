@@ -113,10 +113,7 @@ func _ready():
 	# Initialize HP Bar
 	hp_bar.max_value = max_health
 	hp_bar.value = health
-
-	# Initialize Damage System (Assuming a standard one for now)
-	# If Damaged class needs specific refs, adjust instantiation
-	if FileAccess.file_exists("res://Scripts/Damaged.gd"): # Check if Damaged.gd exists
+	if FileAccess.file_exists("res://Scripts/Damaged.gd"): 
 		var DamagedClass = load("res://Scripts/Damaged.gd")
 		if DamagedClass:
 			damaged_system = DamagedClass.new(animation_player, self, hp_bar) # Pass needed refs
@@ -293,8 +290,8 @@ func apply_damage(damage_amount: int, is_upper_hit: bool):
 		lower_hits_taken += 1
 
 	# Trigger damaged effects (animation, knockback) - Use Damaged system if it exists
-	if is_instance_valid(damaged_system) and damaged_system.has_method("trigger_damage_effects"):
-		damaged_system.trigger_damage_effects(final_damage, defended)
+	if is_instance_valid(damaged_system) and damaged_system.has_method("take_damage"):
+		damaged_system.take_damage(final_damage, sprite)
 	else: # Basic fallback if no damaged system
 		animation_player.play("hurt")
 		# Basic knockback
@@ -316,19 +313,8 @@ func apply_damage(damage_amount: int, is_upper_hit: bool):
 
 
 func die():
-	print(character_id, " defeated!")
-	animation_player.play("knocked_down") # Or dedicated "death" animation
-	#set_physics_process(false) # Stop processing physics
-	# Disable collisions?
-	
-	#$CollisionShape2D.set_deferred("disabled", true)
-	#upper_hurtbox.get_node("CollisionShape2D").set_deferred("disabled", true) # Adjust node name if needed
-	#lower_hurtbox.get_node("CollisionShape2D").set_deferred("disabled", true) # Adjust node name if needed
-	#
-	# Disable controller processing
-	#if is_instance_valid(active_controller):
-		#active_controller.set_physics_process(false)
-	# Potentially signal to the level manager that the round/match is over
+	if animation_player.current_animation != "knocked_down":
+		animation_player.play("knocked_down")
 
 
 # --- Signal Callbacks ---
