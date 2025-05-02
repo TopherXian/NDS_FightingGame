@@ -49,19 +49,20 @@ func evaluate_and_execute(rules: Array):
 				match_all = false
 				continue # Go to next rule
 		
-		if match_all or "upper_hits" in conditions:
-			var op = conditions["upper_hits"]["op"]
-			var value = conditions["upper_hits"]["value"]
-			if not _compare_numeric(op, current_upper_hits, value):
-				match_all = false
-				continue # Go to next rule
-			
-		if match_all or "lower_hits" in conditions:
-			var op = conditions["lower_hits"]["op"]
-			var value = conditions["lower_hits"]["value"]
-			if not _compare_numeric(op, current_lower_hits, value):
-				match_all = false
-				continue # Go to next rule
+		if "upper_hits" in conditions:
+			if match_all and "upper_hits" in conditions:
+				var op = conditions["upper_hits"]["op"]
+				var value = conditions["upper_hits"]["value"]
+				if not _compare_numeric(op, current_upper_hits, value):
+					match_all = false
+					continue # Go to next rule
+		if  "lower_hits" in conditions:
+			if match_all and "lower_hits" in conditions:
+				var op = conditions["lower_hits"]["op"]
+				var value = conditions["lower_hits"]["value"]
+				if not _compare_numeric(op, current_lower_hits, value):
+					match_all = false
+					continue # Go to next rule
 
 	# If we reach here and match_all is still true, all present conditions passed
 		if match_all:
