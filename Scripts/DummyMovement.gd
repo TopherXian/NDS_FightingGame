@@ -7,7 +7,7 @@ var opponent: CharacterBody2D # The player character (BaseFighter instance)
 var animation_player: AnimationPlayer
 
 # Speed should likely come from the fighter itself for consistency
-var speed: float = 150.0 # Default, but ideally use fighter.speed
+var speed: float = 80.0 # Default, but ideally use fighter.speed
 
 func _init(anim_player: AnimationPlayer, ai_fighter: CharacterBody2D, opponent_char: CharacterBody2D):
 	animation_player = anim_player

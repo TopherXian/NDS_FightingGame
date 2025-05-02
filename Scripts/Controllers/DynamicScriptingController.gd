@@ -115,7 +115,6 @@ func _on_animation_finished(anim_name: String):
 		# Force return to idle state
 		animation_player.play("idle")
 		reset_ai_state()
-		print("Recovered from hurt state")
 
 # --- Timer Timeout (From DS_ryu.txt) ---
 func _on_timer_timeout():
