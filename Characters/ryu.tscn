@@ -851,7 +851,7 @@ tracks/21/keys = {
 
 [sub_resource type="Animation" id="Animation_44dvs"]
 resource_name = "basic_kick"
-length = 0.60002
+length = 0.4
 step = 0.2
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -3476,6 +3476,7 @@ tracks/1/keys = {
 
 [sub_resource type="Animation" id="Animation_gxq58"]
 resource_name = "standing_defense"
+length = 0.5
 step = 0.2
 tracks/0/type = "value"
 tracks/0/imported = false
