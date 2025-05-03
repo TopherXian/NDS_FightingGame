@@ -11,9 +11,6 @@ var current_rule: String = "No rule"
 
 var speed = 150
 
-#var last_action_time: float = 0.0
-#var ACTION_COOLDOWN: float = 0.4
-
 func _init(enemy_ref, enemy_anim, animation_player):
 	player = enemy_ref
 	player_anim = enemy_anim
@@ -30,24 +27,19 @@ func evaluate_and_execute(rules: Array):
 
 	for rule in rules:
 		var conditions = rule["conditions"]
-		#var ruleID = rule["ruleID"]
-		#var match_anim = false
-		#var match_dist = false
-		#var match_upper_hits = false
-		#var match_lower_hits = false
 		var match_all = true
 		
 		if "player_anim" in conditions:
 			if conditions["player_anim"] != current_anim:
 				match_all = false
-				continue # Go to next rule if this condition fails
+				continue
 
 		if match_all and "distance" in conditions:
 			var op = conditions["distance"]["op"]
 			var value = conditions["distance"]["value"]
 			if not _compare_numeric(op, dist, value):
 				match_all = false
-				continue # Go to next rule
+				continue
 		
 		if "upper_hits" in conditions:
 			if match_all and "upper_hits" in conditions:
@@ -55,28 +47,27 @@ func evaluate_and_execute(rules: Array):
 				var value = conditions["upper_hits"]["value"]
 				if not _compare_numeric(op, current_upper_hits, value):
 					match_all = false
-					continue # Go to next rule
+					continue 
+					
 		if  "lower_hits" in conditions:
 			if match_all and "lower_hits" in conditions:
 				var op = conditions["lower_hits"]["op"]
 				var value = conditions["lower_hits"]["value"]
 				if not _compare_numeric(op, current_lower_hits, value):
 					match_all = false
-					continue # Go to next rule
+					continue
 
-	# If we reach here and match_all is still true, all present conditions passed
+	# If passed all conditions -> execute
 		if match_all:
 			_execute_action(rule["enemy_action"])
 			rule["wasUsed"] = true
 			append_executed_rule(rule)
 			#print(rule)
 			current_rule = rule["enemy_action"]
-			#print("Executing Rule ID:", rule.get("ruleID", "UNKNOWN"), "Weight: ", rule.get("weight", "UNKOWN"))
-			break # Execute only the first matching rule
+			break
 
 
-# --- Helper function for numerical comparisons ---
-# Renamed from compare_distance to be more generic
+# Helper function for numerical comparisons
 func _compare_numeric(op: String, current_value: int, rule_value: int) -> bool:
 	match op:
 		">=":
@@ -88,7 +79,7 @@ func _compare_numeric(op: String, current_value: int, rule_value: int) -> bool:
 		"<":
 			return current_value < rule_value
 		"==":
-			return current_value == rule_value # Simple comparison for now
+			return current_value == rule_value
 		_:
 			print("Unknown comparison operator: ", op)
 			return false
@@ -109,7 +100,7 @@ func _execute_action(action: String):
 				ai_self.velocity.x = speed
 		"basic_kick":
 			if animation.current_animation != "basic_kick": animation.play("basic_kick")
-			ai_self.velocity.x = 0 # Stop horizontal movement during attack
+			ai_self.velocity.x = 0
 		"basic_punch":
 			if animation.current_animation != "basic_punch": animation.play("basic_punch")
 			ai_self.velocity.x = 0

@@ -15,7 +15,6 @@ func _init(anim: AnimationPlayer, player_instance: CharacterBody2D, hp):
 func take_damage(amount: int, sprite):
 	hp_bar.value -= amount
 	if hp_bar.value > 0:
-		# Handle ALL visual/physical reactions here
 		player.velocity.y = 0
 		animation_player.play("hurt")
 		var knockback_dir = 1 if sprite.flip_h else -1

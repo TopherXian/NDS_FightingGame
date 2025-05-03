@@ -4185,7 +4185,5 @@ autostart = true
 
 [node name="HurtTimer" type="Timer" parent="."]
 
-[connection signal="area_entered" from="Upper_Hurtbox" to="." method="_on_upper_hurtbox_area_entered"]
-[connection signal="area_entered" from="Lower_Hurtbox" to="." method="_on_lower_hurtbox_area_entered"]
 [connection signal="area_entered" from="Hitbox_Container/Hitbox" to="." method="_on_hitbox_area_entered"]
 [connection signal="area_shape_entered" from="Hitbox_Container/Hitbox" to="." method="_on_hitbox_area_shape_entered"]

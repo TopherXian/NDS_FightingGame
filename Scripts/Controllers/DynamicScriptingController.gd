@@ -2,30 +2,30 @@
 extends Node
 class_name DynamicScriptingController
 
-# --- References (Set by BaseFighter) ---
+# References (Set by BaseFighter)
 var fighter: CharacterBody2D # Reference to the BaseFighter node
 var animation_player: AnimationPlayer
 var opponent: CharacterBody2D
 var opponent_animation_player: AnimationPlayer
 var opponent_HP: ProgressBar
 
-# --- DS Component Instances (From DS_ryu.txt) ---
-var rule_engine: ScriptCreation # Instance of DS_script.txt logic
-var rules_base: Rules           # Instance of rules.txt logic
-var latest_script: Array = []   # The currently executing action sequence
+# DS Component Instances
+var rule_engine: ScriptCreation
+var rules_base: Rules
+var latest_script: Array = []
 
-# --- State/Config (From DS_ryu.txt) ---
-@export var update_interval : float = 4.0 # How often to re-evaluate rules/script
+# State/Config
+@export var update_interval : float = 4.0 
 var _update_timer: Timer
-var speed = 150 # Movement speed for AI
+var speed = 150
 var is_hurt: bool = false
 var last_hurt_time: float = 0.0
 const HURT_RECOVERY_TIME: float = 0.4
 
-# --- Parameters (For training.txt) ---
+# Parameters
 var previous_parameters = {}
 
-# --- Logging ---
+# Logging
 const LOG_FILE_PATH = "res://training.txt"
 
 
@@ -34,26 +34,23 @@ func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer
 	animation_player = anim_player
 	opponent = opp_node
 	opponent_HP = playerHP
-	print(fighter)
-	print(opponent)
 
-	if is_instance_valid(opponent) and (opponent.has_node("Animation") or opponent.has_node("Dummy_Animation")): # Adjust path if needed
+	# Get unique animation
+	if is_instance_valid(opponent) and (opponent.has_node("Animation") or opponent.has_node("Dummy_Animation")): 
 		opponent_animation_player = opponent.get_node("Animation") if opponent.has_node("Animation") else opponent.get_node("Dummy_Animation")
+	# Get unique HP Bar
 	if is_instance_valid(opponent) and (opponent.has_node("PlayerHP") or opponent.has_node("DummyHP")):
 		opponent_HP = opponent.get_node("PlayerHP") if opponent.has_node("PlayerHP") else opponent.get_node("DummyHP")
 	else:
 		print("DSController: Could not find opponent AnimationPlayer")
-		# Decide how to handle this - maybe disable rule conditions based on opponent anim?
 
-	# --- Instantiate DS components ---
+	# Instantiate DS components
 	if FileAccess.file_exists("res://Scripts/rules.gd"):
 		var RulesClass = load("res://Scripts/rules.gd")
 		if RulesClass:
 			rules_base = RulesClass.new()
-			# Pass fighter reference if Rules need it (e.g., for fitness calc access)
-			# rules_base.set_fighter_reference(fighter)
-		else: printerr("DSController: Failed to load Rules.gd")
-	else: printerr("DSController: Rules.gd not found.")
+		else: print("DSController: Failed to load Rules.gd")
+	else: print("DSController: Rules.gd not found.")
 
 	if FileAccess.file_exists("res://Scripts/DS_script.gd"):
 		var ScriptCreationClass = load("res://Scripts/DS_script.gd")
@@ -69,7 +66,7 @@ func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer
 	else: print("DSController: ScriptCreation.gd not found.")
 
 
-	# --- Setup Update Timer (From DS_ryu.txt _ready) ---
+	# Setup Update Timer
 	_update_timer = Timer.new()
 	_update_timer.wait_time = update_interval
 	_update_timer.one_shot = false # Make it repeat
@@ -77,7 +74,7 @@ func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer
 	add_child(_update_timer) # Add timer to the scene tree
 	_update_timer.start()
 
-	# --- Initial Script Generation ---
+	# Initial Script Generation
 	if is_instance_valid(rules_base):
 		get_latest_script()
 		append_script_to_log("Initial Script", )
@@ -94,7 +91,7 @@ func reset_ai_state():
 
 func _physics_process(_delta):
 	if not is_instance_valid(fighter): return
-	if not is_instance_valid(rule_engine): return # Cannot execute without engine
+	if not is_instance_valid(rule_engine): return
 
 
 	if is_hurt:
@@ -112,11 +109,10 @@ func _physics_process(_delta):
 
 func _on_animation_finished(anim_name: String):
 	if anim_name == "hurt":
-		# Force return to idle state
 		animation_player.play("idle")
 		reset_ai_state()
 
-# --- Timer Timeout (From DS_ryu.txt) ---
+# Timer Timeout
 func _on_timer_timeout():
 	if not is_instance_valid(fighter) or not is_instance_valid(rules_base): return
 
@@ -186,6 +182,7 @@ func log_game_info():
 			#action, 
 			#round(float(actions[action]) / script_rules.size() * 100)
 		#])
+		
 #LOG EXECUTED RULES 
 func log_info(script, header) -> void:
 	print("\n====== %s Rules ======" % header)
@@ -222,18 +219,14 @@ func get_parameters():
 		"lower_attacks": fighter.lower_attacks_landed,
 		"standing_defense": fighter.standing_defenses,
 		"crouching_defense": fighter.crouching_defenses,
-		"current_hp": opponent_HP.value # 👈 Add this line
+		"current_hp": opponent_HP.value
 	}
 	#print("Stored parameters: %s" % previous_parameters)	
 
 func calculate_fitness() -> float:
 	if not is_instance_valid(fighter) or not is_instance_valid(rules_base): return 0.0
 
-	# Use the formula from rules.txt, accessing counters from BaseFighter
-	var baseline = rules_base.baseline # Get baseline from Rules instance
-	# Damage Score - Requires tracking damage dealt/taken in the interval. Not directly available.
-	# Let's simplify fitness for now based only on hits/defense counts from BaseFighter.
-	# You might need to enhance BaseFighter or this controller to track damage delta per interval.
+	var baseline = rules_base.baseline
 	var dmg_score = 0.0 # Placeholder
 
 	var offensiveness = (0.002 * fighter.upper_attacks_landed + 0.002 * fighter.lower_attacks_landed)
@@ -246,10 +239,11 @@ func calculate_fitness() -> float:
 	return fitness
 
 
-# --- Script Generation (From DS_ryu.txt) ---
+# Script Generation
 func get_latest_script() -> void:
 	if not is_instance_valid(rules_base): return
-	# Assuming these methods exist in Rules.gd based on original DS_ryu.txt
+	
+	
 	if rules_base.has_method("generate_and_update_script") and rules_base.has_method("get_DScript"):
 		rules_base.generate_and_update_script()
 		latest_script = rules_base.get_DScript()
@@ -259,7 +253,7 @@ func get_latest_script() -> void:
 	else:
 		print("DSController: Rules class missing script generation methods.")
 
-# --- Logging (From DS_ryu.txt, modified slightly) ---
+# Logging
 func append_script_to_log(context: String = "Update") -> void:
 	if not is_instance_valid(rules_base) or not is_instance_valid(rule_engine): return
 	
@@ -306,7 +300,7 @@ func get_executed_rule() -> String:
 	else: 
 		return "Failed to get rule"
 		
-# --- Allow BaseFighter to notify this controller ---
+# Allow BaseFighter to notify this controller
 func notify_damage_taken(_amount: int, _is_upper: bool, _defended: bool):
 	# Simply track hurt state without duplicating knockback logic
 	is_hurt = true

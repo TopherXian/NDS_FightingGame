@@ -1,41 +1,53 @@
-# BaseFighter.gd
 extends CharacterBody2D
 
-# --- Shared Variables ---
-var health: int = 200
-@export var max_health: int = 200
-var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
-var is_jumping: bool = false # Track jump state if needed by multiple controllers
+# -------------------- Variables Initialization --------------------
 
-# --- Hit Tracking (Moved from ryu.txt & DS_ryu.txt) ---
+# Character Identifier (Can be found in the inspector
+@export var character_id: String = "Player1" # Default
+
+# Shared Variables
+@export var max_health: int = 200
+var health: int = 200
+var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
+var is_jumping: bool = false 
+
+# Node References
+@onready var animation_player: AnimationPlayer 
+@onready var sprite: Sprite2D
+@onready var hp_bar: ProgressBar
+@onready var hitbox_container: Node2D
+@onready var opponent: CharacterBody2D = null
+@onready var stats_label: Label = null
+@onready var upper_hurtbox: Area2D
+@onready var lower_hurtbox: Area2D
+
+# Controller
+var active_controller: Node = null
+var control_type: String
+
+# Gameplay Mechanics
+var attack_system = null
+var movement_system = null
+var damaged_system: Damaged
+
+# DefenseMechanicsConfig
+@export var defense_damage_modifier: float = 0.7 # Takes 70% damage when defending
+@export var normal_damage_taken: int = 10
+
+# Hit Tracking
 var lower_hits_taken: int = 0
 var upper_hits_taken: int = 0
 var lower_attacks_landed: int = 0
 var upper_attacks_landed: int = 0
 var standing_defenses: int = 0
 var crouching_defenses: int = 0
-var upper_hurtbox: Area2D
-var lower_hurtbox: Area2D
 
-var attack_system = null # <-- ADD THIS LINE (or just 'var attack_system')
-var movement_system = null # <-- You likely need this too based on HumanController
-
-# --- Constants for Hurtbox Handling (Moved from ryu.txt & DS_ryu.txt) ---
-# Adjust OPPONENT_HITBOX_NAME based on what the opponent's hitbox Area2D is named
-var OPPONENT_HITBOX_NAME: StringName # Example, might be "Dummy_Hitbox" for Player 1, "Hitbox" for Player 2
+# CONSTANTS
+var OPPONENT_HITBOX_NAME: StringName
 const STANDING_DEFENSE_ANIM: StringName = &"standing_defense"
 const CROUCHING_DEFENSE_ANIM: StringName = &"crouching_defense"
 
-@export var defense_damage_modifier: float = 0.7 # Takes 70% damage when defending
-@export var normal_damage_taken: int = 10    # Default damage taken if hit directly
-
-# --- Node References (Adjust paths as needed!) ---
-@onready var animation_player: AnimationPlayer # Or $Dummy_Animation if that's the name
-@onready var sprite: Sprite2D
-@onready var hp_bar: ProgressBar
-@onready var hitbox_container: Node2D # Container for player's own hitbox(es)
-@onready var opponent: CharacterBody2D = null # Will be set in _ready or level script
-
+# Added Redundant Getters here since two characters might have two different node names
 func _get_animation() -> AnimationPlayer:
 	if has_node("Animation"):
 		return get_node("Animation")
@@ -78,45 +90,34 @@ func _get_opponent_hitbox():
 	else:
 		return &"Dummy_Hitbox"
 
-# UI Labels for Stats (Optional, assign in Inspector or get from parent)
-@onready var stats_label: Label = null # e.g., get_parent().get_node("PlayerDetails") - Assign appropriately
-
-# --- Controller ---
-var active_controller: Node = null
-var control_type: String
-# --- Character Identifier (Set in Inspector!) ---
-@export var character_id: String = "Player1" # "Player1" for Ryu, "Player2" for Dummy
-
-# --- Component Instances ---
-# Note: Damaged system might be simpler if its logic is partially merged here
-var damaged_system: Damaged # Instantiated based on controller type? Or always standard? Let's assume standard for now.
-
 func _ready():
 	
-	upper_hurtbox = _get_upper_hurtbox() # Adjust node name if different
-	lower_hurtbox = _get_lower_hurtbox() # Adjust node name if different
-	animation_player = _get_animation()
-	sprite = _get_sprite()
-	hp_bar = _get_progress_bar()
-	hitbox_container = _get_hitbox()
-	OPPONENT_HITBOX_NAME = _get_opponent_hitbox()
-	# Find Opponent (Assuming parent node has both player and dummy)
-	# This is a common pattern, adjust if your level structure is different
+	# Pick an opponent if character is not equivalen to itself
 	for child in get_parent().get_children():
 		if child is CharacterBody2D and child != self:
 			opponent = child
 			break
 	if opponent == null:
 		print("ERROR: ", character_id, " could not find opponent node.")
-		return # Cannot proceed without opponent reference
+		return 
+		
+	# Call node reference getters
+	animation_player = _get_animation()
+	sprite = _get_sprite()
+	hp_bar = _get_progress_bar()
+	hitbox_container = _get_hitbox()
+	OPPONENT_HITBOX_NAME = _get_opponent_hitbox()
+	upper_hurtbox = _get_upper_hurtbox()
+	lower_hurtbox = _get_lower_hurtbox()
 
 	# Initialize HP Bar
 	hp_bar.max_value = max_health
 	hp_bar.value = health
+	
 	if FileAccess.file_exists("res://Scripts/Damaged.gd"): 
 		var DamagedClass = load("res://Scripts/Damaged.gd")
 		if DamagedClass:
-			damaged_system = DamagedClass.new(animation_player, self, hp_bar) # Pass needed refs
+			damaged_system = DamagedClass.new(animation_player, self, hp_bar) 
 		else:
 			print("ERROR: Could not load Damaged.gd")
 	else:
@@ -131,11 +132,10 @@ func _ready():
 		print("ERROR: Unknown character_id: ", character_id)
 		control_type = "Human" # Fallback
 
-	#print(character_id, " activating controller: ", control_type)
+	# Initialize Selected Controller
 	setup_controller(control_type)
 
-	# Connect Hurtbox Signals (Connect these in the Godot Editor Inspector too!)
-
+	# Connect Hurtbox Signals
 	if upper_hurtbox and upper_hurtbox.has_signal("area_entered"):
 		if not upper_hurtbox.is_connected("area_entered", Callable(self, "_on_upper_hurtbox_area_entered")):
 			upper_hurtbox.connect("area_entered", Callable(self, "_on_upper_hurtbox_area_entered"))
@@ -148,13 +148,14 @@ func _ready():
 	else:
 		print("Lower Hurtbox node or signal not found!")
 
-	# Connect own Hitbox Signals (To track when *this* character hits the opponent)
-	# Find the actual hitbox Area2D node, might be inside hitbox_container
+	# Connect own Hitbox Signals
+	# The other character's hitbox is encapsulated with Node2D
 	var own_hitbox
 	if hitbox_container.has_node("Hitbox"):
 		own_hitbox = hitbox_container.get_node("Hitbox")
 	else:
 		own_hitbox = hitbox_container
+		
 	if own_hitbox and own_hitbox.has_signal("area_entered"):
 		if not own_hitbox.is_connected("area_entered", Callable(self, "_on_own_hitbox_area_entered")):
 			own_hitbox.connect("area_entered", Callable(self, "_on_own_hitbox_area_entered")) # Connect to a NEW function
@@ -188,7 +189,7 @@ func setup_controller(type: String):
 				else: print("Failed to load DynamicScriptingController.gd")
 			else: print("DynamicScriptingController.gd not found.")
 
-		"Decision Tree": # <-- Add this case
+		"Decision Tree": 
 			var dt_script_path = "res://Scripts/Controllers/DecisionTreeController.gd"
 			if FileAccess.file_exists(dt_script_path):
 				var DTControllerClass = load(dt_script_path)
@@ -210,9 +211,7 @@ func setup_controller(type: String):
 			else: print("NeuroDynamicController.gd not found.")
 
 		_:
-			print("Error: Unknown control type: ", type)
-			# Fallback to Human?
-			# setup_controller("Human")
+			setup_controller("Human") # Fallback to Human
 
 
 func _physics_process(delta):
@@ -220,26 +219,26 @@ func _physics_process(delta):
 	if not is_on_floor():
 		velocity.y += gravity * delta
 
-	# --- Delegate Control Logic ---
+	# Let the controller handle movement/actions
 	if is_instance_valid(active_controller) and active_controller.has_method("_physics_process"):
-		active_controller._physics_process(delta) # Let the controller handle movement/actions
+		active_controller._physics_process(delta) 
 
-	# --- Shared Logic ---
+	# Shared Logic
 	update_facing_direction()
 	move_and_slide()
-
-	# Optional: Reset jump flag if grounded (depends on controller needs)
+	
 	if is_on_floor():
 		is_jumping = false
-	
+
 	_update_executed_rule()
 
 
-
 func update_facing_direction():
-	if not is_instance_valid(opponent): return # Opponent might be defeated/removed
+	if not is_instance_valid(opponent): return
+	
 	var direction_to_opponent = opponent.global_position.x - global_position.x
-	if abs(direction_to_opponent) > 1.0: # Add a small tolerance
+	
+	if abs(direction_to_opponent) > 1.0:
 		if direction_to_opponent > 0:
 			sprite.flip_h = false  # Face right
 			if character_id == "Player1":
@@ -262,11 +261,12 @@ func update_facing_direction():
 			#lower_hurtbox.position.x = -abs(lower_hurtbox.position.x)
 
 
-# --- Damage Handling ---
+# Damage Handling
 func apply_damage(damage_amount: int, is_upper_hit: bool):
+	
 	if animation_player.current_animation == "hurt":
 		return
-	if health <= 0: return # Already defeated
+	if health <= 0: return
 	
 	var final_damage = damage_amount
 	var defended = false	
@@ -284,11 +284,7 @@ func apply_damage(damage_amount: int, is_upper_hit: bool):
 
 	# Apply damage
 	health -= final_damage
-	hp_bar.value = health # Update HP bar directly here
-
-	# Single source for damage reactions
-	if is_instance_valid(damaged_system):
-		damaged_system.take_damage(final_damage, sprite)
+	hp_bar.value = health
 	
 	# Notify controller AFTER damage is applied
 	if active_controller and active_controller.has_method("notify_damage_taken"):
@@ -300,14 +296,14 @@ func apply_damage(damage_amount: int, is_upper_hit: bool):
 	else:
 		lower_hits_taken += 1
 
-	# Trigger damaged effects (animation, knockback) - Use Damaged system if it exists
+	# Trigger damaged effects 
 	if is_instance_valid(damaged_system) and damaged_system.has_method("take_damage"):
 		damaged_system.take_damage(final_damage, sprite)
-	else: # Basic fallback if no damaged system
+	else:
 		animation_player.play("hurt")
 		# Basic knockback
-		var knockback_dir = 1 if sprite.flip_h else -1 # Knock away from facing dir
-		velocity.x = knockback_dir * 30 # Small knockback
+		var knockback_dir = 1 if sprite.flip_h else -1 
+		velocity.x = knockback_dir * 30 
 
 	# Check for defeat
 	if health <= 0:
@@ -322,43 +318,32 @@ func die():
 		animation_player.play("knocked_down")
 
 
-# --- Signal Callbacks ---
+# Signal Callbacks
 func _on_upper_hurtbox_area_entered(area: Area2D) -> void:
-	# Check if the area is the opponent's hitbox and if it's currently active/damaging
-	# This requires the hitbox Area2D to have a script or property indicating it's active
-	# For now, assume any area with the correct name deals damage
-	if area.name == OPPONENT_HITBOX_NAME: # Make sure opponent hitbox has this name!
-		# Determine damage based on opponent's attack (needs more info from 'area' or opponent state)
-		var damage = normal_damage_taken # Placeholder
-		apply_damage(damage, true) # True because it's the upper hurtbox
+	if area.name == OPPONENT_HITBOX_NAME:
+		var damage = normal_damage_taken
+		apply_damage(damage, true)
 
 
 func _on_lower_hurtbox_area_entered(area: Area2D) -> void:
 	if area.name == OPPONENT_HITBOX_NAME:
-		var damage = normal_damage_taken # Placeholder
-		apply_damage(damage, false) # False because it's the lower hurtbox
+		var damage = normal_damage_taken 
+		apply_damage(damage, false)
 
 func _on_own_hitbox_area_entered(area: Area2D) -> void:
-	# This is called when THIS character's hitbox overlaps with something.
-	# Check if it's the opponent's hurtbox.
-	if area.get_parent() == opponent: # Check if the area belongs to the opponent
-		if "Hurtbox" in area.name: # Check if it's one of the opponent's hurtboxes
-			# Increment landed attack counters based on which hurtbox was hit
+	if area.get_parent() == opponent:
+		if "Hurtbox" in area.name:
 			if "Upper" in area.name:
 				upper_attacks_landed += 1
 			elif "Lower" in area.name:
 				lower_attacks_landed += 1
 			_update_stats_text()
-			# Note: The opponent's hurtbox signal handler (`_on_upper/lower_hurtbox_area_entered` on *their* script)
-			# is responsible for making the opponent take damage. This function just records the hit.
 
 
 func _update_stats_text():
-	# Determine correct label name based on character
 	var parameters_label = "PlayerDetails" if character_id == "Player1" else "OpponentDetails"
 	
 	if stats_label == null:
-		# Try to find the correct label node
 		var label_node = get_parent().get_node(parameters_label)
 		if label_node is Label:
 			stats_label = label_node
@@ -366,7 +351,6 @@ func _update_stats_text():
 			print("Stats label '%s' not found for "%parameters_label, character_id)
 			return
 	
-	# Update text with current values
 	stats_label.text = "%s\nLower Hits Taken: %d\nUpper Hits Taken: %d\nLower Attacks Hit: %d\nUpper Attacks Hit: %d\nStand Def: %d\nCrouch Def: %d" % [
 		character_id, lower_hits_taken, upper_hits_taken, 
 		lower_attacks_landed, upper_attacks_landed,
@@ -383,13 +367,11 @@ func _update_executed_rule():
 	
 	var rule_text = "No rule"
 	if is_instance_valid(active_controller):
-		# Try general controller access first
 		if active_controller.has_method("get_executed_rule"):
 			rule_text = active_controller.get_executed_rule()
 		elif "current_rule" in active_controller:
 			rule_text = active_controller.current_rule
 		else:
-			# Controller-specific handling
 			match control_type:
 				"Dynamic Scripting":
 					if active_controller.has_method("get_executed_rule"):
@@ -404,17 +386,13 @@ func _update_executed_rule():
 				"Human":
 					rule_text = "Manual input"
 	
-	# Limit text length for display
 	if rule_text.length() > 20:
 		rule_text = rule_text.substr(0, 17) + "..."
 	
 	label_node.text = "Rule used: %s" % rule_text
-	#print("RULE TEXT:%s" % rule_text )
 	
 func get_opponent() -> CharacterBody2D:
 	return opponent
 
 func get_health() -> int:
 	return health
-
-# Add any other shared functions controllers might call

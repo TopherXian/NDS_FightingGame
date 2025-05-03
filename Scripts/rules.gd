@@ -270,36 +270,34 @@ func generate_and_update_script():
 		if rule.has("inScript"):
 			rule["inScript"] = false
 		else:
-			printerr("Warning: Rule %s is missing 'inScript' key." % rule.get("ruleID", "UNKNOWN"))
+			print("Warning: Rule %s is missing 'inScript' key." % rule.get("ruleID", "UNKNOWN"))
 			rule["inScript"] = false # Add it if missing
 
 	if script_count <= 0:
 		current_script = []
-		print("Script count is zero or negative. No script generated.")
 		return # Exit early
 
-	# --- Step 2: Sort a *copy* of rules by weight (descending) ---
+	# Step 2: Sort a *copy* of rules by weight (descending)
 	var sorted_rules = rules.duplicate() # Shallow copy is sufficient
 	sorted_rules.sort_custom(func(a, b): 
 		# Sort descending. Handle missing 'weight' key gracefully.
 		return a.get("weight", 0.0) > b.get("weight", 0.0)
 	)
 
-	# --- Step 3: Slice to get the top N rules ---
+	# Step 3: Slice to get the top N rules
 	var actual_count = min(script_count, sorted_rules.size())
 	# Get the slice containing the dictionaries of the top rules
 	var top_rules_slice = sorted_rules.slice(0, actual_count) 
 
-	# --- Step 4: Modify the 'inScript' flag to true *within the sliced array* ---
+	# Step 4: Modify the 'inScript' flag to true *within the sliced array*
 	for rule_in_slice in top_rules_slice:
 		if rule_in_slice.has("inScript"):
 			rule_in_slice["inScript"] = true
 		else:
-			# This shouldn't happen if the original rules have the key, but handle defensively
 			print("Warning: Rule %s in slice is missing 'inScript' key." % rule_in_slice.get("ruleID", "UNKNOWN"))
 			rule_in_slice["inScript"] = true # Add and set to true
 
-	# --- Step 5: Assign the modified slice to current_script ---
+	# Step 5: Assign the modified slice to current_script
 	current_script = top_rules_slice
 
 	#print("Generated new script with %d rules. 'inScript' set to true within this script." % current_script.size())
