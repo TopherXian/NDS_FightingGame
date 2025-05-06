@@ -18,6 +18,9 @@ var latest_script: Array = []   # The currently executing action sequence
 @export var update_interval : float = 4.0 # How often to re-evaluate rules/script
 var _update_timer: Timer
 var speed = 150 # Movement speed for AI
+var is_hurt: bool = false
+var last_hurt_time: float = 0.0
+const HURT_RECOVERY_TIME: float = 0.4
 
 # --- Parameters (For training.txt) ---
 var previous_parameters = {}
@@ -80,31 +83,39 @@ func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer
 		append_script_to_log("Initial Script", )
 		log_game_info()
 
+	if animation_player and not animation_player.is_connected("animation_finished", Callable(self, "_on_animation_finished")):
+		animation_player.connect("animation_finished", Callable(self, "_on_animation_finished"))
+	reset_ai_state()
 	#print("Dynamic Scripting Controller Initialized for: ", fighter.name)
 
+func reset_ai_state():
+	is_hurt = false
+	fighter.velocity = Vector2.ZERO
 
 func _physics_process(_delta):
 	if not is_instance_valid(fighter): return
 	if not is_instance_valid(rule_engine): return # Cannot execute without engine
+
+
+	if is_hurt:
+		if Time.get_ticks_msec() - last_hurt_time > HURT_RECOVERY_TIME * 1000:
+			reset_ai_state()
+		return 
+			
+	if latest_script.size() == 0: return
 	
-	# --- Execute current script step ---
-	# The original DS_ryu didn't show *how* the script array was executed frame-by-frame.
-	# ScriptCreation.evaluate_and_execute seems designed to pick *one* action based on current state.
-	# Let's assume evaluate_and_execute is called each frame to determine the best action *now*.
-	if is_instance_valid(rules_base):
-		# Original ScriptCreation.evaluate_and_execute took the rules array.
-		# It should probably take the *generated script* array or just evaluate rules directly.
-		# Let's adapt it to evaluate the rules from the Rules class instance.
-		if rules_base.has_method("get_rules"):
-			var all_rules = rules_base.get_rules() # Assume Rules.gd has this method
-			rule_engine.evaluate_and_execute(all_rules) # Pass all rules for evaluation
-		else:
-			printerr("DSController: Rules class missing get_all_rules() method.")
+	# Only process if not in hurt animation
+	if animation_player.current_animation != "hurt":
+		rule_engine.evaluate_and_execute(latest_script)
+	
+	rule_engine.evaluate_and_execute(latest_script) 
 
-	# Note: ScriptCreation.evaluate_and_execute now directly modifies fighter.velocity
-	# and calls animation_player.play() based on the chosen rule action.
-	# BaseFighter handles gravity and move_and_slide.
-
+func _on_animation_finished(anim_name: String):
+	if anim_name == "hurt":
+		# Force return to idle state
+		animation_player.play("idle")
+		reset_ai_state()
+		print("Recovered from hurt state")
 
 # --- Timer Timeout (From DS_ryu.txt) ---
 func _on_timer_timeout():
@@ -122,11 +133,19 @@ func _on_timer_timeout():
 	rules_base.update_rulebase()
 	
 	# Generate new script with logging
+	get_total_weights()
 	get_latest_script()
 	log_game_info()
 	
 	# Reset counters
 	reset_counters()
+
+func get_total_weights():
+	var rules = rules_base.get_rules()
+	var total_weight = 0
+	for rule in rules:
+		total_weight += rule["weight"]
+	print("Total Weights: ", total_weight)
 
 func log_game_info():
 	print("\n=========== New Cycle ===========")
@@ -281,9 +300,16 @@ func append_script_to_log(context: String = "Update") -> void:
 		file.close()
 	else:
 		print("Failed to open log file: ", LOG_FILE_PATH)
-
+		
+func get_executed_rule() -> String:
+	if is_instance_valid(rule_engine) and rule_engine.has_method("get_current_rule"):
+		return rule_engine.get_current_rule()
+	else: 
+		return "Failed to get rule"
+		
 # --- Allow BaseFighter to notify this controller ---
 func notify_damage_taken(_amount: int, _is_upper: bool, _defended: bool):
-	# AI can use this information immediately if needed
-	# print("DSController notified: Took ", amount, " damage. Upper: ", is_upper, " Defended: ", defended)
-	pass
+	# Simply track hurt state without duplicating knockback logic
+	is_hurt = true
+	last_hurt_time = Time.get_ticks_msec()
+	fighter.velocity = Vector2.ZERO

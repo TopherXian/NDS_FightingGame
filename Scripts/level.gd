@@ -4,10 +4,10 @@ extends Node2D
 # --- Existing @onready vars ---
 @onready var label = $TimerLabel
 @onready var timer = $Timer
-@onready var playermetrics = $PlayerDetails
-@onready var AImetrics = $OpponentDetails
+@onready var player1_health = get_node("Player/PlayerHP")
+@onready var player2_health = get_node("Dummy_Ryu/DummyHP")
 # ... other @onready vars ...
-
+var round_active := true
 # --- Add reference to the Pause Menu ---
 @onready var pause_menu: Control = $PauseLayer/PauseMenu # Adjust path if needed
 
@@ -38,6 +38,30 @@ func _ready():
 # --- Existing _process ---
 func _process(_delta):
 	label.text = "%02d" % int(timer.time_left)
+	if round_active and (player1_health.value <= 0 or player2_health.value <= 0):
+		round_active = false
+		on_round_end()
+
+func on_round_end():
+	if GameSettings.match_count > 1:
+		GameSettings.match_count -= 1
+		print("Match remaining:", GameSettings.match_count)
+		reset_round()
+	else:
+		end_game()
+		
+func reset_round():
+	print("Resetting round...")
+	player1_health.value = player1_health.max_value
+	player2_health.value = player2_health.max_value
+	timer.stop()
+	timer.start()
+	$Player.global_position = Vector2(327.933, 264.9326)
+	$Dummy_Ryu.global_position = Vector2(479.5, 239.0833)
+
+	# Delay before next round starts
+	await get_tree().create_timer(1.5).timeout
+	round_active = true
 
 # --- Input Handling for Pause ---
 func _unhandled_input(event: InputEvent):
@@ -48,7 +72,6 @@ func _unhandled_input(event: InputEvent):
 		toggle_pause()
 		# Mark the event as handled so other nodes don't process it for pausing
 		get_viewport().set_input_as_handled()
-
 
 # --- Pause Control Functions ---
 func toggle_pause():
@@ -61,7 +84,6 @@ func toggle_pause():
 	else:
 		pause_menu.hide()
 		# Optional: Resume sounds/music
-
 
 # --- Pause Menu Button Callbacks ---
 func _on_resume_button_pressed():
@@ -76,3 +98,9 @@ func _on_quit_button_pressed():
 	var result = get_tree().change_scene_to_file(MAIN_MENU_PATH)
 	if result != OK:
 		print("Failed to change scene to main menu: ", MAIN_MENU_PATH)
+
+	
+func end_game():
+	print("Game Over!")
+	get_tree().quit()
+	# Or use get_tree().change_scene_to_file("res://MainMenu.tscn")

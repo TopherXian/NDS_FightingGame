@@ -83,7 +83,7 @@ func _get_opponent_hitbox():
 
 # --- Controller ---
 var active_controller: Node = null
-
+var control_type: String
 # --- Character Identifier (Set in Inspector!) ---
 @export var character_id: String = "Player1" # "Player1" for Ryu, "Player2" for Dummy
 
@@ -113,10 +113,7 @@ func _ready():
 	# Initialize HP Bar
 	hp_bar.max_value = max_health
 	hp_bar.value = health
-
-	# Initialize Damage System (Assuming a standard one for now)
-	# If Damaged class needs specific refs, adjust instantiation
-	if FileAccess.file_exists("res://Scripts/Damaged.gd"): # Check if Damaged.gd exists
+	if FileAccess.file_exists("res://Scripts/Damaged.gd"): 
 		var DamagedClass = load("res://Scripts/Damaged.gd")
 		if DamagedClass:
 			damaged_system = DamagedClass.new(animation_player, self, hp_bar) # Pass needed refs
@@ -126,7 +123,6 @@ func _ready():
 		print("WARNING: Damaged.gd not found at res://Scripts/Damaged.gd")
 
 	# Determine Control Type and Setup Controller
-	var control_type: String
 	if character_id == "Player1":
 		control_type = GameSettings.player1_control_type
 	elif character_id == "Player2":
@@ -235,6 +231,8 @@ func _physics_process(delta):
 	# Optional: Reset jump flag if grounded (depends on controller needs)
 	if is_on_floor():
 		is_jumping = false
+	
+	_update_executed_rule()
 
 
 
@@ -266,10 +264,12 @@ func update_facing_direction():
 
 # --- Damage Handling ---
 func apply_damage(damage_amount: int, is_upper_hit: bool):
+	if animation_player.current_animation == "hurt":
+		return
 	if health <= 0: return # Already defeated
-
+	
 	var final_damage = damage_amount
-	var defended = false
+	var defended = false	
 
 	# Check defense state
 	var current_anim = animation_player.current_animation
@@ -286,6 +286,14 @@ func apply_damage(damage_amount: int, is_upper_hit: bool):
 	health -= final_damage
 	hp_bar.value = health # Update HP bar directly here
 
+	# Single source for damage reactions
+	if is_instance_valid(damaged_system):
+		damaged_system.take_damage(final_damage, sprite)
+	
+	# Notify controller AFTER damage is applied
+	if active_controller and active_controller.has_method("notify_damage_taken"):
+		active_controller.notify_damage_taken(damage_amount, is_upper_hit, defended)
+		
 	# Update hit counters
 	if is_upper_hit:
 		upper_hits_taken += 1
@@ -293,8 +301,8 @@ func apply_damage(damage_amount: int, is_upper_hit: bool):
 		lower_hits_taken += 1
 
 	# Trigger damaged effects (animation, knockback) - Use Damaged system if it exists
-	if is_instance_valid(damaged_system) and damaged_system.has_method("trigger_damage_effects"):
-		damaged_system.trigger_damage_effects(final_damage, defended)
+	if is_instance_valid(damaged_system) and damaged_system.has_method("take_damage"):
+		damaged_system.take_damage(final_damage, sprite)
 	else: # Basic fallback if no damaged system
 		animation_player.play("hurt")
 		# Basic knockback
@@ -304,29 +312,14 @@ func apply_damage(damage_amount: int, is_upper_hit: bool):
 	# Check for defeat
 	if health <= 0:
 		die()
-
-	# Update Stats Display
+		GameSettings.round_active = false
+		get_tree().call_group("game_controller", "on_round_end")
+	
 	_update_stats_text()
 
-	# Notify Controller (Optional - if AI needs to react instantly to getting hit)
-	if is_instance_valid(active_controller) and active_controller.has_method("notify_damage_taken"):
-		active_controller.notify_damage_taken(final_damage, is_upper_hit, defended)
-
-
 func die():
-	print(character_id, " defeated!")
-	animation_player.play("knocked_down") # Or dedicated "death" animation
-	set_physics_process(false) # Stop processing physics
-	# Disable collisions?
-	
-	$CollisionShape2D.set_deferred("disabled", true)
-	upper_hurtbox.get_node("CollisionShape2D").set_deferred("disabled", true) # Adjust node name if needed
-	lower_hurtbox.get_node("CollisionShape2D").set_deferred("disabled", true) # Adjust node name if needed
-	
-	# Disable controller processing
-	if is_instance_valid(active_controller):
-		active_controller.set_physics_process(false)
-	# Potentially signal to the level manager that the round/match is over
+	if animation_player.current_animation != "knocked_down":
+		animation_player.play("knocked_down")
 
 
 # --- Signal Callbacks ---
@@ -362,15 +355,15 @@ func _on_own_hitbox_area_entered(area: Area2D) -> void:
 
 func _update_stats_text():
 	# Determine correct label name based on character
-	var label_name = "PlayerDetails" if character_id == "Player1" else "OpponentDetails"
+	var parameters_label = "PlayerDetails" if character_id == "Player1" else "OpponentDetails"
 	
 	if stats_label == null:
 		# Try to find the correct label node
-		var label_node = get_parent().get_node(label_name)
+		var label_node = get_parent().get_node(parameters_label)
 		if label_node is Label:
 			stats_label = label_node
 		else:
-			print("Stats label '%s' not found for "%label_name, character_id)
+			print("Stats label '%s' not found for "%parameters_label, character_id)
 			return
 	
 	# Update text with current values
@@ -379,7 +372,45 @@ func _update_stats_text():
 		lower_attacks_landed, upper_attacks_landed,
 		standing_defenses, crouching_defenses
 	]
-# --- Public methods controllers might need ---
+
+func _update_executed_rule():
+	var label_name = "P1ExecutedR" if character_id == "Player1" else "P2ExecutedR"
+	var label_node = get_parent().get_node(label_name)
+	
+	if not label_node:
+		print("Executed Rule label '%s' not found" % label_name)
+		return
+	
+	var rule_text = "No rule"
+	if is_instance_valid(active_controller):
+		# Try general controller access first
+		if active_controller.has_method("get_executed_rule"):
+			rule_text = active_controller.get_executed_rule()
+		elif "current_rule" in active_controller:
+			rule_text = active_controller.current_rule
+		else:
+			# Controller-specific handling
+			match control_type:
+				"Dynamic Scripting":
+					if active_controller.has_method("get_executed_rule"):
+						rule_text = active_controller.get_executed_rule()
+						print(rule_text)
+				"Decision Tree":
+					if "last_executed_decision" in active_controller:
+						rule_text = active_controller.last_executed_decision
+				"Neuro-Dynamic":
+					if "current_action" in active_controller:
+						rule_text = active_controller.current_action
+				"Human":
+					rule_text = "Manual input"
+	
+	# Limit text length for display
+	if rule_text.length() > 20:
+		rule_text = rule_text.substr(0, 17) + "..."
+	
+	label_node.text = "Rule used: %s" % rule_text
+	#print("RULE TEXT:%s" % rule_text )
+	
 func get_opponent() -> CharacterBody2D:
 	return opponent
 

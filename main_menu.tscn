@@ -54,3 +54,17 @@ offset_left = 408.0
 offset_top = 261.0
 offset_right = 448.0
 offset_bottom = 284.0
+
+[node name="MatchCount_Input" type="LineEdit" parent="."]
+offset_left = 667.0
+offset_top = 232.0
+offset_right = 735.563
+offset_bottom = 263.0
+
+[node name="MatchCount_Label" type="Label" parent="MatchCount_Input"]
+layout_mode = 0
+offset_left = -127.0
+offset_top = 3.0
+offset_right = -23.0
+offset_bottom = 26.0
+text = "Match Count:"

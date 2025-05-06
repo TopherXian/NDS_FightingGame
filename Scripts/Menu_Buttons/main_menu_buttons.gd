@@ -9,6 +9,7 @@ const CONTROL_TYPE_STRINGS = ["Human", "Dynamic Scripting", "Decision Tree", "Ne
 @onready var p1_selector: OptionButton = $Player1Options/P1ControlSelector
 @onready var p2_selector: OptionButton = $Player2Options/P2ControlSelector
 @onready var start_button: Button = $StartButton
+@onready var match_count_input: LineEdit = $MatchCount_Input
 #@onready var error_label: Label = $ErrorLabel # Optional
 
 # --- Scene Path ---
@@ -32,6 +33,14 @@ func populate_selector(selector: OptionButton):
 		selector.add_item(CONTROL_TYPE_STRINGS[i], i)
 
 func _on_start_button_pressed():
+	var input_text = match_count_input.text
+	
+	if input_text.is_valid_int():
+		var parsed_count = input_text.to_int()
+		GameSettings.match_count = parsed_count
+		print("Match count entered:", parsed_count)
+	else:
+		print("Invalid input. Please enter a whole number.")
 	# Get selected control types as strings
 	var p1_control_str = CONTROL_TYPE_STRINGS[p1_selector.selected]
 	var p2_control_str = CONTROL_TYPE_STRINGS[p2_selector.selected]

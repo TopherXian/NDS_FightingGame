@@ -7,6 +7,7 @@ var animation
 var ai_self
 
 var executed_rules: Dictionary = {}
+var current_rule: String = "No rule"
 
 var speed = 150
 
@@ -68,6 +69,7 @@ func evaluate_and_execute(rules: Array):
 			rule["wasUsed"] = true
 			append_executed_rule(rule)
 			#print(rule)
+			current_rule = rule["enemy_action"]
 			#print("Executing Rule ID:", rule.get("ruleID", "UNKNOWN"), "Weight: ", rule.get("weight", "UNKOWN"))
 			break # Execute only the first matching rule
 
@@ -140,3 +142,6 @@ func get_executed_rules() -> Array:
 
 func clear_executed_rules() -> void:
 	executed_rules.clear()
+	
+func get_current_rule() -> String:
+	return current_rule
