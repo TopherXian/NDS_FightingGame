@@ -25,9 +25,11 @@ func set_ai_reference(ref):
 func evaluate_and_execute(rules: Array):
 	var current_anim = player_anim.current_animation
 	var dist = ai_self.global_position.distance_to(player.global_position)
-	var current_lower_hits = ai_self.lower_hits_taken # Get current hits from AI
-	var current_upper_hits = ai_self.upper_hits_taken # Get current hits from AI
-
+	var current_lower_hits_taken = ai_self.lower_hits_taken # Get current hits from AI
+	var current_upper_hits_taken = ai_self.upper_hits_taken # Get current hits from AI
+	var current_lower_attacks_landed = ai_self.lower_attacks_landed
+	var current_upper_attacks_landed = ai_self.upper_attacks_landed
+	
 	for rule in rules:
 		var conditions = rule["conditions"]
 		#var ruleID = rule["ruleID"]
@@ -49,20 +51,33 @@ func evaluate_and_execute(rules: Array):
 				match_all = false
 				continue # Go to next rule
 		
-		if match_all or "upper_hits" in conditions:
-			var op = conditions["upper_hits"]["op"]
-			var value = conditions["upper_hits"]["value"]
-			if not _compare_numeric(op, current_upper_hits, value):
+		if match_all or "upper_hits_taken" in conditions:
+			var op = conditions["upper_hits_taken"]["op"]
+			var value = conditions["upper_hits_taken"]["value"]
+			if not _compare_numeric(op, current_upper_hits_taken, value):
 				match_all = false
 				continue # Go to next rule
 			
-		if match_all or "lower_hits" in conditions:
-			var op = conditions["lower_hits"]["op"]
-			var value = conditions["lower_hits"]["value"]
-			if not _compare_numeric(op, current_lower_hits, value):
+		if match_all or "lower_hits_taken" in conditions:
+			var op = conditions["lower_hits_taken"]["op"]
+			var value = conditions["lower_hits_taken"]["value"]
+			if not _compare_numeric(op, current_lower_hits_taken, value):
+				match_all = false
+				continue # Go to next rule
+				
+		if match_all or "lower_attacks_landed" in conditions:
+			var op = conditions["lower_attacks_landed"]["op"]
+			var value = conditions["lower_attacks_landed"]["value"]
+			if not _compare_numeric(op, current_lower_attacks_landed, value):
 				match_all = false
 				continue # Go to next rule
 
+		if match_all or "upper_attacks_landed" in conditions:
+			var op = conditions["upper_attacks_landed"]["op"]
+			var value = conditions["upper_attacks_landed"]["value"]
+			if not _compare_numeric(op, current_upper_attacks_landed, value):
+				match_all = false
+				continue # Go to next rule
 	# If we reach here and match_all is still true, all present conditions passed
 		if match_all:
 			_execute_action(rule["enemy_action"])
