@@ -25,9 +25,10 @@ func set_ai_reference(ref):
 func evaluate_and_execute(rules: Array):
 	var current_anim = player_anim.current_animation
 	var dist = ai_self.global_position.distance_to(player.global_position)
-	var current_lower_hits = ai_self.lower_hits_taken # Get current hits from AI
-	var current_upper_hits = ai_self.upper_hits_taken # Get current hits from AI
-
+	var current_lower_hits_taken = ai_self.lower_hits_taken # Get current hits from AI
+	var current_upper_hits_taken = ai_self.upper_hits_taken # Get current hits from AI
+	var current_lower_attacks_landed = ai_self.lower_attacks_landed
+	var current_upper_attacks_landed = ai_self.upper_attacks_landed
 	for rule in rules:
 		var conditions = rule["conditions"]
 		#var ruleID = rule["ruleID"]
@@ -49,20 +50,41 @@ func evaluate_and_execute(rules: Array):
 				match_all = false
 				continue # Go to next rule
 		
-		if match_all or "upper_hits" in conditions:
-			var op = conditions["upper_hits"]["op"]
-			var value = conditions["upper_hits"]["value"]
-			if not _compare_numeric(op, current_upper_hits, value):
-				match_all = false
-				continue # Go to next rule
+		if match_all and conditions.has("upper_hits_taken"):
+			var upper_hit = conditions["upper_hits_taken"]
+			if upper_hit is Dictionary and upper_hit.has("op") and upper_hit.has("value"):
+				var op = upper_hit["op"]
+				var value = upper_hit["value"]
+				if not _compare_numeric(op, current_upper_hits_taken, value):
+					match_all = false
+					continue
 			
-		if match_all or "lower_hits" in conditions:
-			var op = conditions["lower_hits"]["op"]
-			var value = conditions["lower_hits"]["value"]
-			if not _compare_numeric(op, current_lower_hits, value):
-				match_all = false
-				continue # Go to next rule
+		if match_all and conditions.has("lower_hits_taken"):
+			var lower_hit = conditions["lower_hits_taken"]
+			if lower_hit is Dictionary and lower_hit.has("op") and lower_hit.has("value"):
+				var op = lower_hit["op"]
+				var value = lower_hit["value"]
+				if not _compare_numeric(op, current_lower_hits_taken, value):
+					match_all = false
+					continue
 
+		if match_all and conditions.has("lower_attacks_landed"):
+			var lower_attack = conditions["lower_attacks_landed"]
+			if lower_attack is Dictionary and lower_attack.has("op") and lower_attack.has("value"):
+				var op = lower_attack["op"]
+				var value = lower_attack["value"]
+				if not _compare_numeric(op, current_lower_attacks_landed, value):
+					match_all = false
+					continue
+
+		if match_all and conditions.has("upper_attacks_landed"):
+			var upper_attack = conditions["upper_attacks_landed"]
+			if upper_attack is Dictionary and upper_attack.has("op") and upper_attack.has("value"):
+				var op = upper_attack["op"]
+				var value = upper_attack["value"]
+				if not _compare_numeric(op, current_upper_attacks_landed, value):
+					match_all = false
+					continue
 	# If we reach here and match_all is still true, all present conditions passed
 		if match_all:
 			_execute_action(rule["enemy_action"])
