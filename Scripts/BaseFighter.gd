@@ -189,7 +189,7 @@ func setup_controller(type: String):
 			else: print("DynamicScriptingController.gd not found.")
 
 		"Decision Tree": # <-- Add this case
-			var dt_script_path = "res://Scripts/AI/DecisionTreeController.gd"
+			var dt_script_path = "res://Scripts/Controllers/DecisionTreeController.gd"
 			if FileAccess.file_exists(dt_script_path):
 				var DTControllerClass = load(dt_script_path)
 				if DTControllerClass:
@@ -201,7 +201,7 @@ func setup_controller(type: String):
 			else: print("DecisionTreeController.gd not found at ", dt_script_path)
 
 		"Neuro-Dynamic":
-			if FileAccess.file_exists("res://Scripts/AI/NeuroDynamicController.gd"): # Assuming path
+			if FileAccess.file_exists("res://Scripts/Controllers/NeuroDynamicController.gd"): # Assuming path
 				var NDControllerClass = load("res://Scripts/AI/NeuroDynamicController.gd")
 				if NDControllerClass:
 					active_controller = NDControllerClass.new(self, animation_player, opponent) # Use constructor if it accepts args

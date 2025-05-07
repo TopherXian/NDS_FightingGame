@@ -2,7 +2,7 @@
 extends Node
 class_name Rules
 
-@export var script_count : int = 10 
+@export var script_count : int = 20
 
 var baseline = 0.5
 var WMAX = 1.0
@@ -124,12 +124,12 @@ var rules: Array = [
 	},
 	{
 		"ruleID": 27, "prioritization": 34,# Player kicks from far, enemy closes distance
-		"conditions": { "player_anim": "basic_punch", "distance": { "op": ">=", "value": 130 }, "upper_hits_taken": { "op": ">=", "value": 1 }, "lower_hits_taken": { "op": "==", "value": 0 } },
+		"conditions": { "player_anim": "basic_punch", "distance": { "op": ">=", "value": 90 }, "upper_hits_taken": { "op": ">=", "value": 1 }, "lower_hits_taken": { "op": "==", "value": 0 } },
 		"enemy_action": "standing_defense", "weight": 0.5, "wasUsed": false, "inScript": false
 	},
 	{
 		"ruleID": 28, "prioritization": 35,# Player kicks from far, enemy closes distance
-		"conditions": { "player_anim": "basic_kick", "distance": { "op": ">=", "value": 130 }, "upper_hits_taken": { "op": ">=", "value": 1 }, "lower_hits_taken": { "op": "==", "value": 0 } },
+		"conditions": { "player_anim": "basic_kick", "distance": { "op": ">=", "value": 80 }, "upper_hits_taken": { "op": ">=", "value": 1 }, "lower_hits_taken": { "op": "==", "value": 0 } },
 		"enemy_action": "standing_defense", "weight": 0.5, "wasUsed": false, "inScript": false
 	},
 	{

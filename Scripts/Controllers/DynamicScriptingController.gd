@@ -2,19 +2,19 @@
 extends Node
 class_name DynamicScriptingController
 
-# --- References (Set by BaseFighter) ---
+# References
 var fighter: CharacterBody2D # Reference to the BaseFighter node
 var animation_player: AnimationPlayer
 var opponent: CharacterBody2D
 var opponent_animation_player: AnimationPlayer
 var opponent_HP: ProgressBar
 
-# --- DS Component Instances (From DS_ryu.txt) ---
+# DS Component Instances
 var rule_engine: ScriptCreation # Instance of DS_script.txt logic
 var rules_base: Rules           # Instance of rules.txt logic
 var latest_script: Array = []   # The currently executing action sequence
 
-# --- State/Config (From DS_ryu.txt) ---
+# State/Config
 @export var update_interval : float = 4.0 # How often to re-evaluate rules/script
 var _update_timer: Timer
 var speed = 150 # Movement speed for AI
@@ -22,14 +22,16 @@ var is_hurt: bool = false
 var last_hurt_time: float = 0.0
 const HURT_RECOVERY_TIME: float = 0.4
 
-# --- Parameters (For training.txt) ---
+# Parameters
 var previous_parameters = {}
 
-# --- Logging ---
+# Logging
 const LOG_FILE_PATH = "res://training.txt"
 const Fitness_Log_Path = "res://fitness_record.txt"
 
-# --- Fitness Record ---
+const LOG_SCHEMA_VERSION = 1  # Increment when log structure changes
+
+# Fitness Record
 #var fitness_record: Array = []
 
 func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer, opp_node: CharacterBody2D, playerHP: ProgressBar):
@@ -139,6 +141,7 @@ func _on_timer_timeout():
 	get_total_weights()
 	get_latest_script()
 	log_game_info()
+	append_script_to_log()
 	
 	# Reset counters
 	reset_counters()
@@ -264,46 +267,94 @@ func get_latest_script() -> void:
 	else:
 		print("DSController: Rules class missing script generation methods.")
 
-# --- Logging (From DS_ryu.txt, modified slightly) ---
+# Logging
 func append_script_to_log(context: String = "Update") -> void:
-	if not is_instance_valid(rules_base) or not is_instance_valid(rule_engine): return
+	if not is_instance_valid(rules_base) or not is_instance_valid(rule_engine): 
+		return
 	
-	var stringified_parameters = JSON.stringify(previous_parameters)
-	var file = FileAccess.open(LOG_FILE_PATH, FileAccess.READ_WRITE)
+	# 1. Read existing log data
+	var log_data = {
+		"version": LOG_SCHEMA_VERSION,
+		"scripts": []
+	}
+	
+	var file = FileAccess.open(LOG_FILE_PATH, FileAccess.READ)
 	if file:
-		file.seek_end() # Move to the end to append
-		var timestamp = Time.get_datetime_string_from_system(false, true)
-		
-		file.store_line("--- Parameters: %s ---" % stringified_parameters) # 👈 Write parameters here
-		file.store_line("--- Script Generated (%s) | Timestamp: %s ---" % [context, timestamp])
-
-		# Log the generated script itself
-		if not latest_script.is_empty():
-			# Attempt to stringify, handle potential errors if complex objects
-			var stringified_script = JSON.stringify(latest_script, "\t")
-			if stringified_script:
-				file.store_line("Generated Script:")
-				file.store_line(stringified_script)
-			else:
-				file.store_line("Generated Script: [Could not stringify]")
-
-		# Log the rules executed by the rule engine (if tracked)
-		if rule_engine.has_method("get_executed_rules"):
-			var executed_rules = rule_engine.get_executed_rules()
-			var stringified_executed = JSON.stringify(executed_rules, "\t")
-			if stringified_executed:
-				file.store_line("Rules Executed in Last Cycle:")
-				file.store_line(stringified_executed)
-				# Optionally clear executed rules history in rule_engine
-				if rule_engine.has_method("clear_executed_rules"):
-					rule_engine.clear_executed_rules()
-			else:
-				file.store_line("Rules Executed: [Could not stringify or none executed]")
-
-		file.store_line("--- End Log Entry ---")
+		var json = JSON.new()
+		var err = json.parse(file.get_as_text())
+		if err == OK:
+			log_data = json.data
 		file.close()
-	else:
-		print("Failed to open log file: ", LOG_FILE_PATH)
+
+	# 2. Prepare new entry
+	var new_entry = {
+		"timestamp": Time.get_unix_time_from_system(),
+		"parameters": get_current_parameters(),
+		"scripts_generated": get_script_data(),
+		"rules_used": get_executed_rules_data()
+	}
+
+	# 3. Schema version check
+	if _detect_schema_change(log_data, new_entry):
+		log_data["version"] += 1
+
+	# 4. Append new entry
+	log_data["scripts"].append(new_entry)
+
+	# 5. Write updated data
+	file = FileAccess.open(LOG_FILE_PATH, FileAccess.WRITE)
+	if file:
+		file.store_string(JSON.stringify(log_data, "\t"))
+		file.close()
+
+# Helper functions
+func get_current_parameters() -> Dictionary:
+	return {
+		"lower_hits": fighter.lower_hits_taken,
+		"upper_hits": fighter.upper_hits_taken,
+		"attacks_landed": {
+			"upper": fighter.upper_attacks_landed,
+			"lower": fighter.lower_attacks_landed
+		},
+		"defenses": {
+			"standing": fighter.standing_defenses,
+			"crouching": fighter.crouching_defenses
+		},
+		"current_hp": fighter.health
+	}
+
+func get_script_data() -> Dictionary:
+	var script_data = []
+	for rule in latest_script:
+		script_data.append({
+			"rule_id": rule.get("ruleID", -1),
+			"action": rule.get("enemy_action", "unknown"),
+			"weight": rule.get("weight", 0.0)
+		})
+	return {"rules": script_data}
+	
+func get_executed_rules_data() -> Dictionary:
+	var executed = []
+	var rules = rule_engine.get_executed_rules()
+	for rule in rules:
+		executed.append({
+			"rule_id": rule.get("ruleID", -1),
+			"action": rule.get("enemy_action", "unknown"),
+			"timestamp": Time.get_unix_time_from_system()
+		})
+	return {"count": executed.size(), "rules": executed}
+
+func _detect_schema_change(old_data: Dictionary, new_entry: Dictionary) -> bool:
+	# Compare keys with previous entry
+	if old_data["scripts"].is_empty():
+		return false
+		
+	var last_entry = old_data["scripts"][-1]
+	return (
+		last_entry["parameters"].keys() != new_entry["parameters"].keys() ||
+		last_entry["scripts_generated"].keys() != new_entry["scripts_generated"].keys() ||
+		last_entry["rules_used"].keys() != new_entry["rules_used"].keys()
+	)
 		
 func get_executed_rule() -> String:
 	if is_instance_valid(rule_engine) and rule_engine.has_method("get_current_rule"):
