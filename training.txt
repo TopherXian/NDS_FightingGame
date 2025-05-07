@@ -3,112 +3,846 @@
 		{
 			"parameters": {
 				"attacks_landed": {
-					"lower": 0,
-					"upper": 0
+					"lower": 0.0,
+					"upper": 0.0
 				},
-				"current_hp": 200,
+				"current_hp": 200.0,
 				"defenses": {
-					"crouching": 0,
-					"standing": 0
+					"crouching": 0.0,
+					"standing": 0.0
 				},
-				"lower_hits": 0,
-				"upper_hits": 0
+				"lower_hits": 0.0,
+				"upper_hits": 0.0
 			},
 			"rules_used": {
-				"count": 0,
+				"count": 0.0,
 				"rules": []
 			},
 			"scripts_generated": {
 				"rules": [
 					{
 						"action": "idle",
-						"rule_id": 29,
+						"rule_id": 29.0,
 						"weight": 0.5
 					},
 					{
 						"action": "standing_defense",
-						"rule_id": 28,
+						"rule_id": 28.0,
 						"weight": 0.5
 					},
 					{
 						"action": "standing_defense",
-						"rule_id": 27,
+						"rule_id": 27.0,
 						"weight": 0.5
 					},
 					{
 						"action": "crouch_kick",
-						"rule_id": 26,
+						"rule_id": 26.0,
 						"weight": 0.5
 					},
 					{
 						"action": "crouch_punch",
-						"rule_id": 25,
+						"rule_id": 25.0,
 						"weight": 0.5
 					},
 					{
 						"action": "crouch_punch",
-						"rule_id": 13,
+						"rule_id": 13.0,
 						"weight": 0.5
 					},
 					{
 						"action": "walk_backward",
-						"rule_id": 21,
+						"rule_id": 21.0,
 						"weight": 0.5
 					},
 					{
 						"action": "jump",
-						"rule_id": 19,
+						"rule_id": 19.0,
 						"weight": 0.5
 					},
 					{
 						"action": "walk_backward",
-						"rule_id": 17,
+						"rule_id": 17.0,
 						"weight": 0.5
 					},
 					{
 						"action": "walk_forward",
-						"rule_id": 12,
+						"rule_id": 12.0,
 						"weight": 0.5
 					},
 					{
 						"action": "basic_kick",
-						"rule_id": 10,
+						"rule_id": 10.0,
 						"weight": 0.5
 					},
 					{
 						"action": "crouching_defense",
-						"rule_id": 7,
+						"rule_id": 7.0,
 						"weight": 0.5
 					},
 					{
 						"action": "crouching_defense",
-						"rule_id": 6,
+						"rule_id": 6.0,
 						"weight": 0.5
 					},
 					{
 						"action": "standing_defense",
-						"rule_id": 4,
+						"rule_id": 4.0,
 						"weight": 0.5
 					},
 					{
 						"action": "walk_backward",
-						"rule_id": 3,
+						"rule_id": 3.0,
 						"weight": 0.5
 					},
 					{
 						"action": "basic_kick",
-						"rule_id": 2,
+						"rule_id": 2.0,
 						"weight": 0.5
 					},
 					{
 						"action": "walk_forward",
-						"rule_id": 1,
+						"rule_id": 1.0,
 						"weight": 0.5
 					}
 				]
 			},
 			"timestamp": 1746601636.342
+		},
+		{
+			"parameters": {
+				"attacks_landed": {
+					"lower": 0.0,
+					"upper": 0.0
+				},
+				"current_hp": 200.0,
+				"defenses": {
+					"crouching": 0.0,
+					"standing": 0.0
+				},
+				"lower_hits": 0.0,
+				"upper_hits": 0.0
+			},
+			"rules_used": {
+				"count": 0.0,
+				"rules": []
+			},
+			"scripts_generated": {
+				"rules": [
+					{
+						"action": "idle",
+						"rule_id": 19.0,
+						"weight": 0.5
+					},
+					{
+						"action": "standing_defense",
+						"rule_id": 18.0,
+						"weight": 0.5
+					},
+					{
+						"action": "standing_defense",
+						"rule_id": 17.0,
+						"weight": 0.5
+					},
+					{
+						"action": "crouch_kick",
+						"rule_id": 16.0,
+						"weight": 0.5
+					},
+					{
+						"action": "crouch_punch",
+						"rule_id": 15.0,
+						"weight": 0.5
+					},
+					{
+						"action": "crouch_punch",
+						"rule_id": 14.0,
+						"weight": 0.5
+					},
+					{
+						"action": "walk_backward",
+						"rule_id": 13.0,
+						"weight": 0.5
+					},
+					{
+						"action": "jump",
+						"rule_id": 12.0,
+						"weight": 0.5
+					},
+					{
+						"action": "walk_forward",
+						"rule_id": 11.0,
+						"weight": 0.5
+					},
+					{
+						"action": "walk_backward",
+						"rule_id": 10.0,
+						"weight": 0.5
+					},
+					{
+						"action": "walk_forward",
+						"rule_id": 9.0,
+						"weight": 0.5
+					},
+					{
+						"action": "basic_punch",
+						"rule_id": 8.0,
+						"weight": 0.5
+					},
+					{
+						"action": "basic_kick",
+						"rule_id": 7.0,
+						"weight": 0.5
+					},
+					{
+						"action": "crouching_defense",
+						"rule_id": 6.0,
+						"weight": 0.5
+					},
+					{
+						"action": "crouching_defense",
+						"rule_id": 5.0,
+						"weight": 0.5
+					},
+					{
+						"action": "standing_defense",
+						"rule_id": 4.0,
+						"weight": 0.5
+					},
+					{
+						"action": "walk_backward",
+						"rule_id": 3.0,
+						"weight": 0.5
+					},
+					{
+						"action": "basic_kick",
+						"rule_id": 2.0,
+						"weight": 0.5
+					},
+					{
+						"action": "walk_forward",
+						"rule_id": 1.0,
+						"weight": 0.5
+					}
+				]
+			},
+			"timestamp": 1746604292.663
+		},
+		{
+			"parameters": {
+				"attacks_landed": {
+					"lower": 0.0,
+					"upper": 0.0
+				},
+				"current_hp": 180.0,
+				"defenses": {
+					"crouching": 0.0,
+					"standing": 0.0
+				},
+				"lower_hits": 1.0,
+				"upper_hits": 1.0
+			},
+			"rules_used": {
+				"count": 4.0,
+				"rules": [
+					{
+						"action": "walk_forward",
+						"rule_id": 11.0,
+						"timestamp": 1746604296.606
+					},
+					{
+						"action": "idle",
+						"rule_id": 19.0,
+						"timestamp": 1746604296.606
+					},
+					{
+						"action": "basic_kick",
+						"rule_id": 2.0,
+						"timestamp": 1746604296.606
+					},
+					{
+						"action": "crouching_defense",
+						"rule_id": 5.0,
+						"timestamp": 1746604296.606
+					}
+				]
+			},
+			"scripts_generated": {
+				"rules": [
+					{
+						"action": "basic_punch",
+						"rule_id": 8.0,
+						"weight": 0.541986453501383
+					},
+					{
+						"action": "basic_kick",
+						"rule_id": 7.0,
+						"weight": 0.541761140025457
+					},
+					{
+						"action": "walk_forward",
+						"rule_id": 1.0,
+						"weight": 0.541633725601832
+					},
+					{
+						"action": "walk_backward",
+						"rule_id": 13.0,
+						"weight": 0.539070576680501
+					},
+					{
+						"action": "crouching_defense",
+						"rule_id": 6.0,
+						"weight": 0.537817026780446
+					},
+					{
+						"action": "jump",
+						"rule_id": 12.0,
+						"weight": 0.537717727766037
+					},
+					{
+						"action": "idle",
+						"rule_id": 19.0,
+						"weight": 0.524327902048826
+					},
+					{
+						"action": "crouch_punch",
+						"rule_id": 14.0,
+						"weight": 0.524135331144333
+					},
+					{
+						"action": "crouching_defense",
+						"rule_id": 5.0,
+						"weight": 0.523659434467554
+					},
+					{
+						"action": "basic_kick",
+						"rule_id": 2.0,
+						"weight": 0.521637597385049
+					},
+					{
+						"action": "walk_backward",
+						"rule_id": 10.0,
+						"weight": 0.520973063971201
+					},
+					{
+						"action": "standing_defense",
+						"rule_id": 17.0,
+						"weight": 0.520940983988444
+					},
+					{
+						"action": "walk_forward",
+						"rule_id": 9.0,
+						"weight": 0.519875617292722
+					},
+					{
+						"action": "crouch_kick",
+						"rule_id": 16.0,
+						"weight": 0.513048517400424
+					},
+					{
+						"action": "standing_defense",
+						"rule_id": 18.0,
+						"weight": 0.512748840618134
+					},
+					{
+						"action": "walk_forward",
+						"rule_id": 11.0,
+						"weight": 0.510978425994515
+					},
+					{
+						"action": "standing_defense",
+						"rule_id": 4.0,
+						"weight": 0.508232611262798
+					},
+					{
+						"action": "walk_backward",
+						"rule_id": 3.0,
+						"weight": 0.506925905248324
+					},
+					{
+						"action": "crouch_punch",
+						"rule_id": 15.0,
+						"weight": 0.501728025779327
+					}
+				]
+			},
+			"timestamp": 1746604296.606
+		},
+		{
+			"parameters": {
+				"attacks_landed": {
+					"lower": 0.0,
+					"upper": 0.0
+				},
+				"current_hp": 163.0,
+				"defenses": {
+					"crouching": 0.0,
+					"standing": 1.0
+				},
+				"lower_hits": 0.0,
+				"upper_hits": 2.0
+			},
+			"rules_used": {
+				"count": 6.0,
+				"rules": [
+					{
+						"action": "walk_forward",
+						"rule_id": 11.0,
+						"timestamp": 1746604300.598
+					},
+					{
+						"action": "idle",
+						"rule_id": 19.0,
+						"timestamp": 1746604300.598
+					},
+					{
+						"action": "basic_kick",
+						"rule_id": 2.0,
+						"timestamp": 1746604300.598
+					},
+					{
+						"action": "crouching_defense",
+						"rule_id": 5.0,
+						"timestamp": 1746604300.598
+					},
+					{
+						"action": "walk_backward",
+						"rule_id": 3.0,
+						"timestamp": 1746604300.598
+					},
+					{
+						"action": "standing_defense",
+						"rule_id": 17.0,
+						"timestamp": 1746604300.598
+					}
+				]
+			},
+			"scripts_generated": {
+				"rules": [
+					{
+						"action": "basic_kick",
+						"rule_id": 7.0,
+						"weight": 0.578673150992751
+					},
+					{
+						"action": "jump",
+						"rule_id": 12.0,
+						"weight": 0.57467707547888
+					},
+					{
+						"action": "walk_backward",
+						"rule_id": 13.0,
+						"weight": 0.572167480829138
+					},
+					{
+						"action": "crouching_defense",
+						"rule_id": 5.0,
+						"weight": 0.564608647544966
+					},
+					{
+						"action": "basic_punch",
+						"rule_id": 8.0,
+						"weight": 0.562335781818234
+					},
+					{
+						"action": "basic_kick",
+						"rule_id": 2.0,
+						"weight": 0.550797587664905
+					},
+					{
+						"action": "walk_forward",
+						"rule_id": 1.0,
+						"weight": 0.549068135045407
+					},
+					{
+						"action": "walk_forward",
+						"rule_id": 9.0,
+						"weight": 0.548516517065482
+					},
+					{
+						"action": "standing_defense",
+						"rule_id": 18.0,
+						"weight": 0.547810351987005
+					},
+					{
+						"action": "crouching_defense",
+						"rule_id": 6.0,
+						"weight": 0.543497943405988
+					},
+					{
+						"action": "idle",
+						"rule_id": 19.0,
+						"weight": 0.538897691646603
+					},
+					{
+						"action": "crouch_punch",
+						"rule_id": 14.0,
+						"weight": 0.531543939048673
+					},
+					{
+						"action": "walk_backward",
+						"rule_id": 3.0,
+						"weight": 0.529026321268681
+					},
+					{
+						"action": "walk_backward",
+						"rule_id": 10.0,
+						"weight": 0.527750855280831
+					},
+					{
+						"action": "standing_defense",
+						"rule_id": 17.0,
+						"weight": 0.524926729893056
+					},
+					{
+						"action": "crouch_kick",
+						"rule_id": 16.0,
+						"weight": 0.524064915007228
+					},
+					{
+						"action": "standing_defense",
+						"rule_id": 4.0,
+						"weight": 0.522541039862891
+					},
+					{
+						"action": "walk_forward",
+						"rule_id": 11.0,
+						"weight": 0.522184531819454
+					},
+					{
+						"action": "crouch_punch",
+						"rule_id": 15.0,
+						"weight": 0.51388128519573
+					}
+				]
+			},
+			"timestamp": 1746604300.598
+		},
+		{
+			"parameters": {
+				"attacks_landed": {
+					"lower": 0.0,
+					"upper": 0.0
+				},
+				"current_hp": 113.0,
+				"defenses": {
+					"crouching": 0.0,
+					"standing": 0.0
+				},
+				"lower_hits": 0.0,
+				"upper_hits": 5.0
+			},
+			"rules_used": {
+				"count": 8.0,
+				"rules": [
+					{
+						"action": "walk_forward",
+						"rule_id": 11.0,
+						"timestamp": 1746604304.6
+					},
+					{
+						"action": "idle",
+						"rule_id": 19.0,
+						"timestamp": 1746604304.6
+					},
+					{
+						"action": "basic_kick",
+						"rule_id": 2.0,
+						"timestamp": 1746604304.6
+					},
+					{
+						"action": "crouching_defense",
+						"rule_id": 5.0,
+						"timestamp": 1746604304.6
+					},
+					{
+						"action": "walk_backward",
+						"rule_id": 3.0,
+						"timestamp": 1746604304.6
+					},
+					{
+						"action": "standing_defense",
+						"rule_id": 17.0,
+						"timestamp": 1746604304.6
+					},
+					{
+						"action": "walk_backward",
+						"rule_id": 10.0,
+						"timestamp": 1746604304.6
+					},
+					{
+						"action": "standing_defense",
+						"rule_id": 18.0,
+						"timestamp": 1746604304.6
+					}
+				]
+			},
+			"scripts_generated": {
+				"rules": [
+					{
+						"action": "basic_kick",
+						"rule_id": 7.0,
+						"weight": 0.629217604277115
+					},
+					{
+						"action": "jump",
+						"rule_id": 12.0,
+						"weight": 0.623485104990394
+					},
+					{
+						"action": "crouching_defense",
+						"rule_id": 5.0,
+						"weight": 0.60259378637977
+					},
+					{
+						"action": "basic_kick",
+						"rule_id": 2.0,
+						"weight": 0.595093525752911
+					},
+					{
+						"action": "walk_forward",
+						"rule_id": 1.0,
+						"weight": 0.589357373968008
+					},
+					{
+						"action": "basic_punch",
+						"rule_id": 8.0,
+						"weight": 0.588364904806299
+					},
+					{
+						"action": "walk_backward",
+						"rule_id": 13.0,
+						"weight": 0.576605721988603
+					},
+					{
+						"action": "standing_defense",
+						"rule_id": 18.0,
+						"weight": 0.574006207667634
+					},
+					{
+						"action": "crouching_defense",
+						"rule_id": 6.0,
+						"weight": 0.568582277821571
+					},
+					{
+						"action": "crouch_kick",
+						"rule_id": 16.0,
+						"weight": 0.568112828556807
+					},
+					{
+						"action": "walk_forward",
+						"rule_id": 9.0,
+						"weight": 0.5615985666985
+					},
+					{
+						"action": "standing_defense",
+						"rule_id": 4.0,
+						"weight": 0.560521184069062
+					},
+					{
+						"action": "idle",
+						"rule_id": 19.0,
+						"weight": 0.555612878839137
+					},
+					{
+						"action": "walk_backward",
+						"rule_id": 10.0,
+						"weight": 0.552503024663224
+					},
+					{
+						"action": "crouch_punch",
+						"rule_id": 14.0,
+						"weight": 0.55007376390559
+					},
+					{
+						"action": "walk_backward",
+						"rule_id": 3.0,
+						"weight": 0.548510938103947
+					},
+					{
+						"action": "standing_defense",
+						"rule_id": 17.0,
+						"weight": 0.538434865832163
+					},
+					{
+						"action": "walk_forward",
+						"rule_id": 11.0,
+						"weight": 0.532529083494903
+					},
+					{
+						"action": "crouch_punch",
+						"rule_id": 15.0,
+						"weight": 0.51918479323434
+					}
+				]
+			},
+			"timestamp": 1746604304.6
+		},
+		{
+			"parameters": {
+				"attacks_landed": {
+					"lower": 0,
+					"upper": 0
+				},
+				"current_hp": 43,
+				"defenses": {
+					"crouching": 0,
+					"standing": 0
+				},
+				"lower_hits": 0,
+				"upper_hits": 7
+			},
+			"rules_used": {
+				"count": 9,
+				"rules": [
+					{
+						"action": "walk_forward",
+						"rule_id": 11,
+						"timestamp": 1746604308.604
+					},
+					{
+						"action": "idle",
+						"rule_id": 19,
+						"timestamp": 1746604308.604
+					},
+					{
+						"action": "basic_kick",
+						"rule_id": 2,
+						"timestamp": 1746604308.604
+					},
+					{
+						"action": "crouching_defense",
+						"rule_id": 5,
+						"timestamp": 1746604308.604
+					},
+					{
+						"action": "walk_backward",
+						"rule_id": 3,
+						"timestamp": 1746604308.604
+					},
+					{
+						"action": "standing_defense",
+						"rule_id": 17,
+						"timestamp": 1746604308.604
+					},
+					{
+						"action": "walk_backward",
+						"rule_id": 10,
+						"timestamp": 1746604308.604
+					},
+					{
+						"action": "standing_defense",
+						"rule_id": 18,
+						"timestamp": 1746604308.604
+					},
+					{
+						"action": "standing_defense",
+						"rule_id": 4,
+						"timestamp": 1746604308.605
+					}
+				]
+			},
+			"scripts_generated": {
+				"rules": [
+					{
+						"action": "jump",
+						"rule_id": 12,
+						"weight": 0.673894618715089
+					},
+					{
+						"action": "basic_kick",
+						"rule_id": 7,
+						"weight": 0.66018275571262
+					},
+					{
+						"action": "walk_forward",
+						"rule_id": 1,
+						"weight": 0.632841532107719
+					},
+					{
+						"action": "basic_punch",
+						"rule_id": 8,
+						"weight": 0.626735658996682
+					},
+					{
+						"action": "crouching_defense",
+						"rule_id": 5,
+						"weight": 0.626081048151591
+					},
+					{
+						"action": "crouch_kick",
+						"rule_id": 16,
+						"weight": 0.613959224556309
+					},
+					{
+						"action": "basic_kick",
+						"rule_id": 2,
+						"weight": 0.610362522277035
+					},
+					{
+						"action": "idle",
+						"rule_id": 19,
+						"weight": 0.597389464848436
+					},
+					{
+						"action": "crouching_defense",
+						"rule_id": 6,
+						"weight": 0.596832164409594
+					},
+					{
+						"action": "walk_backward",
+						"rule_id": 3,
+						"weight": 0.59378215883476
+					},
+					{
+						"action": "walk_backward",
+						"rule_id": 13,
+						"weight": 0.593537937850267
+					},
+					{
+						"action": "walk_forward",
+						"rule_id": 9,
+						"weight": 0.584330267434834
+					},
+					{
+						"action": "walk_forward",
+						"rule_id": 11,
+						"weight": 0.577827634173997
+					},
+					{
+						"action": "walk_backward",
+						"rule_id": 10,
+						"weight": 0.577490191528382
+					},
+					{
+						"action": "standing_defense",
+						"rule_id": 4,
+						"weight": 0.577417525236214
+					},
+					{
+						"action": "standing_defense",
+						"rule_id": 18,
+						"weight": 0.577090933288003
+					},
+					{
+						"action": "crouch_punch",
+						"rule_id": 14,
+						"weight": 0.568819749458739
+					},
+					{
+						"action": "standing_defense",
+						"rule_id": 17,
+						"weight": 0.551610382294326
+					},
+					{
+						"action": "crouch_punch",
+						"rule_id": 15,
+						"weight": 0.516073837781399
+					}
+				]
+			},
+			"timestamp": 1746604308.604
 		}
 	],
-	"version": 1
+	"version": 6.0
 }
