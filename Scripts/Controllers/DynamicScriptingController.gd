@@ -27,7 +27,8 @@ var previous_parameters = {}
 
 # --- Logging ---
 const LOG_FILE_PATH = "res://training.txt"
-
+# --- Fitness Record ---
+var fitness_record: Array = []
 
 func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer, opp_node: CharacterBody2D, playerHP: ProgressBar):
 	fighter = fighter_node
@@ -127,7 +128,7 @@ func _on_timer_timeout():
 	# Calculate and log fitness
 	var fitness = calculate_fitness()
 	print("Adapting with fitness: %.2f" % fitness)
-	
+	fitness_record.append(fitness)
 	# Weight adjustment
 	rules_base.adjust_script_weights(fitness)
 	rules_base.update_rulebase()
