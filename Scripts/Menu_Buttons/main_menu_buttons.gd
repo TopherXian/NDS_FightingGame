@@ -2,8 +2,10 @@
 extends Node2D # Or Node2D, whatever your root node is
 
 # Define the available control types
-enum ControlType { HUMAN, DYNAMIC_SCRIPTING, DECISION_TREE, NEURO_DYNAMIC }
-const CONTROL_TYPE_STRINGS = ["Human", "Dynamic Scripting", "Decision Tree", "Neuro-Dynamic"]
+enum ControlType_P1 { HUMAN, DECISION_TREE }
+enum ControlType_P2 { DYNAMIC_SCRIPTING, NEURO_DYNAMIC }
+const CONTROL_TYPE_STRINGS_P1 = ["Human", "Decision Tree"]
+const CONTROL_TYPE_STRINGS_P2 = ["Dynamic Scripting", "Neuro-Dynamic"]
 
 # --- Node References ---
 @onready var p1_selector: OptionButton = $Player1Options/P1ControlSelector
@@ -16,22 +18,22 @@ const CONTROL_TYPE_STRINGS = ["Human", "Dynamic Scripting", "Decision Tree", "Ne
 const GAME_LEVEL_PATH = "res://Levels/sample_level.tscn" # Verify this path is correct
 
 func _ready():
-	# Populate the OptionButtons
-	populate_selector(p1_selector)
-	populate_selector(p2_selector)
-
+	
+	p1_selector.clear()
+	p2_selector.clear()
+	
+	p1_selector.add_item(CONTROL_TYPE_STRINGS_P1[0], 0)
+	p1_selector.add_item(CONTROL_TYPE_STRINGS_P1[1], 1)
+	p2_selector.add_item(CONTROL_TYPE_STRINGS_P2[0], 0)
+	p2_selector.add_item(CONTROL_TYPE_STRINGS_P2[1], 1)
+	
 	# Set default selections based on requirements
-	p1_selector.select(ControlType.HUMAN) # Ryu defaults to Human
-	p2_selector.select(ControlType.DYNAMIC_SCRIPTING) # Dummy Ryu defaults to Dynamic Scripting
+	p1_selector.select(ControlType_P1.HUMAN) # Ryu defaults to Human
+	p2_selector.select(ControlType_P2.DYNAMIC_SCRIPTING) # Dummy Ryu defaults to Dynamic Scripting
 
 	# Connect button signal
 	start_button.pressed.connect(_on_start_button_pressed)
-
-func populate_selector(selector: OptionButton):
-	selector.clear()
-	for i in range(CONTROL_TYPE_STRINGS.size()):
-		selector.add_item(CONTROL_TYPE_STRINGS[i], i)
-
+	
 func _on_start_button_pressed():
 	var input_text = match_count_input.text
 	
@@ -42,8 +44,8 @@ func _on_start_button_pressed():
 	else:
 		print("Invalid input. Please enter a whole number.")
 	# Get selected control types as strings
-	var p1_control_str = CONTROL_TYPE_STRINGS[p1_selector.selected]
-	var p2_control_str = CONTROL_TYPE_STRINGS[p2_selector.selected]
+	var p1_control_str = CONTROL_TYPE_STRINGS_P1[p1_selector.selected]
+	var p2_control_str = CONTROL_TYPE_STRINGS_P2[p2_selector.selected]
 
 	# Store selections in the global GameSettings
 	# Ensure GameSettings Autoload is set up (See step 3)
