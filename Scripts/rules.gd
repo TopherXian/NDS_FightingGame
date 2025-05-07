@@ -2,7 +2,7 @@
 extends Node
 class_name Rules
 
-@export var script_count : int = 17 
+@export var script_count : int = 10 
 
 var baseline = 0.5
 var WMAX = 1.0
