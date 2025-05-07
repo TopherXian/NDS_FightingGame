@@ -6,8 +6,8 @@ extends Node2D # Or Node2D, whatever your root node is
 
 # Define the available control types
 enum ControlType { HUMAN, DECISION_TREE, DYNAMIC_SCRIPTING, NEURO_DYNAMIC }
-const CONTROL_TYPE_STRINGS_P1 = [\"Human\", \"Decision Tree\"]
-const CONTROL_TYPE_STRINGS_P2 = [\"Dynamic Scripting\", \"Neuro-Dynamic\"]
+const CONTROL_TYPE_STRINGS_P1 = [\"Human\", \"Dynamic Scripting\"]
+const CONTROL_TYPE_STRINGS_P2 = [\"Decision Tree\", \"Neuro-Dynamic\"]
 
 # --- Node References ---
 @onready var p1_selector: OptionButton = $Player1Options/P1ControlSelector
@@ -26,7 +26,7 @@ func _ready():
 	p1_selector.add_item(CONTROL_TYPE_STRINGS_P1[0], 0)
 	p1_selector.add_item(CONTROL_TYPE_STRINGS_P1[1], 1)
 	p2_selector.add_item(CONTROL_TYPE_STRINGS_P2[0], 0)
-	p2_selector.add_item(CONTROL_TYPE_STRINGS_P2[1], 1)
+	p2_selector.add_item(CONTROL_TYPE_STRINGS_P1[1], 1)
 
 	# Set default selections based on requirements
 	p1_selector.select(ControlType.HUMAN) # Ryu defaults to Human
