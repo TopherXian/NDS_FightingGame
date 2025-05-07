@@ -27,8 +27,10 @@ var previous_parameters = {}
 
 # --- Logging ---
 const LOG_FILE_PATH = "res://training.txt"
+const Fitness_Log_Path = "res://fitness_record.txt"
+
 # --- Fitness Record ---
-var fitness_record: Array = []
+#var fitness_record: Array = []
 
 func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer, opp_node: CharacterBody2D, playerHP: ProgressBar):
 	fighter = fighter_node
@@ -128,7 +130,7 @@ func _on_timer_timeout():
 	# Calculate and log fitness
 	var fitness = calculate_fitness()
 	print("Adapting with fitness: %.2f" % fitness)
-	fitness_record.append(fitness)
+
 	# Weight adjustment
 	rules_base.adjust_script_weights(fitness)
 	rules_base.update_rulebase()
@@ -245,6 +247,7 @@ func calculate_fitness() -> float:
 	var raw_fitness = baseline + dmg_score + offensiveness + defensiveness + penalties
 	var fitness = clampf(raw_fitness, 0.0, 1.0) # Clamp between 0 and 1
 	print("DS Fitness calculated: ", fitness)
+	append_fitness_to_log(fitness)
 	return fitness
 
 
@@ -314,3 +317,16 @@ func notify_damage_taken(_amount: int, _is_upper: bool, _defended: bool):
 	is_hurt = true
 	last_hurt_time = Time.get_ticks_msec()
 	fighter.velocity = Vector2.ZERO
+
+func append_fitness_to_log(fitness: float):
+	var file = FileAccess.open(Fitness_Log_Path, FileAccess.READ_WRITE)
+	
+	if file: # Always good to check
+		file.seek_end() # Move to the end so we append, not overwrite
+		
+		var timestamp = Time.get_datetime_string_from_system(false, true)
+		file.store_line("--- Timestamp: %s ---" % [timestamp])
+		file.store_line("Fitness: %.2f" % fitness)
+		file.store_line("") # Optional: adds an empty line for clarity
+	else:
+		push_error("Failed to open fitness log file!")
