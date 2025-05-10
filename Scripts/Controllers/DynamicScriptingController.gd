@@ -22,6 +22,10 @@ var is_hurt: bool = false
 var last_hurt_time: float = 0.0
 const HURT_RECOVERY_TIME: float = 0.4
 
+# ⚡ New action queue variables
+var action_queue: Array = []
+var is_performing_action: bool = false
+
 # Parameters
 var previous_parameters = {}
 
@@ -98,29 +102,34 @@ func reset_ai_state():
 	fighter.velocity = Vector2.ZERO
 
 func _physics_process(_delta):
-	if not is_instance_valid(fighter): return
-	if not is_instance_valid(rule_engine): return # Cannot execute without engine
-
-
+	if not is_instance_valid(fighter) or not is_instance_valid(rule_engine):
+		return
+	
 	if is_hurt:
 		if Time.get_ticks_msec() - last_hurt_time > HURT_RECOVERY_TIME * 1000:
 			reset_ai_state()
 		return 
-			
-	if latest_script.size() == 0: return
 	
-	# Only process if not in hurt animation
-	if animation_player.current_animation != "hurt":
+	# ⚡ Modified execution logic
+	if action_queue.size() > 0 and not is_performing_action:
+		var action = action_queue.pop_front()
+		is_performing_action = true
+		rule_engine._execute_single_action(action)
+	else:
 		rule_engine.evaluate_and_execute(latest_script)
-	
-	rule_engine.evaluate_and_execute(latest_script) 
+
+# ⚡ New method to handle action queuing
+func queue_actions(actions: Array):
+	action_queue = actions.duplicate()
+	is_performing_action = false  # Reset state when new actions arrive
 
 func _on_animation_finished(anim_name: String):
 	if anim_name == "hurt":
-		# Force return to idle state
 		animation_player.play("idle")
 		reset_ai_state()
-		print("Recovered from hurt state")
+	else:
+		# ⚡ Allow next action in queue
+		is_performing_action = false
 
 # --- Timer Timeout (From DS_ryu.txt) ---
 func _on_timer_timeout():
@@ -174,25 +183,27 @@ func log_game_info():
 	print("Top 5 Highest Weights:")
 	for i in range(min(5, script_rules.size())):
 		var rule = script_rules[i]
+		var action = process_action(rule)
 		print("%d. [Rule %d] %s (Weight: %.2f)" % [
 			i+1,
 			rule["ruleID"],
-			rule["enemy_action"], 
+			action, 
 			rule["weight"]
 		])
-	
-	# Action diversity	
-	#var actions = {}
-	#for rule in script_rules:
-		#var action = rule["enemy_action"]
-		#actions[action] = actions.get(action, 0) + 1
-	
-	#print("\nAction Distribution:")
-	#for action in actions:
-		#print("- %s: %d%%" % [
-			#action, 
-			#round(float(actions[action]) / script_rules.size() * 100)
-		#])
+
+func process_action(rule: Dictionary) -> String:
+	var raw_action_1_value = rule.get("enemy_action_1")
+	var string_value_action_1 = str(raw_action_1_value).rpad(17) if raw_action_1_value != null else ""
+	var raw_action_2_value = rule.get("enemy_action_2")
+	var combined_actions
+	var string_value_action_2 = str(raw_action_2_value).rpad(17) if raw_action_2_value != null else ""
+	if string_value_action_2 != "":
+		var display_action_2 = string_value_action_2
+		combined_actions = string_value_action_1 + "+ " + string_value_action_2
+	else:
+		combined_actions = string_value_action_1
+	return combined_actions
+
 #LOG EXECUTED RULES 
 func log_info(script, header) -> void:
 	print("\n====== %s Rules ======" % header)
@@ -201,7 +212,7 @@ func log_info(script, header) -> void:
 	
 	for rule in script:
 		var rule_id = str(rule.get("ruleID", "??")).rpad(3)
-		var action = str(rule.get("enemy_action", "unknown")).rpad(17)
+		var action = process_action(rule)			
 		var weight = "%.2f" % rule.get("weight", 0.0)
 		var in_script = "✓" if rule.get("inScript", false) else "✗"
 		
