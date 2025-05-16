@@ -83,25 +83,34 @@ func evaluate_and_execute(rules: Array):
 					continue
 					
 		if match_all:
-			# ⚡ Collect all actions from the rule
-			var actions = []
-			var action_index = 1
-			while rule.has("enemy_action_%d" % action_index):
-				actions.append(rule["enemy_action_%d" % action_index])
-				action_index += 1
-			
-			if actions.size() > 0:
-				# ⚡ Execute the action sequence
-				_execute_actions(actions)
+			# Get actions from enemy_actions or enemy_action, ensuring they're strings
+			var actions = rule.get("enemy_actions", [])
+			if actions.size() == 0:
+				# Handle backward compatibility for enemy_action (string or array)
+				var raw_action = rule.get("enemy_action", "idle")
+				actions = [raw_action] if typeof(raw_action) == TYPE_STRING else raw_action
+
+			# Validate and flatten actions
+			var valid_actions = []
+			for action in actions:
+				if typeof(action) == TYPE_STRING:
+					valid_actions.append(action)
+				else:
+					print("Invalid action type in rule %d: %s" % [rule.get("ruleID", -1), str(action)])
+
+			if valid_actions.size() > 0:
+				_execute_actions(valid_actions)
 				rule["wasUsed"] = true
 				append_executed_rule(rule)
-				current_rule = " > ".join(actions)
+				current_rule = " > ".join(valid_actions)
 				break
 				
-# ⚡ New method to handle action sequences
 func _execute_actions(actions: Array):
 	if ai_self.active_controller.has_method("queue_actions"):
-		ai_self.active_controller.queue_actions(actions)
+		var delayed_actions = []
+		for action in actions:
+			delayed_actions.append({"action": action, "delay": 0.2})
+		ai_self.active_controller.queue_actions(delayed_actions)
 
 
 # --- Helper function for numerical comparisons ---

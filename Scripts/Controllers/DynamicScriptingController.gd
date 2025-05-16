@@ -43,8 +43,6 @@ func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer
 	animation_player = anim_player
 	opponent = opp_node
 	opponent_HP = playerHP
-	print(fighter)
-	print(opponent)
 
 	if is_instance_valid(opponent) and (opponent.has_node("Animation") or opponent.has_node("Dummy_Animation")): # Adjust path if needed
 		opponent_animation_player = opponent.get_node("Animation") if opponent.has_node("Animation") else opponent.get_node("Dummy_Animation")
@@ -71,6 +69,7 @@ func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer
 			if is_instance_valid(opponent) and is_instance_valid(opponent_animation_player) and is_instance_valid(animation_player):
 				rule_engine = ScriptCreationClass.new(opponent, opponent_animation_player, animation_player)
 				rule_engine.set_ai_reference(fighter) # Pass self-reference
+				fighter.active_controller = self 
 			else:
 				print("DSController: Missing references for ScriptCreation init.")
 				return # Cannot proceed
@@ -110,18 +109,37 @@ func _physics_process(_delta):
 			reset_ai_state()
 		return 
 	
-	# ⚡ Modified execution logic
-	if action_queue.size() > 0 and not is_performing_action:
-		var action = action_queue.pop_front()
-		is_performing_action = true
-		rule_engine._execute_single_action(action)
-	else:
-		rule_engine.evaluate_and_execute(latest_script)
+	# Only process next action if not performing one and queue exists
+	if not is_performing_action:
+		if action_queue.size() > 0:
+			var action_data = action_queue.pop_front()
+			is_performing_action = true
+			rule_engine._execute_single_action(action_data["action"])
+			
+			# Handle delay without blocking physics process
+			if action_data["delay"] > 0:
+				var timer = get_tree().create_timer(action_data["delay"])
+				timer.timeout.connect(_on_action_delay_completed.bind(action_data["delay"]))
+		else:
+			# Fallback to regular evaluation if no queued actions
+			rule_engine.evaluate_and_execute(latest_script)
 
-# ⚡ New method to handle action queuing
+func _on_action_delay_completed(delay: float):
+	is_performing_action = false
+
 func queue_actions(actions: Array):
-	action_queue = actions.duplicate()
-	is_performing_action = false  # Reset state when new actions arrive
+	action_queue.clear()
+	is_performing_action = false
+	
+	# Convert all actions to dictionary format
+	for action in actions:
+		if action is String:
+			action_queue.append({"action": action, "delay": 0.1})
+		elif action is Dictionary:
+			action_queue.append(action)
+	
+	print("Current Queue:", action_queue)
+
 
 func _on_animation_finished(anim_name: String):
 	if anim_name == "hurt":
