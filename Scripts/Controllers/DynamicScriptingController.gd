@@ -138,7 +138,7 @@ func queue_actions(actions: Array):
 		elif action is Dictionary:
 			action_queue.append(action)
 	
-	print("Current Queue:", action_queue)
+#	print("Current Queue:", action_queue)
 
 
 func _on_animation_finished(anim_name: String):
@@ -210,24 +210,17 @@ func log_game_info():
 		])
 
 func process_action(rule: Dictionary) -> String:
-	var raw_action_1_value = rule.get("enemy_action_1")
-	var string_value_action_1 = str(raw_action_1_value).rpad(17) if raw_action_1_value != null else ""
-	var raw_action_2_value = rule.get("enemy_action_2")
-	var combined_actions
-	var string_value_action_2 = str(raw_action_2_value).rpad(17) if raw_action_2_value != null else ""
-	if string_value_action_2 != "":
-		var display_action_2 = string_value_action_2
-		combined_actions = string_value_action_1 + "+ " + string_value_action_2
-	else:
-		combined_actions = string_value_action_1
-	return combined_actions
+	var processedActions = ''
+	var actions = rule["enemy_action"]
+	for action in actions:
+		processedActions =  str(processedActions) + str(action)
+	return processedActions
 
 #LOG EXECUTED RULES 
 func log_info(script, header) -> void:
 	print("\n====== %s Rules ======" % header)
 	print("ID | Action            | Weight | In Script")
 	print("---|-------------------|--------|----------")
-	
 	for rule in script:
 		var rule_id = str(rule.get("ruleID", "??")).rpad(3)
 		var action = process_action(rule)			

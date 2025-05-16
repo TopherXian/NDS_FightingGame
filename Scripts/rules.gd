@@ -137,7 +137,7 @@ var rules: Array = [
 			"distance": { "op": "<=", "value": 94 },
 			"upper_hits_taken": { "op": ">=", "value": 2 }
 		},
-		"enemy_actions": ["jump", "walk_forward"], 
+		"enemy_action": ["jump", "walk_forward"], 
 		"weight": 0.8, 
 		"wasUsed": false, 
 		"inScript": false
@@ -149,7 +149,7 @@ var rules: Array = [
 			"distance": { "op": "<=", "value": 94 },
 			"upper_hits_taken": { "op": ">=", "value": 2 }
 		},
-		"enemy_actions": ["jump", "walk_forward"], 
+		"enemy_action": ["jump", "walk_forward"], 
 		"weight": 0.8, 
 		"wasUsed": false, 
 		"inScript": false
