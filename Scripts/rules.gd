@@ -2,7 +2,7 @@
 extends Node
 class_name Rules
 
-@export var script_count : int = 20
+@export var script_count : int = 7
 
 var baseline = 0.5
 var WMAX = 1.0
@@ -11,149 +11,220 @@ var scaling_factor = 0.1
 
 var rules: Array = [
 	{
-		"ruleID": 1, "prioritization": 50,
-		"conditions": { "player_anim": "walk_forward", "distance": { "op": ">=", "value": 100 }, "upper_hits_taken": { "op": ">=", "value": 1 } },
-		"enemy_action": ["walk_forward"], "weight": 0.6, "wasUsed": false, "inScript": false
+		"ruleID": 1, "prioritization": 1,
+		"conditions": { "distance": { "op": ">=", "value": 100 } },
+		"enemy_action": ["walk_forward"], "weight": 0.5, "wasUsed": false, "inScript": false
 	},
 	{
-		"ruleID": 2, "prioritization": 10,
-		"conditions": { "player_anim": "walk_forward", "distance": { "op": "<=", "value": 80 }, "upper_attacks_landed": { "op": ">=", "value": 0 }, "lower_attacks_landed": { "op": ">=", "value": 0 } },
-		"enemy_action": ["basic_kick"], "weight": 0.5, "wasUsed": false, "inScript": false # Increased weight
-	},
-	{
-		"ruleID": 3, "prioritization": 70,
-		"conditions": { "player_anim": "basic_punch", "distance": { "op": "<=", "value": 50 }, "upper_hits_taken": { "op": ">=", "value": 1 } },
-		"enemy_action": ["walk_backward"], "weight": 0.8, "wasUsed": false, "inScript": false
-	},
-	{
-		"ruleID": 4, "prioritization": 80,
-		"conditions": { "player_anim": "basic_kick", "distance": { "op": "<=", "value": 100 }, "upper_hits_taken": { "op": ">=", "value": 1 } },
-		"enemy_action": ["standing_defense"], "weight": 0.9, "wasUsed": false, "inScript": false
-	},
-	{
-		"ruleID": 6, "prioritization": 85,
-		"conditions": { "player_anim": "crouch_kick", "distance": { "op": "<=", "value": 100 } },
-		"enemy_action": ["crouching_defense"], "weight": 0.9, "wasUsed": false, "inScript": false
-	},
-	{
-		"ruleID": 7, "prioritization": 32,
-		"conditions": { "player_anim": "crouch_punch", "distance": { "op": "<=", "value": 83 }, "upper_hits_taken": { "op": ">=", "value": 0 }, "lower_hits_taken": { "op": ">=", "value": 1 } },
-		"enemy_action": ["crouching_defense"], "weight": 0.5, "wasUsed": false, "inScript": false
-	},
-	{
-		"ruleID": 10, "prioritization": 90,
-		"conditions": { "player_anim": "jump", "distance": { "op": "<=", "value": 100 } },
-		"enemy_action": ["basic_kick"], "weight": 0.6, "wasUsed": false, "inScript": false
-	},
-	{
-		"ruleID": 11, "prioritization": 95,
-		"conditions": { "player_anim": "jump", "distance": { "op": "<=", "value": 83 } },
-		"enemy_action": ["basic_punch"], "weight": 0.7, "wasUsed": false, "inScript": false
-	},
-	{
-		"ruleID": 12, "prioritization": 65,
-		"conditions": { "player_anim": "walk_backward", "distance": { "op": ">=", "value": 80 } },
-		"enemy_action": ["walk_forward"], "weight": 0.7, "wasUsed": false, "inScript": false
-	},
-	{
-		"ruleID": 13, "prioritization": 75,
-		"conditions": { "player_anim": "standing_defense", "distance": { "op": "<=", "value": 70 }, "upper_attacks_landed": { "op": ">=", "value": 1 } },
-		"enemy_action": ["basic_punch"], "weight": 0.6, "wasUsed": false, "inScript": false
-	},
-	{
-		"ruleID": 14,
-		"conditions": { "player_anim": "crouching_defense", "distance": { "op": "<=", "value": 90 }, "upper_hits": { "op": "<=", "value": 1 }, "lower_hits": { "op": ">=", "value": 1 } },
+		"ruleID": 2, "prioritization": 11,
+		"conditions": { "distance": { "op": "<=", "value": 100 }},
 		"enemy_action": ["basic_kick"], "weight": 0.5, "wasUsed": false, "inScript": false
 	},
 	{
-		"ruleID": 15,
-		"conditions": { "player_anim": "walk_forward", "distance": { "op": ">=", "value": 150 }, "upper_hits": { "op": "==", "value": 0 }, "lower_hits": { "op": "==", "value": 0 } },
-		"enemy_action": ["jump"], "weight": 0., "wasUsed": false, "inScript": false
+		"ruleID": 3, "prioritization": 12,
+		"conditions": { "distance": { "op": "<=", "value": 83 } },
+		"enemy_action": ["basic_punch"], "weight": 0.5, "wasUsed": false, "inScript": false
 	},
 	{
-		"ruleID": 16, "prioritization": 60,
-		"conditions": { "player_anim": "basic_punch", "distance": { "op": "<=", "value": 60 }, "upper_attacks_landed": { "op": "==", "value": 0 } },
-		"enemy_action": ["basic_punch"], "weight": 0.6, "wasUsed": false, "inScript": false
+		"ruleID": 4, "prioritization": 21,
+		"conditions": { "player_anim": "basic_kick", "distance": { "op": ">=", "value": 100 }, "upper_hits_taken": { "op": ">=", "value": 1 } },
+		"enemy_action": ["standing_defense"], "weight": 0.5, "wasUsed": false, "inScript": false
 	},
 	{
-		"ruleID": 17, "prioritization": 23, 
-		"conditions": { "player_anim": "basic_kick", "distance": { "op": "<=", "value": 110 }, "upper_hits_taken": { "op": ">=", "value": 1 }, "lower_hits_taken": { "op": ">=", "value": 0 } },
+		"ruleID": 5, "prioritization": 22,
+		"conditions": { "player_anim": "basic_punch", "distance": { "op": ">=", "value": 83 }, "upper_hits_taken": { "op": ">=", "value": 1 } },
+		"enemy_action": ["standing_defense"], "weight": 0.5, "wasUsed": false, "inScript": false
+	},
+	{
+		"ruleID": 6, "prioritization": 24,
+		"conditions": { "player_anim": "crouch_punch", "distance": { "op": ">=", "value": 83 }, "lower_hits_taken": { "op": ">=", "value": 1 } },
+		"enemy_action": ["crouching_defense"], "weight": 0.5, "wasUsed": false, "inScript": false
+	},
+{
+		"ruleID": 7, "prioritization": 23,
+		"conditions": { "player_anim": "crouch_kick", "distance": { "op": ">=", "value": 83 }, "lower_hits_taken": { "op": ">=", "value": 1 } },
+		"enemy_action": ["crouching_defense"], "weight": 0.5, "wasUsed": false, "inScript": false
+	},
+	{
+		"ruleID": 8, "prioritization": 31,
+		"conditions": { "player_anim": "crouch_punch", "distance": { "op": ">=", "value": 83 }, "lower_hits_taken": { "op": ">=", "value": 3 } },
+		"enemy_action": ["crouching_defense", "crouch_punch"], "enemy_action_2": "crouch_punch", "weight": 0.5, "wasUsed": false, "inScript": false
+	},
+	{
+		"ruleID": 9, "prioritization": 32,
+		"conditions": { "player_anim": "crouch_kick", "distance": { "op": ">=", "value": 83 }, "lower_hits_taken": { "op": ">=", "value": 3 } },
+		"enemy_action": ["crouching_defense", "crouch_kick"], "weight": 0.5, "wasUsed": false, "inScript": false
+	},
+	{
+		"ruleID": 11, "prioritization": 33,
+		"conditions": { "player_anim": "basic_punch", "distance": { "op": ">=", "value": 83 }, "upper_hits_taken": { "op": ">=", "value": 3 } },
+		"enemy_action": ["standing_defense", "basic_punch"], "weight": 0.5, "wasUsed": false, "inScript": false
+	},
+	{
+		"ruleID": 12, "prioritization": 34,
+		"conditions": { "player_anim": "basic_kick", "distance": { "op": ">=", "value": 100 }, "upper_hits_taken": { "op": ">=", "value": 3 } },
+		"enemy_action": ["standing_defense", "basic_kick"], "weight": 0.5, "wasUsed": false, "inScript": false
+	},
+	{
+		"ruleID": 13, "prioritization": 2,
+		"conditions": { "distance": { "op": "<=", "value": 80 }, "lower_hits_taken": { "op": ">=", "value": 3 } },
 		"enemy_action": ["walk_backward"], "weight": 0.5, "wasUsed": false, "inScript": false
 	},
 	{
-		"ruleID": 18,
-		"conditions": { "player_anim": "jump", "distance": { "op": ">=", "value": 120 }, "upper_hits": { "op": "==", "value": 0 }, "lower_hits": { "op": "==", "value": 0 } },
-		"enemy_action": ["walk_forward"], "weight": 0.5, "wasUsed": false, "inScript": false
+		"ruleID": 14, "prioritization": 100,
+		"conditions": { "player_anim": "idle" },
+		"enemy_action": ["idle"], "weight": 0.5, "wasUsed": false, "inScript": false
 	},
-	{
-		"ruleID": 19, "prioritization": 55,
-		"conditions": { "player_anim": "crouch_punch", "distance": { "op": "<=", "value": 70 }, "lower_hits_taken": { "op": ">=", "value": 2 } },
-		"enemy_action": ["jump"], "weight": 0.5, "wasUsed": false, "inScript": false
-	},
-	{
-		"ruleID": 20,
-		"conditions": { "player_anim": "walk_forward", "distance": { "op": "<=", "value": 130 }, "upper_hits": { "op": ">=", "value": 2 }, "lower_hits": { "op": "<=", "value": 1 } },
-		"enemy_action": ["standing_defense"], "weight": 0.5, "wasUsed": false, "inScript": false
-	},
-	{
-		"ruleID": 21, "prioritization": 33,
-		"conditions": { "player_anim": "hurt", "distance": { "op": "<=", "value": 100 }, "upper_attacks_landed": { "op": ">=", "value": 2 }, "lower_attacks_landed": { "op": ">=", "value": 2 } },
-		"enemy_action": ["walk_backward"], "weight": 0.5, "wasUsed": false, "inScript": false
-	},
-	{
-		"ruleID": 22,
-		"conditions": { "player_anim": "basic_kick", "distance": { "op": ">=", "value": 130 }, "upper_hits": { "op": "==", "value": 0 }, "lower_hits": { "op": "==", "value": 0 } },
-		"enemy_action": ["walk_forward"], "weight": 0.5, "wasUsed": false, "inScript": false
-	},
-	{
-		"ruleID": 13, "prioritization": 12,
-		"conditions": { "player_anim": "basic_kick", "distance": { "op": ">=", "value": 100 }, "upper_attacks_landed": { "op": ">=", "value": 0 }, "lower_attacks_landed": { "op": ">=", "value": 1 } },
-		"enemy_action": ["crouch_punch"], "weight": 0.5, "wasUsed": false, "inScript": false
-	},
-	{
-		"ruleID": 25, "prioritization": 13,
-		"conditions": { "player_anim": "basic_punch", "distance": { "op": ">=", "value": 83 }, "upper_attacks_landed": { "op": ">=", "value": 0 }, "lower_attacks_landed": { "op": ">=", "value": 1 } },
-		"enemy_action": ["crouch_punch"], "weight": 0.5, "wasUsed": false, "inScript": false
-	},
-	{
-		"ruleID": 26, "prioritization": 14,
-		"conditions": { "player_anim": "basic_punch", "distance": { "op": ">=", "value": 100 }, "upper_attacks_landed": { "op": "==", "value": 0 }, "lower_attacks_landed": { "op": ">=", "value": 1 } },
-		"enemy_action": ["crouch_kick"], "weight": 0.5, "wasUsed": false, "inScript": false
-	},
-	{
-		"ruleID": 27, "prioritization": 34,
-		"conditions": { "player_anim": "basic_punch", "distance": { "op": ">=", "value": 90 }, "upper_hits_taken": { "op": ">=", "value": 1 }, "lower_hits_taken": { "op": "==", "value": 0 } },
-		"enemy_action": ["standing_defense"], "weight": 0.5, "wasUsed": false, "inScript": false
-	},
-	{
-		"ruleID": 28, "prioritization": 35,
-		"conditions": { "player_anim": "basic_kick", "distance": { "op": ">=", "value": 80 }, "upper_hits_taken": { "op": ">=", "value": 1 }, "lower_hits_taken": { "op": "==", "value": 0 } },
-		"enemy_action": ["standing_defense"], "weight": 0.5, "wasUsed": false, "inScript": false
-	},
-	{
-		"ruleID": 30, "prioritization": 100,
-		"conditions": { 
-			"player_anim": "basic_kick", 
-			"distance": { "op": "<=", "value": 94 },
-			"upper_hits_taken": { "op": ">=", "value": 2 }
-		},
-		"enemy_action": ["jump", "walk_forward"], 
-		"weight": 0.8, 
-		"wasUsed": false, 
-		"inScript": false
-	},
-		{
-		"ruleID": 31, "prioritization": 100,
-		"conditions": { 
-			"player_anim": "basic_punch", 
-			"distance": { "op": "<=", "value": 94 },
-			"upper_hits_taken": { "op": ">=", "value": 2 }
-		},
-		"enemy_action": ["jump", "walk_forward"], 
-		"weight": 0.8, 
-		"wasUsed": false, 
-		"inScript": false
-	},
+
+
+
+
+
+	#{
+		#"ruleID": 1, "prioritization": 50,
+		#"conditions": { "player_anim": "walk_forward", "distance": { "op": ">=", "value": 100 }, "upper_hits_taken": { "op": ">=", "value": 1 } },
+		#"enemy_action": ["walk_forward"], "weight": 0.6, "wasUsed": false, "inScript": false
+	#},
+	#{
+		#"ruleID": 2, "prioritization": 10,
+		#"conditions": { "player_anim": "walk_forward", "distance": { "op": "<=", "value": 80 }, "upper_attacks_landed": { "op": ">=", "value": 0 }, "lower_attacks_landed": { "op": ">=", "value": 0 } },
+		#"enemy_action": ["basic_kick"], "weight": 0.5, "wasUsed": false, "inScript": false # Increased weight
+	#},
+	#{
+		#"ruleID": 3, "prioritization": 70,
+		#"conditions": { "player_anim": "basic_punch", "distance": { "op": "<=", "value": 50 }, "upper_hits_taken": { "op": ">=", "value": 1 } },
+		#"enemy_action": ["walk_backward"], "weight": 0.8, "wasUsed": false, "inScript": false
+	#},
+	#{
+		#"ruleID": 4, "prioritization": 80,
+		#"conditions": { "player_anim": "basic_kick", "distance": { "op": "<=", "value": 100 }, "upper_hits_taken": { "op": ">=", "value": 1 } },
+		#"enemy_action": ["standing_defense"], "weight": 0.9, "wasUsed": false, "inScript": false
+	#},
+	#{
+		#"ruleID": 6, "prioritization": 85,
+		#"conditions": { "player_anim": "crouch_kick", "distance": { "op": "<=", "value": 100 } },
+		#"enemy_action": ["crouching_defense"], "weight": 0.9, "wasUsed": false, "inScript": false
+	#},
+	#{
+		#"ruleID": 7, "prioritization": 32,
+		#"conditions": { "player_anim": "crouch_punch", "distance": { "op": "<=", "value": 83 }, "upper_hits_taken": { "op": ">=", "value": 0 }, "lower_hits_taken": { "op": ">=", "value": 1 } },
+		#"enemy_action": ["crouching_defense"], "weight": 0.5, "wasUsed": false, "inScript": false
+	#},
+	#{
+		#"ruleID": 10, "prioritization": 90,
+		#"conditions": { "player_anim": "jump", "distance": { "op": "<=", "value": 100 } },
+		#"enemy_action": ["basic_kick"], "weight": 0.6, "wasUsed": false, "inScript": false
+	#},
+	#{
+		#"ruleID": 11, "prioritization": 95,
+		#"conditions": { "player_anim": "jump", "distance": { "op": "<=", "value": 83 } },
+		#"enemy_action": ["basic_punch"], "weight": 0.7, "wasUsed": false, "inScript": false
+	#},
+	#{
+		#"ruleID": 12, "prioritization": 65,
+		#"conditions": { "player_anim": "walk_backward", "distance": { "op": ">=", "value": 80 } },
+		#"enemy_action": ["walk_forward"], "weight": 0.7, "wasUsed": false, "inScript": false
+	#},
+	#{
+		#"ruleID": 13, "prioritization": 75,
+		#"conditions": { "player_anim": "standing_defense", "distance": { "op": "<=", "value": 70 }, "upper_attacks_landed": { "op": ">=", "value": 1 } },
+		#"enemy_action": ["basic_punch"], "weight": 0.6, "wasUsed": false, "inScript": false
+	#},
+	#{
+		#"ruleID": 14,
+		#"conditions": { "player_anim": "crouching_defense", "distance": { "op": "<=", "value": 90 }, "upper_hits": { "op": "<=", "value": 1 }, "lower_hits": { "op": ">=", "value": 1 } },
+		#"enemy_action": ["basic_kick"], "weight": 0.5, "wasUsed": false, "inScript": false
+	#},
+	#{
+		#"ruleID": 15,
+		#"conditions": { "player_anim": "walk_forward", "distance": { "op": ">=", "value": 150 }, "upper_hits": { "op": "==", "value": 0 }, "lower_hits": { "op": "==", "value": 0 } },
+		#"enemy_action": ["jump"], "weight": 0., "wasUsed": false, "inScript": false
+	#},
+	#{
+		#"ruleID": 16, "prioritization": 60,
+		#"conditions": { "player_anim": "basic_punch", "distance": { "op": "<=", "value": 60 }, "upper_attacks_landed": { "op": "==", "value": 0 } },
+		#"enemy_action": ["basic_punch"], "weight": 0.6, "wasUsed": false, "inScript": false
+	#},
+	#{
+		#"ruleID": 17, "prioritization": 23, 
+		#"conditions": { "player_anim": "basic_kick", "distance": { "op": "<=", "value": 110 }, "upper_hits_taken": { "op": ">=", "value": 1 }, "lower_hits_taken": { "op": ">=", "value": 0 } },
+		#"enemy_action": ["walk_backward"], "weight": 0.5, "wasUsed": false, "inScript": false
+	#},
+	#{
+		#"ruleID": 18,
+		#"conditions": { "player_anim": "jump", "distance": { "op": ">=", "value": 120 }, "upper_hits": { "op": "==", "value": 0 }, "lower_hits": { "op": "==", "value": 0 } },
+		#"enemy_action": ["walk_forward"], "weight": 0.5, "wasUsed": false, "inScript": false
+	#},
+	#{
+		#"ruleID": 19, "prioritization": 55,
+		#"conditions": { "player_anim": "crouch_punch", "distance": { "op": "<=", "value": 70 }, "lower_hits_taken": { "op": ">=", "value": 2 } },
+		#"enemy_action": ["jump"], "weight": 0.5, "wasUsed": false, "inScript": false
+	#},
+	#{
+		#"ruleID": 20,
+		#"conditions": { "player_anim": "walk_forward", "distance": { "op": "<=", "value": 130 }, "upper_hits": { "op": ">=", "value": 2 }, "lower_hits": { "op": "<=", "value": 1 } },
+		#"enemy_action": ["standing_defense"], "weight": 0.5, "wasUsed": false, "inScript": false
+	#},
+	#{
+		#"ruleID": 21, "prioritization": 33,
+		#"conditions": { "player_anim": "hurt", "distance": { "op": "<=", "value": 100 }, "upper_attacks_landed": { "op": ">=", "value": 2 }, "lower_attacks_landed": { "op": ">=", "value": 2 } },
+		#"enemy_action": ["walk_backward"], "weight": 0.5, "wasUsed": false, "inScript": false
+	#},
+	#{
+		#"ruleID": 22,
+		#"conditions": { "player_anim": "basic_kick", "distance": { "op": ">=", "value": 130 }, "upper_hits": { "op": "==", "value": 0 }, "lower_hits": { "op": "==", "value": 0 } },
+		#"enemy_action": ["walk_forward"], "weight": 0.5, "wasUsed": false, "inScript": false
+	#},
+	#{
+		#"ruleID": 13, "prioritization": 12,
+		#"conditions": { "player_anim": "basic_kick", "distance": { "op": ">=", "value": 100 }, "upper_attacks_landed": { "op": ">=", "value": 0 }, "lower_attacks_landed": { "op": ">=", "value": 1 } },
+		#"enemy_action": ["crouch_punch"], "weight": 0.5, "wasUsed": false, "inScript": false
+	#},
+	#{
+		#"ruleID": 25, "prioritization": 13,
+		#"conditions": { "player_anim": "basic_punch", "distance": { "op": ">=", "value": 83 }, "upper_attacks_landed": { "op": ">=", "value": 0 }, "lower_attacks_landed": { "op": ">=", "value": 1 } },
+		#"enemy_action": ["crouch_punch"], "weight": 0.5, "wasUsed": false, "inScript": false
+	#},
+	#{
+		#"ruleID": 26, "prioritization": 14,
+		#"conditions": { "player_anim": "basic_punch", "distance": { "op": ">=", "value": 100 }, "upper_attacks_landed": { "op": "==", "value": 0 }, "lower_attacks_landed": { "op": ">=", "value": 1 } },
+		#"enemy_action": ["crouch_kick"], "weight": 0.5, "wasUsed": false, "inScript": false
+	#},
+	#{
+		#"ruleID": 27, "prioritization": 34,
+		#"conditions": { "player_anim": "basic_punch", "distance": { "op": ">=", "value": 90 }, "upper_hits_taken": { "op": ">=", "value": 1 }, "lower_hits_taken": { "op": "==", "value": 0 } },
+		#"enemy_action": ["standing_defense"], "weight": 0.5, "wasUsed": false, "inScript": false
+	#},
+	#{
+		#"ruleID": 28, "prioritization": 35,
+		#"conditions": { "player_anim": "basic_kick", "distance": { "op": ">=", "value": 80 }, "upper_hits_taken": { "op": ">=", "value": 1 }, "lower_hits_taken": { "op": "==", "value": 0 } },
+		#"enemy_action": ["standing_defense"], "weight": 0.5, "wasUsed": false, "inScript": false
+	#},
+	#{
+		#"ruleID": 30, "prioritization": 100,
+		#"conditions": { 
+			#"player_anim": "basic_kick", 
+			#"distance": { "op": "<=", "value": 94 },
+			#"upper_hits_taken": { "op": ">=", "value": 2 }
+		#},
+		#"enemy_action": ["jump", "walk_forward"], 
+		#"weight": 0.8, 
+		#"wasUsed": false, 
+		#"inScript": false
+	#},
+		#{
+		#"ruleID": 31, "prioritization": 100,
+		#"conditions": { 
+			#"player_anim": "basic_punch", 
+			#"distance": { "op": "<=", "value": 94 },
+			#"upper_hits_taken": { "op": ">=", "value": 2 }
+		#},
+		#"enemy_action": ["jump", "walk_forward"], 
+		#"weight": 0.8, 
+		#"wasUsed": false, 
+		#"inScript": false
+	#},
+	
 ]
 
 var current_script: Array
@@ -201,9 +272,11 @@ func generate_and_update_script():
 
 func get_rules() -> Array:
 	return rules
+	print(rules)
 
 func get_DScript() -> Array:
 		return current_script
+		
 	
 func adjust_script_weights(fitness: float) -> void:
 	var adjustment = (fitness - baseline) * scaling_factor

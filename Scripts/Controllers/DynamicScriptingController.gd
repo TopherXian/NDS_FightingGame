@@ -175,6 +175,7 @@ func _on_timer_timeout():
 
 func get_total_weights():
 	var rules = rules_base.get_rules()
+	print(rules)
 	var total_weight = 0
 	for rule in rules:
 		total_weight += rule["weight"]
