@@ -164,7 +164,8 @@ func _execute_single_action(action: String):
 			ai_self.velocity.x = 0
 		"jump":
 			if ai_self.is_on_floor():
-				animation.play("jump")
+				if animation.has_animation("jump"):
+					animation.play("jump")
 				ai_self.velocity.y = -400
 		_:
 			animation.play("idle")
