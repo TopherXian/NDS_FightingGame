@@ -17,6 +17,8 @@ var crouching_defenses: int = 0
 var upper_hurtbox: Area2D
 var lower_hurtbox: Area2D
 
+@export var ai_config: AIConfig
+
 var attack_system = null # <-- ADD THIS LINE (or just 'var attack_system')
 var movement_system = null # <-- You likely need this too based on HumanController
 
@@ -184,7 +186,7 @@ func setup_controller(type: String):
 				if DSControllerClass:
 					active_controller = DSControllerClass.new()
 					add_child(active_controller) # Add as child
-					active_controller.init_controller(self, animation_player, opponent, hp_bar) # Pass references
+					active_controller.init_controller(self, animation_player, opponent, hp_bar, ai_config) # Pass references
 				else: print("Failed to load DynamicScriptingController.gd")
 			else: print("DynamicScriptingController.gd not found.")
 
@@ -196,7 +198,7 @@ func setup_controller(type: String):
 					active_controller = DTControllerClass.new()
 					add_child(active_controller) # Add as child node
 					# Call the init function, passing necessary references
-					active_controller.init_controller(self, animation_player, opponent)
+					active_controller.init_controller(self, animation_player, opponent, ai_config)
 				else: print("Failed to load DecisionTreeController.gd")
 			else: print("DecisionTreeController.gd not found at ", dt_script_path)
 

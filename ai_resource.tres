@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AIConfig" load_steps=2 format=3 uid="uid://dhb7h2ewdxw1l"]
+
+[ext_resource type="Script" uid="uid://cpryscakmpry0" path="res://Scripts/AIConfig.gd" id="1_5ym1v"]
+
+[resource]
+script = ExtResource("1_5ym1v")
+attack_chance_idle = 0.6
+defense_probability = 0.8
+defense_trigger_range = 75.0
+attack_opportunity_range = 75.0
+baseline_fitness = 0.5
+damage_weight = 0.7
+weight_scaling = 0.5
+metadata/_custom_type_script = "uid://cpryscakmpry0"

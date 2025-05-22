@@ -1,7 +1,8 @@
-[gd_scene load_steps=94 format=3 uid="uid://biq13tpq0b71q"]
+[gd_scene load_steps=95 format=3 uid="uid://biq13tpq0b71q"]
 
 [ext_resource type="Texture2D" uid="uid://ceg3tovqvw3y0" path="res://Assets/Characters/Ryu - New Version.png" id="1_6eweh"]
 [ext_resource type="Script" uid="uid://bm7e2vrqtj3b0" path="res://Scripts/BaseFighter.gd" id="1_dmqg8"]
+[ext_resource type="Resource" uid="uid://dhb7h2ewdxw1l" path="res://ai_resource.tres" id="2_gxq58"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_dmqg8"]
 atlas = ExtResource("1_6eweh")
@@ -4121,6 +4122,7 @@ size = Vector2(16.4084, 13.1926)
 
 [node name="Player" type="CharacterBody2D"]
 script = ExtResource("1_dmqg8")
+ai_config = ExtResource("2_gxq58")
 
 [node name="Sprite" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_rv41s")

@@ -12,6 +12,9 @@ var opponent_animation_player: AnimationPlayer # Reference to opponent's anim pl
 var movement_logic: DummyMovement
 var attack_logic: DummyAttack
 
+# Ai Config
+var ai_config: AIConfig
+
 # --- State Machine ---
 enum State { IDLE, APPROACHING, ATTACKING, DEFENDING, REPOSITIONING, HURT }
 var current_state: State = State.IDLE
@@ -19,18 +22,11 @@ var current_state: State = State.IDLE
 # --- Defense Logic ---
 var can_defend: bool = true
 var defense_cooldown_timer: Timer
-const DEFENSE_COOLDOWN_TIME: float = 0.5 # Time in seconds before AI can defend again
-const DEFENSE_PROBABILITY: float = 0.8 # 80% chance to defend when conditions met
-const DEFENSE_TRIGGER_RANGE: float = 75.0 # How close opponent attack must be
 
 # --- Attack Logic ---
 # Keep track if AI is currently in an attack animation (set by state, reset by signal)
 var is_attacking: bool = false
-# More nuanced attack chance (replace simple proactive chance)
-const ATTACK_OPPORTUNITY_RANGE: float = 75.0 # Max range to consider attacking
 
-const PROACTIVE_ATTACK_CHANCE: float = 0.15 # 15% chance per second
-const PROACTIVE_APPROACH_CHANCE: float = 0.3 # 30% chance per second
 var idle_time: float = 0.0 # Track time spent in IDLE
 
 # --- Repositioning Logic ---
@@ -43,10 +39,12 @@ const ATTACK_ANIMATIONS = [&"basic_punch", &"basic_kick", &"crouch_punch", &"cro
 const DEFENSE_ANIMATIONS = [&"standing_defense", &"crouching_defense"]
 const MOVEMENT_ANIMATIONS = [&"walk_forward", &"walk_backward"] # Add jump if used
 
-func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer, opp_node: CharacterBody2D):
+func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer, opp_node: CharacterBody2D, _config: AIConfig):
 	fighter = fighter_node
 	animation_player = anim_player
 	opponent = opp_node
+	
+	ai_config = _config
 
 	# Get opponent's animation player [cite: 1, 2]
 	if is_instance_valid(opponent) and (opponent.has_node("Animation") or opponent.has_node("Dummy_Animation")):
@@ -74,7 +72,7 @@ func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer
 	# --- Setup Timers ---
 	# Defense Cooldown Timer
 	defense_cooldown_timer = Timer.new()
-	defense_cooldown_timer.wait_time = DEFENSE_COOLDOWN_TIME
+	defense_cooldown_timer.wait_time = ai_config.defense_cooldown_time
 	defense_cooldown_timer.one_shot = true
 	defense_cooldown_timer.connect("timeout", Callable(self, "_on_defense_cooldown_timeout"))
 	add_child(defense_cooldown_timer) # Add timer to the scene tree
@@ -126,11 +124,11 @@ func _physics_process(_delta):
 			# --- Proactive Transitions ---
 			if idle_time > 1.5: # Only act after 1.5s of inactivity
 			# Randomly attack even without opponent action
-				if randf() < PROACTIVE_ATTACK_CHANCE * _delta:
+				if randf() < ai_config.proactive_attack_chance * _delta:
 					_change_state(State.ATTACKING)
 					idle_time = 0.0
 			# Randomly approach to close distance
-			elif randf() < PROACTIVE_APPROACH_CHANCE * _delta:
+			elif randf() < ai_config.proactive_approach_chance * _delta:
 				_change_state(State.APPROACHING)
 				idle_time = 0.0
 				
@@ -168,7 +166,7 @@ func _physics_process(_delta):
 
 			# --- Transitions from APPROACHING ---
 			# 1. Close enough? -> Idle/Attack decision
-			if distance <= ATTACK_OPPORTUNITY_RANGE:
+			if distance <= ai_config.attack_opportunity_range:
 				if _should_attack(opponent_anim_name, distance): # Check attack first
 					_change_state(State.ATTACKING)
 				else:
@@ -195,7 +193,7 @@ func _physics_process(_delta):
 
 			# --- Transitions from DEFENDING ---
 			# 1. Opponent stopped attacking or moved away? -> Idle/Reposition
-			if not (opponent_anim_name in OPPONENT_ATTACKS and distance < DEFENSE_TRIGGER_RANGE):
+			if not (opponent_anim_name in OPPONENT_ATTACKS and distance < ai_config.defense_trigger_range):
 				# Maybe reposition briefly after defending
 				if randf() < 0.5: # 50% chance to reposition
 					_change_state(State.REPOSITIONING)
@@ -267,28 +265,25 @@ func _change_state(new_state: State):
 # --- Decision Helper Functions ---
 func _should_defend(opponent_anim, dist) -> bool:
 	if not can_defend: return false
-	if opponent_anim in OPPONENT_ATTACKS and dist < DEFENSE_TRIGGER_RANGE:
+	if opponent_anim in OPPONENT_ATTACKS and dist < ai_config.defense_trigger_range:
 		# Check if already defending
 		if animation_player.current_animation == "standing_defense" or \
 		   animation_player.current_animation == "crouching_defense":
 			return false # Already defending, stay in state but don't re-trigger cooldown
 
-		# Check probability
-		if randf() < DEFENSE_PROBABILITY:
-			return true
-	return false
+	return randf() < ai_config.defense_probability
 
 func _should_attack(opponent_anim, dist) -> bool:
 	# Allow attacks even if slightly out of range
-	var effective_range = ATTACK_OPPORTUNITY_RANGE # +20% buffer
+	var effective_range = ai_config.attack_opportunity_range
 	
 	if dist <= effective_range and not is_attacking:
 		# Original checks + allow attacks during mutual idle
 		if opponent_anim == &"idle" or opponent_anim == &"":
-			return randf() < 0.6 # 60% chance to attack idle opponent
+			return randf() < ai_config.attack_chance_idle
 			
-	if is_attacking: return false # Already attacking
-	if dist <= ATTACK_OPPORTUNITY_RANGE:
+	if is_attacking: return false
+	if dist <= effective_range:
 		# Basic condition: Attack if opponent is close and not attacking/defending
 		if not (opponent_anim in OPPONENT_ATTACKS or \
 				opponent_anim in DEFENSE_ANIMATIONS):
@@ -300,7 +295,7 @@ func _should_attack(opponent_anim, dist) -> bool:
 
 func _should_approach(dist) -> bool:
 	# Approach if opponent is further than attack range + a buffer
-	return dist > ATTACK_OPPORTUNITY_RANGE + 20
+	return dist > ai_config.attack_opportunity_range + 15
 
 func _should_reposition(dist) -> bool:
 	# Example: Reposition if opponent is very close but not attacking (crowding)
