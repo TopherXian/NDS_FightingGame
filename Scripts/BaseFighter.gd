@@ -288,12 +288,7 @@ func get_distance_from_corner_ds() -> int:
 		return 1
 	elif direction_to_opponent < 0 and abs(global_position.x - stage_width) < 707:
 		return -1
-	return 0
-
-func jump(move_direction):
-	if is_on_floor():
-		self.velocity.y = -450
-		self.velocity.x = move_direction * 150 * 1.75
+	return 0		
 	
 
 # --- Damage Handling ---

@@ -204,16 +204,16 @@ func log_game_info():
 	script_rules.sort_custom(func(a, b): return a["weight"] > b["weight"])
 	
 	# Print top 5 rules
-	print("Top 5 Highest Weights:")
-	for i in range(min(5, script_rules.size())):
-		var rule = script_rules[i]
-		var action = process_action(rule)
-		print("%d. [Rule %d] %s (Weight: %.2f)" % [
-			i+1,
-			rule["ruleID"],
-			action, 
-			rule["weight"]
-		])
+	#print("Top 5 Highest Weights:")
+	#for i in range(min(5, script_rules.size())):
+		#var rule = script_rules[i]
+		#var action = process_action(rule)
+		#print("%d. [Rule %d] %s (Weight: %.2f)" % [
+			#i+1,
+			#rule["ruleID"],
+			#action, 
+			#rule["weight"]
+		#])
 
 func process_action(rule: Dictionary) -> String:
 	var processedActions = ''
@@ -224,18 +224,19 @@ func process_action(rule: Dictionary) -> String:
 
 #LOG EXECUTED RULES 
 func log_info(script, header) -> void:
-	print("\n====== %s Rules ======" % header)
-	print("ID | Action            | Weight | In Script")
-	print("---|-------------------|--------|----------")
-	for rule in script:
-		var rule_id = str(rule.get("ruleID", "??")).rpad(3)
-		var action = process_action(rule)			
-		var weight = "%.2f" % rule.get("weight", 0.0)
-		var in_script = "✓" if rule.get("inScript", false) else "✗"
-		
-		print("%s | %s | %s   | %s" % [rule_id, action, weight, in_script])
-	
-	print("Total rules: %d\n" % script.size())
+	#print("\n====== %s Rules ======" % header)
+	#print("ID | Action            | Weight | In Script")
+	#print("---|-------------------|--------|----------")
+	#for rule in script:
+		#var rule_id = str(rule.get("ruleID", "??")).rpad(3)
+		#var action = process_action(rule)			
+		#var weight = "%.2f" % rule.get("weight", 0.0)
+		#var in_script = "✓" if rule.get("inScript", false) else "✗"
+		#
+		#print("%s | %s | %s   | %s" % [rule_id, action, weight, in_script])
+	#
+	#print("Total rules: %d\n" % script.size())
+	pass
 
 func reset_counters():
 	# Reset numerical counters

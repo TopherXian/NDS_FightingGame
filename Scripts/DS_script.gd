@@ -30,6 +30,7 @@ func evaluate_and_execute(rules: Array):
 	var current_lower_attacks_landed = ai_self.lower_attacks_landed
 	var current_upper_attacks_landed = ai_self.upper_attacks_landed
 	
+	# bali detect yani if ang character sa corner na then ma return 1 if sa left while -1 if near sa right
 	var corner_move_direction = ai_self.get_distance_from_corner_ds()
 	
 	for rule in rules:
@@ -37,8 +38,9 @@ func evaluate_and_execute(rules: Array):
 		var match_all = true
 		
 		if "distance_from_corner" in rule["conditions"]:
-			if corner_move_direction != 0:
-				ai_self.jump(corner_move_direction)
+			if corner_move_direction != 0 and ai_self.is_on_floor():
+				ai_self.velocity.y = -450
+				ai_self.velocity.x = corner_move_direction * 150 * 1.75
 			continue
 		
 		if "player_anim" in conditions:

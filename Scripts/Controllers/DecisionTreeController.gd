@@ -82,7 +82,7 @@ func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer
 
   # Reposition Cooldown Timer
 	reposition_cooldown_timer = Timer.new()
-	reposition_cooldown_timer.wait_time = 1.5  # 1.5 second cooldown
+	reposition_cooldown_timer.wait_time = 0.5  # 1.5 second cooldown
 	reposition_cooldown_timer.one_shot = true
 	reposition_cooldown_timer.connect("timeout", Callable(self, "_on_reposition_cooldown_timeout"))
 	add_child(reposition_cooldown_timer)
@@ -163,8 +163,8 @@ func _physics_process(_delta):
 			elif _should_approach(distance):
 				_change_state(State.APPROACHING)
 			# 4. Reposition? (Maybe random chance or if opponent is too close and idle)
-			#elif _should_reposition(distance):
-				#_change_state(State.REPOSITIONING)
+			elif _should_reposition(distance):
+				_change_state(State.REPOSITIONING)
 
 
 		State.APPROACHING:
@@ -226,6 +226,9 @@ func _physics_process(_delta):
 
 # --- State Change Helper ---
 func _change_state(new_state: State):	
+	if new_state == State.REPOSITIONING && !fighter.is_on_floor():
+		return
+		
 	if current_state == State.REPOSITIONING and new_state != State.REPOSITIONING:
 		can_reposition = false
 		reposition_cooldown_timer.start()
@@ -271,10 +274,9 @@ func _change_state(new_state: State):
 			can_defend = false
 			defense_cooldown_timer.start()
 		State.REPOSITIONING:
-			# Move backward
-			_move_away_from_opponent()
-			reposition_cooldown_timer.start()
-
+			if fighter.is_on_floor():
+				_move_away_from_opponent()
+				reposition_cooldown_timer.start()
 
 # --- Decision Helper Functions ---
 func _should_defend(opponent_anim, dist) -> bool:
@@ -312,12 +314,12 @@ func _should_approach(dist) -> bool:
 	return dist > ai_config.attack_opportunity_range + 15
 
 func _should_reposition(dist) -> bool:
-	if not can_reposition:  # Check cooldown
+	if not fighter.is_on_floor() or not can_reposition:
 		return false
-	# Increased distance check and lower probability
-	if dist < 60 and not (opponent_animation_player.current_animation in OPPONENT_ATTACKS):
-		return randf() < 0.15  # Reduced from 0.3 to 0.15
-	return false	
+	
+	if dist < 55 and not (opponent_animation_player.current_animation in OPPONENT_ATTACKS):
+		return randf() < 0.15
+	return false
 
 
 # --- Movement Helpers (Fallback if DummyMovement fails/missing) ---
@@ -329,10 +331,12 @@ func _move_towards_opponent():
 	_play_animation("walk_forward", true)
 
 func _move_away_from_opponent():
-	if not is_instance_valid(fighter) or not is_instance_valid(opponent): return
-	var direction = -1 if opponent.global_position.x > fighter.global_position.x else 1
-	# Increase movement speed during reposition
-	var reposition_speed = 175  # Increased from 150
+	if not is_instance_valid(fighter) or not fighter.is_on_floor():
+		fighter.velocity.x = 0
+		return
+	
+	var direction = sign(fighter.global_position.x - opponent.global_position.x)
+	var reposition_speed = 175
 	fighter.velocity.x = direction * reposition_speed
 	_play_animation("walk_backward", true)
 
