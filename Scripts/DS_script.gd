@@ -21,7 +21,6 @@ func _init(enemy_ref, enemy_anim, animation_player):
 
 func set_ai_reference(ref):
 	ai_self = ref
-
 func evaluate_and_execute(rules: Array):
 	var current_anim = player_anim.current_animation
 	var dist = ai_self.global_position.distance_to(player.global_position)
@@ -29,99 +28,92 @@ func evaluate_and_execute(rules: Array):
 	var current_upper_hits_taken = ai_self.upper_hits_taken
 	var current_lower_attacks_landed = ai_self.lower_attacks_landed
 	var current_upper_attacks_landed = ai_self.upper_attacks_landed
-	
-	# bali detect yani if ang character sa corner na then ma return 1 if sa left while -1 if near sa right
+
 	var corner_move_direction = ai_self.get_distance_from_corner_ds()
-	
+	var matched_rules = []
+
 	for rule in rules:
 		var conditions = rule["conditions"]
 		var match_all = true
-		
-		if "distance_from_corner" in rule["conditions"]:
+
+		if "distance_from_corner" in conditions:
 			if corner_move_direction != 0 and ai_self.is_on_floor():
 				ai_self.velocity.y = -450
 				ai_self.velocity.x = corner_move_direction * 150 * 1.75
 			continue
-		
-		if "player_anim" in conditions:
-			if conditions["player_anim"] != current_anim:
-				match_all = false
-				continue # Go to next rule if this condition fails
+
+		if "player_anim" in conditions and conditions["player_anim"] != current_anim:
+			match_all = false
+			continue
 
 		if match_all and "distance" in conditions:
-			var op = conditions["distance"]["op"]
-			var value = conditions["distance"]["value"]
-			if not _compare_numeric(op, dist, value):
+			var cond = conditions["distance"]
+			if not _compare_numeric(cond["op"], dist, cond["value"]):
 				match_all = false
-				continue # Go to next rule
-		
-		if match_all and conditions.has("upper_hits_taken"):
-			var upper_hit = conditions["upper_hits_taken"]
-			if upper_hit is Dictionary and upper_hit.has("op") and upper_hit.has("value"):
-				var op = upper_hit["op"]
-				var value = upper_hit["value"]
-				if not _compare_numeric(op, current_upper_hits_taken, value):
-					match_all = false
-					continue
-			
-		if match_all and conditions.has("lower_hits_taken"):
-			var lower_hit = conditions["lower_hits_taken"]
-			if lower_hit is Dictionary and lower_hit.has("op") and lower_hit.has("value"):
-				var op = lower_hit["op"]
-				var value = lower_hit["value"]
-				if not _compare_numeric(op, current_lower_hits_taken, value):
-					match_all = false
-					continue
+				continue
 
-		if match_all and conditions.has("lower_attacks_landed"):
-			var lower_attack = conditions["lower_attacks_landed"]
-			if lower_attack is Dictionary and lower_attack.has("op") and lower_attack.has("value"):
-				var op = lower_attack["op"]
-				var value = lower_attack["value"]
-				if not _compare_numeric(op, current_lower_attacks_landed, value):
-					match_all = false
-					continue
+		if match_all and "upper_hits_taken" in conditions:
+			var cond = conditions["upper_hits_taken"]
+			if not _compare_numeric(cond["op"], current_upper_hits_taken, cond["value"]):
+				match_all = false
+				continue
 
-		if match_all and conditions.has("upper_attacks_landed"):
-			var upper_attack = conditions["upper_attacks_landed"]
-			if upper_attack is Dictionary and upper_attack.has("op") and upper_attack.has("value"):
-				var op = upper_attack["op"]
-				var value = upper_attack["value"]
-				if not _compare_numeric(op, current_upper_attacks_landed, value):
-					match_all = false
-					continue
-					
+		if match_all and "lower_hits_taken" in conditions:
+			var cond = conditions["lower_hits_taken"]
+			if not _compare_numeric(cond["op"], current_lower_hits_taken, cond["value"]):
+				match_all = false
+				continue
+
+		if match_all and "lower_attacks_landed" in conditions:
+			var cond = conditions["lower_attacks_landed"]
+			if not _compare_numeric(cond["op"], current_lower_attacks_landed, cond["value"]):
+				match_all = false
+				continue
+
+		if match_all and "upper_attacks_landed" in conditions:
+			var cond = conditions["upper_attacks_landed"]
+			if not _compare_numeric(cond["op"], current_upper_attacks_landed, cond["value"]):
+				match_all = false
+				continue
+
 		if match_all:
-			var actions = rule.get("enemy_actions", [])
-			if actions.size() == 0:
-				var raw_action = rule.get("enemy_action", "idle")
-				actions = [raw_action] if typeof(raw_action) == TYPE_STRING else raw_action
+			matched_rules.append(rule)
 
-			var valid_actions = []
-			for action in actions:
-				if typeof(action) == TYPE_STRING:
-					valid_actions.append(action)
-				else:
-					print("Invalid action type in rule %d: %s" % [rule.get("ruleID", -1), str(action)])
+	# Sort matched rules by prioritization (highest first)
+	matched_rules.sort_custom(Callable(self, "_sort_by_priority_desc"))
 
-			if valid_actions.size() > 0:
-				# Handle corner escape action
-				#if "corner_escape" in valid_actions:
-					#print("CORNER ESCAPE")
-					#ai_self.velocity.y = -400
-					#ai_self.velocity.x = corner_move_direction * 150 * 1.5
-				
-				_execute_actions(valid_actions)
-				rule["wasUsed"] = true
-				append_executed_rule(rule)
-				current_rule = " > ".join(valid_actions)
-				break
-				
+	if matched_rules.size() > 0:
+		var rule = matched_rules[0]
+		var actions = rule.get("enemy_actions", [])
+
+		if actions.size() == 0:
+			var raw_action = rule.get("enemy_action", "idle")
+			actions = [raw_action] if typeof(raw_action) == TYPE_STRING else raw_action
+
+		var valid_actions = []
+		for action in actions:
+			if typeof(action) == TYPE_STRING:
+				valid_actions.append(action)
+			else:
+				print("Invalid action type in rule %d: %s" % [rule.get("ruleID", -1), str(action)])
+
+		if valid_actions.size() > 0:
+			_execute_actions(valid_actions)
+			rule["wasUsed"] = true
+			append_executed_rule(rule)
+			current_rule = " > ".join(valid_actions)
+
+# Custom sort function
+func _sort_by_priority_desc(a, b):
+	print(a["prioritization"], b["prioritization"])
+	return int(b["prioritization"]) - int(a["prioritization"])
+
+# This should already exist — ensure it’s accessible
 func _execute_actions(actions: Array):
 	if ai_self.active_controller.has_method("queue_actions"):
 		var delayed_actions = []
 		for action in actions:
-			delayed_actions.append({"action": action, "delay": 0.2})
+			delayed_actions.append({ "action": action, "delay": 0.2 })
 		ai_self.active_controller.queue_actions(delayed_actions)
 
 

@@ -405,7 +405,7 @@ func append_fitness_to_log(fitness: float):
 		file.seek_end() # Move to the end so we append, not overwrite
 		
 		var timestamp = Time.get_datetime_string_from_system(false, true)
-		file.store_line("--- Timestamp: %s ---" % [timestamp])
+		file.store_line("Timestamp: %s" % [timestamp])
 		file.store_line("Fitness: %.2f" % fitness)
 		file.store_line("") # Optional: adds an empty line for clarity
 	else:

@@ -285,8 +285,10 @@ func get_distance_from_corner_ds() -> int:
 	var center = stage_width / 2
 	
 	if direction_to_opponent > 0 and abs(global_position.x - stage_width) > 1034:
+		print("Near Left corner")
 		return 1
 	elif direction_to_opponent < 0 and abs(global_position.x - stage_width) < 707:
+		print("Near Right corner")
 		return -1
 	return 0		
 	
