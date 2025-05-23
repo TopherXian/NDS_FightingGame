@@ -17,6 +17,12 @@ var crouching_defenses: int = 0
 var upper_hurtbox: Area2D
 var lower_hurtbox: Area2D
 
+# for ai tracking
+var damage_dealt: int = 0
+var damage_taken: int = 0
+
+@export var ai_config: AIConfig
+
 var attack_system = null # <-- ADD THIS LINE (or just 'var attack_system')
 var movement_system = null # <-- You likely need this too based on HumanController
 
@@ -184,7 +190,7 @@ func setup_controller(type: String):
 				if DSControllerClass:
 					active_controller = DSControllerClass.new()
 					add_child(active_controller) # Add as child
-					active_controller.init_controller(self, animation_player, opponent, hp_bar) # Pass references
+					active_controller.init_controller(self, animation_player, opponent, hp_bar, ai_config) # Pass references
 				else: print("Failed to load DynamicScriptingController.gd")
 			else: print("DynamicScriptingController.gd not found.")
 
@@ -196,7 +202,7 @@ func setup_controller(type: String):
 					active_controller = DTControllerClass.new()
 					add_child(active_controller) # Add as child node
 					# Call the init function, passing necessary references
-					active_controller.init_controller(self, animation_player, opponent)
+					active_controller.init_controller(self, animation_player, opponent, ai_config)
 				else: print("Failed to load DecisionTreeController.gd")
 			else: print("DecisionTreeController.gd not found at ", dt_script_path)
 
@@ -235,7 +241,6 @@ func _physics_process(delta):
 	_update_executed_rule()
 
 
-
 func update_facing_direction():
 	if not is_instance_valid(opponent): return # Opponent might be defeated/removed
 	var direction_to_opponent = opponent.global_position.x - global_position.x
@@ -261,6 +266,30 @@ func update_facing_direction():
 			#upper_hurtbox.position.x = -abs(upper_hurtbox.position.x)
 			#lower_hurtbox.position.x = -abs(lower_hurtbox.position.x)
 
+func get_distance_from_corner() -> int:
+	var direction_to_opponent = opponent.global_position.x - global_position.x
+	var stage_width = $"..".get_viewport_rect().size.x
+	var center = stage_width / 2
+	
+	#print(abs(global_position.x - stage_width))
+	
+	if direction_to_opponent > 0 and abs(global_position.x - stage_width) > 1060:
+		return 1
+	elif direction_to_opponent < 0 and abs(global_position.x - stage_width) < 690:
+		return -1
+	return 0
+
+func get_distance_from_corner_ds() -> int:
+	var direction_to_opponent = opponent.global_position.x - global_position.x
+	var stage_width = $"..".get_viewport_rect().size.x
+	var center = stage_width / 2
+	
+	if direction_to_opponent > 0 and abs(global_position.x - stage_width) > 1034:
+		return 1
+	elif direction_to_opponent < 0 and abs(global_position.x - stage_width) < 707:
+		return -1
+	return 0		
+	
 
 # --- Damage Handling ---
 func apply_damage(damage_amount: int, is_upper_hit: bool):
@@ -270,7 +299,10 @@ func apply_damage(damage_amount: int, is_upper_hit: bool):
 	
 	var final_damage = damage_amount
 	var defended = false	
-
+	
+	# ai tracking
+	#damage_taken += final_damage
+	
 	# Check defense state
 	var current_anim = animation_player.current_animation
 	if current_anim == STANDING_DEFENSE_ANIM:

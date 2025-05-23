@@ -17,12 +17,12 @@ var rules: Array = [
 	},
 	{
 		"ruleID": 2, "prioritization": 11,
-		"conditions": { "distance": { "op": "<=", "value": 100 }},
+		"conditions": { "distance": { "op": "<=", "value": 83 }},
 		"enemy_action": ["basic_kick"], "weight": 0.5, "wasUsed": false, "inScript": false
 	},
 	{
 		"ruleID": 3, "prioritization": 12,
-		"conditions": { "distance": { "op": "<=", "value": 83 } },
+		"conditions": { "distance": { "op": "<=", "value": 75 } },
 		"enemy_action": ["basic_punch"], "weight": 0.5, "wasUsed": false, "inScript": false
 	},
 	{
@@ -40,42 +40,53 @@ var rules: Array = [
 		"conditions": { "player_anim": "crouch_punch", "distance": { "op": ">=", "value": 83 }, "lower_hits_taken": { "op": ">=", "value": 1 } },
 		"enemy_action": ["crouching_defense"], "weight": 0.5, "wasUsed": false, "inScript": false
 	},
-{
-		"ruleID": 7, "prioritization": 23,
-		"conditions": { "player_anim": "crouch_kick", "distance": { "op": ">=", "value": 83 }, "lower_hits_taken": { "op": ">=", "value": 1 } },
-		"enemy_action": ["crouching_defense"], "weight": 0.5, "wasUsed": false, "inScript": false
-	},
+#{
+		#"ruleID": 7, "prioritization": 23,
+		#"conditions": { "player_anim": "crouch_kick", "distance": { "op": ">=", "value": 83 }, "lower_hits_taken": { "op": ">=", "value": 1 } },
+		#"enemy_action": ["crouching_defense"], "weight": 0.5, "wasUsed": false, "inScript": false
+	#},
+	#{
+		#"ruleID": 8, "prioritization": 31,
+		#"conditions": { "player_anim": "crouch_punch", "distance": { "op": ">=", "value": 83 }, "lower_hits_taken": { "op": ">=", "value": 3 } },
+		#"enemy_action": ["crouching_defense", "crouch_punch"], "enemy_action_2": "crouch_punch", "weight": 0.5, "wasUsed": false, "inScript": false
+	#},
+	#{
+		#"ruleID": 9, "prioritization": 32,
+		#"conditions": { "player_anim": "crouch_kick", "distance": { "op": ">=", "value": 83 }, "lower_hits_taken": { "op": ">=", "value": 3 } },
+		#"enemy_action": ["crouching_defense", "crouch_kick"], "weight": 0.5, "wasUsed": false, "inScript": false
+	#},
+	#{
+		#"ruleID": 11, "prioritization": 33,
+		#"conditions": { "player_anim": "basic_punch", "distance": { "op": ">=", "value": 83 }, "upper_hits_taken": { "op": ">=", "value": 3 } },
+		#"enemy_action": ["standing_defense", "basic_punch"], "weight": 0.5, "wasUsed": false, "inScript": false
+	#},
+	#{
+		#"ruleID": 12, "prioritization": 34,
+		#"conditions": { "player_anim": "basic_kick", "distance": { "op": ">=", "value": 100 }, "upper_hits_taken": { "op": ">=", "value": 3 } },
+		#"enemy_action": ["standing_defense", "basic_kick"], "weight": 0.5, "wasUsed": false, "inScript": false
+	#},
+	#{
+		#"ruleID": 13, "prioritization": 2,
+		#"conditions": { "distance": { "op": "<=", "value": 80 }, "lower_hits_taken": { "op": ">=", "value": 3 } },
+		#"enemy_action": ["walk_backward"], "weight": 0.5, "wasUsed": false, "inScript": false
+	#},
+	#{
+		#"ruleID": 14, "prioritization": 100,
+		#"conditions": { "player_anim": "idle" },
+		#"enemy_action": ["idle"], "weight": 0.5, "wasUsed": false, "inScript": false
+	#},
 	{
-		"ruleID": 8, "prioritization": 31,
-		"conditions": { "player_anim": "crouch_punch", "distance": { "op": ">=", "value": 83 }, "lower_hits_taken": { "op": ">=", "value": 3 } },
-		"enemy_action": ["crouching_defense", "crouch_punch"], "enemy_action_2": "crouch_punch", "weight": 0.5, "wasUsed": false, "inScript": false
+		"ruleID": 15,
+		"prioritization": 99,
+		"conditions": {
+			"distance_from_corner": {"op": "<=", "value": 83},
+			"player_anim": "!knocked_down"  # Only trigger if player is active
+		},
+		"enemy_action": ["corner_escape"],
+		"weight": 0.8,
+		"wasUsed": false,
+		"inScript": false
 	},
-	{
-		"ruleID": 9, "prioritization": 32,
-		"conditions": { "player_anim": "crouch_kick", "distance": { "op": ">=", "value": 83 }, "lower_hits_taken": { "op": ">=", "value": 3 } },
-		"enemy_action": ["crouching_defense", "crouch_kick"], "weight": 0.5, "wasUsed": false, "inScript": false
-	},
-	{
-		"ruleID": 11, "prioritization": 33,
-		"conditions": { "player_anim": "basic_punch", "distance": { "op": ">=", "value": 83 }, "upper_hits_taken": { "op": ">=", "value": 3 } },
-		"enemy_action": ["standing_defense", "basic_punch"], "weight": 0.5, "wasUsed": false, "inScript": false
-	},
-	{
-		"ruleID": 12, "prioritization": 34,
-		"conditions": { "player_anim": "basic_kick", "distance": { "op": ">=", "value": 100 }, "upper_hits_taken": { "op": ">=", "value": 3 } },
-		"enemy_action": ["standing_defense", "basic_kick"], "weight": 0.5, "wasUsed": false, "inScript": false
-	},
-	{
-		"ruleID": 13, "prioritization": 2,
-		"conditions": { "distance": { "op": "<=", "value": 80 }, "lower_hits_taken": { "op": ">=", "value": 3 } },
-		"enemy_action": ["walk_backward"], "weight": 0.5, "wasUsed": false, "inScript": false
-	},
-	{
-		"ruleID": 14, "prioritization": 100,
-		"conditions": { "player_anim": "idle" },
-		"enemy_action": ["idle"], "weight": 0.5, "wasUsed": false, "inScript": false
-	},
-
 
 
 
@@ -272,7 +283,6 @@ func generate_and_update_script():
 
 func get_rules() -> Array:
 	return rules
-	print(rules)
 
 func get_DScript() -> Array:
 		return current_script

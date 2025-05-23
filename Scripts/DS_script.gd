@@ -30,9 +30,18 @@ func evaluate_and_execute(rules: Array):
 	var current_lower_attacks_landed = ai_self.lower_attacks_landed
 	var current_upper_attacks_landed = ai_self.upper_attacks_landed
 	
+	# bali detect yani if ang character sa corner na then ma return 1 if sa left while -1 if near sa right
+	var corner_move_direction = ai_self.get_distance_from_corner_ds()
+	
 	for rule in rules:
 		var conditions = rule["conditions"]
 		var match_all = true
+		
+		if "distance_from_corner" in rule["conditions"]:
+			if corner_move_direction != 0 and ai_self.is_on_floor():
+				ai_self.velocity.y = -450
+				ai_self.velocity.x = corner_move_direction * 150 * 1.75
+			continue
 		
 		if "player_anim" in conditions:
 			if conditions["player_anim"] != current_anim:
@@ -83,14 +92,11 @@ func evaluate_and_execute(rules: Array):
 					continue
 					
 		if match_all:
-			# Get actions from enemy_actions or enemy_action, ensuring they're strings
 			var actions = rule.get("enemy_actions", [])
 			if actions.size() == 0:
-				# Handle backward compatibility for enemy_action (string or array)
 				var raw_action = rule.get("enemy_action", "idle")
 				actions = [raw_action] if typeof(raw_action) == TYPE_STRING else raw_action
 
-			# Validate and flatten actions
 			var valid_actions = []
 			for action in actions:
 				if typeof(action) == TYPE_STRING:
@@ -99,6 +105,12 @@ func evaluate_and_execute(rules: Array):
 					print("Invalid action type in rule %d: %s" % [rule.get("ruleID", -1), str(action)])
 
 			if valid_actions.size() > 0:
+				# Handle corner escape action
+				#if "corner_escape" in valid_actions:
+					#print("CORNER ESCAPE")
+					#ai_self.velocity.y = -400
+					#ai_self.velocity.x = corner_move_direction * 150 * 1.5
+				
 				_execute_actions(valid_actions)
 				rule["wasUsed"] = true
 				append_executed_rule(rule)
@@ -164,7 +176,8 @@ func _execute_single_action(action: String):
 			ai_self.velocity.x = 0
 		"jump":
 			if ai_self.is_on_floor():
-				animation.play("jump")
+				if animation.has_animation("jump"):
+					animation.play("jump")
 				ai_self.velocity.y = -400
 		_:
 			animation.play("idle")

@@ -14,6 +14,9 @@ var rule_engine: ScriptCreation # Instance of DS_script.txt logic
 var rules_base: Rules           # Instance of rules.txt logic
 var latest_script: Array = []   # The currently executing action sequence
 
+# AIConfig
+var ai_config: AIConfig
+
 # State/Config
 @export var update_interval : float = 4.0 # How often to re-evaluate rules/script
 var _update_timer: Timer
@@ -38,11 +41,13 @@ const LOG_SCHEMA_VERSION = 1  # Increment when log structure changes
 # Fitness Record
 #var fitness_record: Array = []
 
-func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer, opp_node: CharacterBody2D, playerHP: ProgressBar):
+func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer, opp_node: CharacterBody2D, playerHP: ProgressBar, _config: AIConfig):
 	fighter = fighter_node
 	animation_player = anim_player
 	opponent = opp_node
 	opponent_HP = playerHP
+	
+	ai_config = _config
 
 	if is_instance_valid(opponent) and (opponent.has_node("Animation") or opponent.has_node("Dummy_Animation")): # Adjust path if needed
 		opponent_animation_player = opponent.get_node("Animation") if opponent.has_node("Animation") else opponent.get_node("Dummy_Animation")
@@ -199,16 +204,16 @@ func log_game_info():
 	script_rules.sort_custom(func(a, b): return a["weight"] > b["weight"])
 	
 	# Print top 5 rules
-	print("Top 5 Highest Weights:")
-	for i in range(min(5, script_rules.size())):
-		var rule = script_rules[i]
-		var action = process_action(rule)
-		print("%d. [Rule %d] %s (Weight: %.2f)" % [
-			i+1,
-			rule["ruleID"],
-			action, 
-			rule["weight"]
-		])
+	#print("Top 5 Highest Weights:")
+	#for i in range(min(5, script_rules.size())):
+		#var rule = script_rules[i]
+		#var action = process_action(rule)
+		#print("%d. [Rule %d] %s (Weight: %.2f)" % [
+			#i+1,
+			#rule["ruleID"],
+			#action, 
+			#rule["weight"]
+		#])
 
 func process_action(rule: Dictionary) -> String:
 	var processedActions = ''
@@ -219,18 +224,19 @@ func process_action(rule: Dictionary) -> String:
 
 #LOG EXECUTED RULES 
 func log_info(script, header) -> void:
-	print("\n====== %s Rules ======" % header)
-	print("ID | Action            | Weight | In Script")
-	print("---|-------------------|--------|----------")
-	for rule in script:
-		var rule_id = str(rule.get("ruleID", "??")).rpad(3)
-		var action = process_action(rule)			
-		var weight = "%.2f" % rule.get("weight", 0.0)
-		var in_script = "✓" if rule.get("inScript", false) else "✗"
-		
-		print("%s | %s | %s   | %s" % [rule_id, action, weight, in_script])
-	
-	print("Total rules: %d\n" % script.size())
+	#print("\n====== %s Rules ======" % header)
+	#print("ID | Action            | Weight | In Script")
+	#print("---|-------------------|--------|----------")
+	#for rule in script:
+		#var rule_id = str(rule.get("ruleID", "??")).rpad(3)
+		#var action = process_action(rule)			
+		#var weight = "%.2f" % rule.get("weight", 0.0)
+		#var in_script = "✓" if rule.get("inScript", false) else "✗"
+		#
+		#print("%s | %s | %s   | %s" % [rule_id, action, weight, in_script])
+	#
+	#print("Total rules: %d\n" % script.size())
+	pass
 
 func reset_counters():
 	# Reset numerical counters
@@ -260,7 +266,7 @@ func calculate_fitness() -> float:
 	if not is_instance_valid(fighter) or not is_instance_valid(rules_base): return 0.0
 
 	# Use the formula from rules.txt, accessing counters from BaseFighter
-	var baseline = rules_base.baseline # Get baseline from Rules instance
+	var baseline = ai_config.baseline_fitness # Get baseline from Rules instance
 	# Damage Score - Requires tracking damage dealt/taken in the interval. Not directly available.
 	# Let's simplify fitness for now based only on hits/defense counts from BaseFighter.
 	# You might need to enhance BaseFighter or this controller to track damage delta per interval.

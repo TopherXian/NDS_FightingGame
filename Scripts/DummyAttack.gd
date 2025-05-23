@@ -18,7 +18,7 @@ func get_basic_attack_action() -> StringName:
 
 	var distance = fighter.global_position.distance_to(opponent.global_position)
 
-	if distance <= 70:
+	if distance <= 75:
 		return &"basic_punch" # Use StringName for efficiency
 	elif distance <= 80: # Check original logic: was 83 for punch, 100 for kick
 		return &"basic_kick"
@@ -33,9 +33,9 @@ func get_crouch_attack_action() -> StringName:
 	var distance = fighter.global_position.distance_to(opponent.global_position)
 
 	# Example logic (adjust ranges as needed)
-	if distance <= 83:
+	if distance <= 75:
 		return &"crouch_punch"
-	elif distance <= 100:
+	elif distance <= 80:
 		return &"crouch_kick"
 	else:
 		return &""
