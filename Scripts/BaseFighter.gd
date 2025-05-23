@@ -271,13 +271,30 @@ func get_distance_from_corner() -> int:
 	var stage_width = $"..".get_viewport_rect().size.x
 	var center = stage_width / 2
 	
-	print(abs(global_position.x - stage_width))
-
+	#print(abs(global_position.x - stage_width))
+	
 	if direction_to_opponent > 0 and abs(global_position.x - stage_width) > 1060:
 		return 1
 	elif direction_to_opponent < 0 and abs(global_position.x - stage_width) < 690:
 		return -1
 	return 0
+
+func get_distance_from_corner_ds() -> int:
+	var direction_to_opponent = opponent.global_position.x - global_position.x
+	var stage_width = $"..".get_viewport_rect().size.x
+	var center = stage_width / 2
+	
+	if direction_to_opponent > 0 and abs(global_position.x - stage_width) > 1034:
+		return 1
+	elif direction_to_opponent < 0 and abs(global_position.x - stage_width) < 707:
+		return -1
+	return 0
+
+func jump(move_direction):
+	if is_on_floor():
+		self.velocity.y = -450
+		self.velocity.x = move_direction * 150 * 1.75
+	
 
 # --- Damage Handling ---
 func apply_damage(damage_amount: int, is_upper_hit: bool):

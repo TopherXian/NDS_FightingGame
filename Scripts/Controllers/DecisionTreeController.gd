@@ -32,8 +32,9 @@ var is_attacking: bool = false
 var idle_time: float = 0.0 # Track time spent in IDLE
 
 # --- Repositioning Logic ---
-var reposition_timer: Timer
-const REPOSITION_DURATION: float = 0.3 # How long to move back
+var reposition_cooldown_timer: Timer  # New cooldown timer
+const REPOSITION_DURATION: float = 0.5  # Increased duration
+var can_reposition: bool = true  # Track if repositioning is allowed
 
 # List of opponent attack animations that trigger defense
 const OPPONENT_ATTACKS = [&"basic_punch", &"basic_kick", &"heavy_punch", &"heavy_kick", &"crouch_punch", &"crouch_kick"]
@@ -79,12 +80,12 @@ func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer
 	defense_cooldown_timer.connect("timeout", Callable(self, "_on_defense_cooldown_timeout"))
 	add_child(defense_cooldown_timer) # Add timer to the scene tree
 
-	# Reposition Timer
-	reposition_timer = Timer.new()
-	reposition_timer.wait_time = REPOSITION_DURATION
-	reposition_timer.one_shot = true
-	reposition_timer.connect("timeout", Callable(self, "_on_reposition_timeout"))
-	add_child(reposition_timer)
+  # Reposition Cooldown Timer
+	reposition_cooldown_timer = Timer.new()
+	reposition_cooldown_timer.wait_time = 1.5  # 1.5 second cooldown
+	reposition_cooldown_timer.one_shot = true
+	reposition_cooldown_timer.connect("timeout", Callable(self, "_on_reposition_cooldown_timeout"))
+	add_child(reposition_cooldown_timer)
 
 	# Connect to animation finished signal [cite: 3]
 	if animation_player and not animation_player.is_connected("animation_finished", Callable(self, "_on_animation_finished")):
@@ -102,6 +103,7 @@ func _physics_process(_delta):
 		return
 		
 	corner_move_direction = fighter.get_distance_from_corner()
+	
 	var opponent_anim = opponent_animation_player.current_animation if opponent_animation_player else ""
 		
 	if corner_move_direction != 0 and opponent_anim != "knocked_down":
@@ -161,8 +163,8 @@ func _physics_process(_delta):
 			elif _should_approach(distance):
 				_change_state(State.APPROACHING)
 			# 4. Reposition? (Maybe random chance or if opponent is too close and idle)
-			elif _should_reposition(distance):
-				_change_state(State.REPOSITIONING)
+			#elif _should_reposition(distance):
+				#_change_state(State.REPOSITIONING)
 
 
 		State.APPROACHING:
@@ -204,7 +206,7 @@ func _physics_process(_delta):
 			# 1. Opponent stopped attacking or moved away? -> Idle/Reposition
 			if not (opponent_anim_name in OPPONENT_ATTACKS and distance < ai_config.defense_trigger_range):
 				# Maybe reposition briefly after defending
-				if randf() < 0.5: # 50% chance to reposition
+				if randf() < 0.25: # 50% chance to reposition
 					_change_state(State.REPOSITIONING)
 				else:
 					_change_state(State.IDLE)
@@ -218,12 +220,16 @@ func _physics_process(_delta):
 			# 1. Timer handles transition back to IDLE
 			# 2. Can still be interrupted by defense need
 			if _should_defend(opponent_anim_name, distance):
-				reposition_timer.stop() # Stop repositioning early
+				reposition_cooldown_timer.stop() # Stop repositioning early
 				_change_state(State.DEFENDING)
 
 
 # --- State Change Helper ---
-func _change_state(new_state: State):
+func _change_state(new_state: State):	
+	if current_state == State.REPOSITIONING and new_state != State.REPOSITIONING:
+		can_reposition = false
+		reposition_cooldown_timer.start()
+		
 	if current_state == State.IDLE:
 		idle_time = 0.0 # Reset counter when leaving IDLE
 	if current_state == new_state: return # No change
@@ -234,7 +240,7 @@ func _change_state(new_state: State):
 	match current_state:
 		
 		State.CORNER_ESCAPE:
-			fighter.velocity.y = -400
+			fighter.velocity.y = -450
 			fighter.velocity.x = corner_move_direction * 150 * 1.5  # Faster escape
 			#if animation_player.has_animation("jump"):
 				#animation_player.play("jump")
@@ -267,8 +273,7 @@ func _change_state(new_state: State):
 		State.REPOSITIONING:
 			# Move backward
 			_move_away_from_opponent()
-			_play_animation("walk_backward", true) # Force walk backward animation
-			reposition_timer.start()
+			reposition_cooldown_timer.start()
 
 
 # --- Decision Helper Functions ---
@@ -307,13 +312,12 @@ func _should_approach(dist) -> bool:
 	return dist > ai_config.attack_opportunity_range + 15
 
 func _should_reposition(dist) -> bool:
-	# Example: Reposition if opponent is very close but not attacking (crowding)
-	if dist < 40 and not (opponent_animation_player.current_animation in OPPONENT_ATTACKS):
-		if randf() < 0.1: # Low chance to reposition if crowded
-			return true
-	# Example: Random chance after defending or attacking
-	# (Handled in state transitions)
-	return false
+	if not can_reposition:  # Check cooldown
+		return false
+	# Increased distance check and lower probability
+	if dist < 60 and not (opponent_animation_player.current_animation in OPPONENT_ATTACKS):
+		return randf() < 0.15  # Reduced from 0.3 to 0.15
+	return false	
 
 
 # --- Movement Helpers (Fallback if DummyMovement fails/missing) ---
@@ -327,8 +331,10 @@ func _move_towards_opponent():
 func _move_away_from_opponent():
 	if not is_instance_valid(fighter) or not is_instance_valid(opponent): return
 	var direction = -1 if opponent.global_position.x > fighter.global_position.x else 1
-	fighter.velocity.x = direction * movement_logic.speed if is_instance_valid(movement_logic) else direction * 150
-
+	# Increase movement speed during reposition
+	var reposition_speed = 175  # Increased from 150
+	fighter.velocity.x = direction * reposition_speed
+	_play_animation("walk_backward", true)
 
 # --- Animation Helper ---
 func _play_animation(anim_name: StringName, force_restart: bool = false):
@@ -344,7 +350,7 @@ func _on_animation_finished(anim_name: StringName):
 	if anim_name in ATTACK_ANIMATIONS:
 		is_attacking = false
 		# Decide next state after attacking
-		if randf() < 0.9: # Chance to reposition after attack
+		if randf() < 0.1: # Chance to reposition after attack
 			_change_state(State.REPOSITIONING)
 		else:
 			_change_state(State.IDLE) # Default to idle after attacking
@@ -360,13 +366,9 @@ func _on_animation_finished(anim_name: StringName):
 func _on_defense_cooldown_timeout():
 	can_defend = true
 	# print("Defense cooldown finished.") # Debug
-
-func _on_reposition_timeout():
-	# Stop moving and go back to idle after repositioning
-	if current_state == State.REPOSITIONING: # Ensure we are still repositioning
-		fighter.velocity.x = 0
-		_change_state(State.IDLE)
-	# print("Reposition finished.") # Debug
+	
+func _on_reposition_cooldown_timeout():
+	can_reposition = true  # Re-enable repositioning
 
 func reset_ai_state():
 	current_state = State.IDLE

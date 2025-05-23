@@ -29,21 +29,17 @@ func evaluate_and_execute(rules: Array):
 	var current_upper_hits_taken = ai_self.upper_hits_taken
 	var current_lower_attacks_landed = ai_self.lower_attacks_landed
 	var current_upper_attacks_landed = ai_self.upper_attacks_landed
-
-	var viewport = ai_self.get_viewport()
-	var visible_rect = viewport.get_visible_rect() if viewport else Rect2()
-	var stage_center = visible_rect.size.x / 2
 	
-	var corner_dist = ai_self.get_distance_from_corner()
+	var corner_move_direction = ai_self.get_distance_from_corner_ds()
 	
 	for rule in rules:
 		var conditions = rule["conditions"]
 		var match_all = true
 		
 		if "distance_from_corner" in rule["conditions"]:
-			var condition = rule["conditions"]["distance_from_corner"]
-			if !_compare_numeric(condition["op"], corner_dist, condition["value"]):
-				continue
+			if corner_move_direction != 0:
+				ai_self.jump(corner_move_direction)
+			continue
 		
 		if "player_anim" in conditions:
 			if conditions["player_anim"] != current_anim:
@@ -108,10 +104,10 @@ func evaluate_and_execute(rules: Array):
 
 			if valid_actions.size() > 0:
 				# Handle corner escape action
-				if "corner_escape" in valid_actions:
-					ai_self.velocity.y = -400
-					var escape_dir = sign(stage_center - ai_self.global_position.x)
-					ai_self.velocity.x = escape_dir * ai_self.speed * 1.5
+				#if "corner_escape" in valid_actions:
+					#print("CORNER ESCAPE")
+					#ai_self.velocity.y = -400
+					#ai_self.velocity.x = corner_move_direction * 150 * 1.5
 				
 				_execute_actions(valid_actions)
 				rule["wasUsed"] = true
