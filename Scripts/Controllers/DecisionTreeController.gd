@@ -16,8 +16,10 @@ var attack_logic: DummyAttack
 var ai_config: AIConfig
 
 # --- State Machine ---
-enum State { IDLE, APPROACHING, ATTACKING, DEFENDING, REPOSITIONING, HURT }
+enum State { IDLE, APPROACHING, ATTACKING, DEFENDING, REPOSITIONING, HURT, CORNER_ESCAPE }
 var current_state: State = State.IDLE
+
+var corner_move_direction = 0
 
 # --- Defense Logic ---
 var can_defend: bool = true
@@ -97,6 +99,13 @@ func _physics_process(_delta):
 		return 
 	
 	if current_state == State.HURT:
+		return
+		
+	corner_move_direction = fighter.get_distance_from_corner()
+	var opponent_anim = opponent_animation_player.current_animation if opponent_animation_player else ""
+		
+	if corner_move_direction != 0 and opponent_anim != "knocked_down":
+		_change_state(State.CORNER_ESCAPE)
 		return
 		
 	if not is_instance_valid(fighter) or not is_instance_valid(opponent) or fighter.health <= 0:
@@ -219,17 +228,17 @@ func _change_state(new_state: State):
 		idle_time = 0.0 # Reset counter when leaving IDLE
 	if current_state == new_state: return # No change
 
-	# print("Changing state from %s to %s" % [State.keys()[current_state], State.keys()[new_state]]) # Debug
-
-	# --- Logic on EXITING previous state (optional) ---
-	# match current_state:
-		# State.APPROACHING:
-			# fighter.velocity.x = 0 # Stop movement if wasn't stopped by next state
-
 	current_state = new_state
 
 	# --- Logic on ENTERING new state ---
 	match current_state:
+		
+		State.CORNER_ESCAPE:
+			fighter.velocity.y = -400
+			fighter.velocity.x = corner_move_direction * 150 * 1.5  # Faster escape
+			#if animation_player.has_animation("jump"):
+				#animation_player.play("jump")
+			
 		State.IDLE:
 			fighter.velocity.x = 0
 			# Play idle only if not already playing something important (checked in IDLE logic)
@@ -239,7 +248,7 @@ func _change_state(new_state: State):
 		State.ATTACKING:
 			fighter.velocity.x = 0 # Stop movement
 			if is_instance_valid(attack_logic):
-				var attack_anim = attack_logic.get_basic_attack_action() # Or more complex choice
+				var attack_anim = attack_logic.get_basic_attack_action() if randf() < 0.5 else attack_logic.get_crouch_attack_action()
 				if attack_anim != &"":
 					_play_animation(attack_anim)
 					is_attacking = true
@@ -288,7 +297,7 @@ func _should_attack(opponent_anim, dist) -> bool:
 		if not (opponent_anim in OPPONENT_ATTACKS or \
 				opponent_anim in DEFENSE_ANIMATIONS):
 			# Check if AI has a valid attack for this range
-			if is_instance_valid(attack_logic) and attack_logic.get_basic_attack_action() != &"":
+			if is_instance_valid(attack_logic) and attack_logic.get_basic_attack_action() != &"" and attack_logic.get_crouch_attack_action() != &"":
 				# Add more complex checks? e.g., chance based on health, opponent recovery frames etc.
 				return true # Potential attack opportunity
 	return false
@@ -335,7 +344,7 @@ func _on_animation_finished(anim_name: StringName):
 	if anim_name in ATTACK_ANIMATIONS:
 		is_attacking = false
 		# Decide next state after attacking
-		if randf() < 0.3: # Chance to reposition after attack
+		if randf() < 0.9: # Chance to reposition after attack
 			_change_state(State.REPOSITIONING)
 		else:
 			_change_state(State.IDLE) # Default to idle after attacking

@@ -29,10 +29,21 @@ func evaluate_and_execute(rules: Array):
 	var current_upper_hits_taken = ai_self.upper_hits_taken
 	var current_lower_attacks_landed = ai_self.lower_attacks_landed
 	var current_upper_attacks_landed = ai_self.upper_attacks_landed
+
+	var viewport = ai_self.get_viewport()
+	var visible_rect = viewport.get_visible_rect() if viewport else Rect2()
+	var stage_center = visible_rect.size.x / 2
+	
+	var corner_dist = ai_self.get_distance_from_corner()
 	
 	for rule in rules:
 		var conditions = rule["conditions"]
 		var match_all = true
+		
+		if "distance_from_corner" in rule["conditions"]:
+			var condition = rule["conditions"]["distance_from_corner"]
+			if !_compare_numeric(condition["op"], corner_dist, condition["value"]):
+				continue
 		
 		if "player_anim" in conditions:
 			if conditions["player_anim"] != current_anim:
@@ -83,14 +94,11 @@ func evaluate_and_execute(rules: Array):
 					continue
 					
 		if match_all:
-			# Get actions from enemy_actions or enemy_action, ensuring they're strings
 			var actions = rule.get("enemy_actions", [])
 			if actions.size() == 0:
-				# Handle backward compatibility for enemy_action (string or array)
 				var raw_action = rule.get("enemy_action", "idle")
 				actions = [raw_action] if typeof(raw_action) == TYPE_STRING else raw_action
 
-			# Validate and flatten actions
 			var valid_actions = []
 			for action in actions:
 				if typeof(action) == TYPE_STRING:
@@ -99,6 +107,12 @@ func evaluate_and_execute(rules: Array):
 					print("Invalid action type in rule %d: %s" % [rule.get("ruleID", -1), str(action)])
 
 			if valid_actions.size() > 0:
+				# Handle corner escape action
+				if "corner_escape" in valid_actions:
+					ai_self.velocity.y = -400
+					var escape_dir = sign(stage_center - ai_self.global_position.x)
+					ai_self.velocity.x = escape_dir * ai_self.speed * 1.5
+				
 				_execute_actions(valid_actions)
 				rule["wasUsed"] = true
 				append_executed_rule(rule)
