@@ -285,10 +285,10 @@ func get_distance_from_corner_ds() -> int:
 	var center = stage_width / 2
 	
 	if direction_to_opponent > 0 and abs(global_position.x - stage_width) > 1034:
-		print("Near Left corner")
+		#print("Near Left corner")
 		return 1
 	elif direction_to_opponent < 0 and abs(global_position.x - stage_width) < 707:
-		print("Near Right corner")
+		#print("Near Left corner")
 		return -1
 	return 0		
 	
@@ -355,7 +355,10 @@ func die():
 	if animation_player.current_animation != "knocked_down":
 		animation_player.play("knocked_down")
 
-
+func reset_health():
+	health = max_health
+	hp_bar.value = health
+	
 # --- Signal Callbacks ---
 func _on_upper_hurtbox_area_entered(area: Area2D) -> void:
 	# Check if the area is the opponent's hitbox and if it's currently active/damaging

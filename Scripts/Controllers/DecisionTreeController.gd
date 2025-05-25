@@ -95,7 +95,7 @@ func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer
 
 
 func _physics_process(_delta):
-	
+	#print("Current AI animation:", animation_player.current_animation)
 	if animation_player.is_playing() && animation_player.current_animation == "hurt":
 		return 
 	
@@ -107,7 +107,7 @@ func _physics_process(_delta):
 	var opponent_anim = opponent_animation_player.current_animation if opponent_animation_player else ""
 		
 	if corner_move_direction != 0 and opponent_anim != "knocked_down":
-		_change_state(State.CORNER_ESCAPE)
+		#_change_state(State.CORNER_ESCAPE)
 		return
 		
 	if not is_instance_valid(fighter) or not is_instance_valid(opponent) or fighter.health <= 0:
@@ -226,7 +226,7 @@ func _physics_process(_delta):
 
 # --- State Change Helper ---
 func _change_state(new_state: State):	
-	if new_state == State.REPOSITIONING && !fighter.is_on_floor():
+	if new_state == State.REPOSITIONING:
 		return
 		
 	if current_state == State.REPOSITIONING and new_state != State.REPOSITIONING:
@@ -245,6 +245,7 @@ func _change_state(new_state: State):
 		State.CORNER_ESCAPE:
 			fighter.velocity.y = -450
 			fighter.velocity.x = corner_move_direction * 150 * 1.5  # Faster escape
+			
 			#if animation_player.has_animation("jump"):
 				#animation_player.play("jump")
 			
@@ -270,6 +271,7 @@ func _change_state(new_state: State):
 		State.DEFENDING:
 			fighter.velocity.x = 0
 			# Choose crouch/stand defense based on opponent anim? (Simplified here)
+			print("defending")
 			_play_animation("standing_defense")
 			can_defend = false
 			defense_cooldown_timer.start()
@@ -285,6 +287,7 @@ func _should_defend(opponent_anim, dist) -> bool:
 		# Check if already defending
 		if animation_player.current_animation == "standing_defense" or \
 		   animation_player.current_animation == "crouching_defense":
+			print("defending")
 			return false # Already defending, stay in state but don't re-trigger cooldown
 
 	return randf() < ai_config.defense_probability
@@ -296,6 +299,7 @@ func _should_attack(opponent_anim, dist) -> bool:
 	if dist <= effective_range and not is_attacking:
 		# Original checks + allow attacks during mutual idle
 		if opponent_anim == &"idle" or opponent_anim == &"":
+			print("attack chance")
 			return randf() < ai_config.attack_chance_idle
 			
 	if is_attacking: return false
@@ -328,17 +332,22 @@ func _move_towards_opponent():
 	var direction = sign(opponent.global_position.x - fighter.global_position.x)
 	fighter.velocity.x = direction * 300  # Use fixed speed if movement_logic is missing
 	# Force animation if needed
+	print("walking forward")
 	_play_animation("walk_forward", true)
 
 func _move_away_from_opponent():
-	if not is_instance_valid(fighter) or not fighter.is_on_floor():
+	if not is_instance_valid(fighter):
 		fighter.velocity.x = 0
 		return
 	
 	var direction = sign(fighter.global_position.x - opponent.global_position.x)
 	var reposition_speed = 175
-	fighter.velocity.x = direction * reposition_speed
-	_play_animation("walk_backward", true)
+
+	# Only apply walk backward animation and reposition speed if on floor
+	if fighter.is_on_floor():
+		fighter.velocity.x = direction * reposition_speed
+		print("walking backwards")
+		_play_animation("walk_backward", true)
 
 # --- Animation Helper ---
 func _play_animation(anim_name: StringName, force_restart: bool = false):
@@ -385,3 +394,5 @@ func notify_damage_taken(_amount: int, _is_upper: bool, _defended: bool):
 	if is_attacking:
 		is_attacking = false
 	_change_state(State.HURT)
+	
+		

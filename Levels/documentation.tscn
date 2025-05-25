@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3 uid="uid://msmroctygq02"]
+
+[ext_resource type="Script" uid="uid://dt3awl0tc6usk" path="res://Scripts/Documentation/LineChart.gd" id="1_08m6h"]
+[ext_resource type="Script" uid="uid://bgtmwtpmfj8hq" path="res://addons/easy_charts/control_charts/chart.gd" id="2_uf8yl"]
+
+[node name="Control" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_08m6h")
+
+[node name="Chart" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("2_uf8yl")
+metadata/_custom_type_script = "uid://bgtmwtpmfj8hq"

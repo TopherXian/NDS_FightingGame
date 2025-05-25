@@ -2,7 +2,7 @@
 extends Node
 class_name Rules
 
-@export var script_count : int = 7
+@export var script_count : int = 5
 
 var baseline = 0.5
 var WMAX = 1.0
@@ -12,17 +12,17 @@ var scaling_factor = 0.1
 var rules: Array = [
 	{
 		"ruleID": 1, "prioritization": 1,
-		"conditions": { "distance": { "op": ">=", "value": 100 } },
+		"conditions": { "distance": { "op": ">=", "value": 95 } },
 		"enemy_action": ["walk_forward"], "weight": 0.5, "wasUsed": false, "inScript": false
 	},
 	{
 		"ruleID": 2, "prioritization": 11,
-		"conditions": { "distance": { "op": "<=", "value": 83 }},
+		"conditions": { "distance": { "op": "<=", "value": 80 }},
 		"enemy_action": ["basic_kick"], "weight": 0.5, "wasUsed": false, "inScript": false
 	},
 	{
 		"ruleID": 3, "prioritization": 12,
-		"conditions": { "distance": { "op": "<=", "value": 75 } },
+		"conditions": { "distance": { "op": "<=", "value": 70 } },
 		"enemy_action": ["basic_punch"], "weight": 0.5, "wasUsed": false, "inScript": false
 	},
 	{
