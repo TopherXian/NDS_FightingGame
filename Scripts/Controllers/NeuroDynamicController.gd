@@ -3,7 +3,9 @@ extends Node
 class_name NeuroDynamicController
 
 # --- Configuration ---
-const PREDICTION_ENDPOINT = "http://your-backend-host:5000/predict"
+const METRICS_ENDPOINT = "http://0.0.0.0:8000/api/v162/metrics_in"
+const MODEL_READY_ENDPOINT = "http://0.0.0.0:8000/api/v162/model_0_0_5/load_model"
+const PREDICT_ENDPOINT = "http://0.0.0.0:8000/api/v162/predict"
 const PREDICTION_INTERVAL = 0.5  # Seconds between predictions
 const REQUEST_TIMEOUT = 1.0      # Seconds before considering request failed
 
@@ -20,18 +22,23 @@ var last_prediction: Array = []
 var fighter: CharacterBody2D
 var opponent: CharacterBody2D
 var animation_player: AnimationPlayer
+var opponent_HP: ProgressBar
 
-func _init(fighter_ref: CharacterBody2D, anim_player: AnimationPlayer, opp_ref: CharacterBody2D):
+func _init(fighter_ref: CharacterBody2D, anim_player: AnimationPlayer, opp_ref: CharacterBody2D, playerHP: ProgressBar,):
 	fighter = fighter_ref
 	animation_player = anim_player
 	opponent = opp_ref
+	opponent_HP = playerHP
 
 func _ready():
 	# Setup HTTP request
 	http_request = HTTPRequest.new()
 	add_child(http_request)
 	http_request.request_completed.connect(_on_request_completed)
-	
+	var error = http_request.request(MODEL_READY_ENDPOINT, ["Content-Type: application/json"], HTTPClient.METHOD_POST)
+	if error != OK:
+		print("Error sending request: ", error)
+		return
 	# Setup prediction timer
 	prediction_timer = Timer.new()
 	prediction_timer.wait_time = PREDICTION_INTERVAL
@@ -44,24 +51,20 @@ func _on_prediction_timer():
 		send_game_state()
 
 func collect_game_state() -> Dictionary:
-	var state = {
-		"fighter": {
-			"position": fighter.global_position,
-			"health": fighter.health,
-			"velocity": fighter.velocity,
-			"animation": animation_player.current_animation,
-			"on_floor": fighter.is_on_floor()
+	var previous_parameters = {
+		"attacks_landed": {
+			"lower": fighter.lower_attacks_landed,
+			"upper": fighter.upper_attacks_landed,
 		},
-		"opponent": {
-			"position": opponent.global_position,
-			"health": opponent.health,
-			"velocity": opponent.velocity,
-			"animation": opponent.get_animation().current_animation if opponent else ""
+		"current_hp": opponent_HP.value, # 👈 Add this line
+		"defenses": {
+			"crouching": fighter.crouching_defenses,
+			"standing": fighter.standing_defenses,
 		},
-		"distance": fighter.global_position.distance_to(opponent.global_position),
-		"timestamp": Time.get_ticks_msec()
+		"lower_hits": fighter.lower_hits_taken,
+		"upper_hits": fighter.upper_hits_taken,
 	}
-	return state
+	return previous_parameters
 
 func send_game_state():
 	if is_waiting_response:
@@ -73,7 +76,7 @@ func send_game_state():
 	var json = JSON.stringify(game_state)
 	var headers = ["Content-Type: application/json"]
 	
-	var error = http_request.request(PREDICTION_ENDPOINT, headers, HTTPClient.METHOD_POST, json)
+	var error = http_request.request(METRICS_ENDPOINT, headers, HTTPClient.METHOD_POST, json)
 	if error != OK:
 		print("Error sending request: ", error)
 		return
