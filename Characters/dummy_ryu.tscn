@@ -3377,7 +3377,6 @@ libraries = {
 
 [node name="Dummy_UpperHurtbox" type="Area2D" parent="."]
 position = Vector2(-9, -36)
-metadata/_edit_group_ = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Dummy_UpperHurtbox"]
 position = Vector2(7, 13)
@@ -3385,7 +3384,6 @@ shape = SubResource("RectangleShape2D_cdvxo")
 
 [node name="Dummy_LowerHurtbox" type="Area2D" parent="."]
 position = Vector2(-8, 11)
-metadata/_edit_group_ = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Dummy_LowerHurtbox"]
 position = Vector2(5.5, 15.5)

@@ -41,6 +41,7 @@ const CROUCHING_DEFENSE_ANIM: StringName = &"crouching_defense"
 @onready var hp_bar: ProgressBar
 @onready var hitbox_container: Node2D # Container for player's own hitbox(es)
 @onready var opponent: CharacterBody2D = null # Will be set in _ready or level script
+var rule_engine: ScriptCreation
 
 func _get_animation() -> AnimationPlayer:
 	if has_node("Animation"):
@@ -285,10 +286,8 @@ func get_distance_from_corner_ds() -> int:
 	var center = stage_width / 2
 	
 	if direction_to_opponent > 0 and abs(global_position.x - stage_width) > 1034:
-		print("Near Left corner")
 		return 1
 	elif direction_to_opponent < 0 and abs(global_position.x - stage_width) < 707:
-		print("Near Right corner")
 		return -1
 	return 0		
 	
@@ -372,19 +371,21 @@ func _on_lower_hurtbox_area_entered(area: Area2D) -> void:
 		var damage = normal_damage_taken # Placeholder
 		apply_damage(damage, false) # False because it's the lower hurtbox
 
+#func is_using_dynamic_scripting() -> bool:
+	#return (
+		#is_instance_valid(active_controller) and 
+		#active_controller is DynamicScriptingController and 
+		#control_type == "Dynamic Scripting"
+	#)
+	
 func _on_own_hitbox_area_entered(area: Area2D) -> void:
-	# This is called when THIS character's hitbox overlaps with something.
-	# Check if it's the opponent's hurtbox.
-	if area.get_parent() == opponent: # Check if the area belongs to the opponent
-		if "Hurtbox" in area.name: # Check if it's one of the opponent's hurtboxes
-			# Increment landed attack counters based on which hurtbox was hit
-			if "Upper" in area.name:
-				upper_attacks_landed += 1
-			elif "Lower" in area.name:
-				lower_attacks_landed += 1
-			_update_stats_text()
-			# Note: The opponent's hurtbox signal handler (`_on_upper/lower_hurtbox_area_entered` on *their* script)
-			# is responsible for making the opponent take damage. This function just records the hit.
+	if area.get_parent() == opponent and "Hurtbox" in area.name:
+		# Update attack counters
+		if "Upper" in area.name:
+			upper_attacks_landed += 1
+		elif "Lower" in area.name:
+			lower_attacks_landed += 1
+		_update_stats_text()
 
 
 func _update_stats_text():
@@ -428,7 +429,7 @@ func _update_executed_rule():
 				"Dynamic Scripting":
 					if active_controller.has_method("get_executed_rule"):
 						rule_text = active_controller.get_executed_rule()
-						print(rule_text)
+						#print(rule_text)
 				"Decision Tree":
 					if "last_executed_decision" in active_controller:
 						rule_text = active_controller.last_executed_decision
@@ -450,5 +451,3 @@ func get_opponent() -> CharacterBody2D:
 
 func get_health() -> int:
 	return health
-
-# Add any other shared functions controllers might call

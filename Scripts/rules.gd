@@ -1,79 +1,94 @@
-# rules.gd
+# Rules.gd
 extends Node
 class_name Rules
 
-@export var script_count : int = 7
+var script_size: int = 7
 
-var baseline = 0.5
-var WMAX = 1.0
-var WMIN = 0.1
-var scaling_factor = 0.1    
+# New variables for HP-based adaptation
+var hp_difference_momentum: float = 0.0
+var last_ai_hp: float = 100.0
+var last_player_hp: float = 100.0
+const HP_MOMENTUM_WEIGHT: float = 0.3  # Impact of HP changes on rule weights
 
-var rules: Array = [
+var rule_success_counts = {}
+
+# --- Configuration ---
+const INITIAL_WEIGHT: float = 0.5
+const WEIGHT_DECAY: float = 0.15      # Penalty for recently used rules
+const WEIGHT_RECOVERY: float = 0.02   # Global recovery rate
+const FITNESS_REWARD: float = 0.12    # Reward multiplier for successful rules
+const PRIORITY_DECAY_TIME: float = 5.0 # Seconds until priority boost decays
+
+var _current_script: Array = []
+var _last_used_rules: Array = []
+var _rule_usage_times: Dictionary = {}  # Tracks last usage timestamps
+var weight_history: Array = []
+
+var rules = [
 	{
 		"ruleID": 1, "prioritization": 1,
 		"conditions": { "distance": { "op": ">=", "value": 100 } },
-		"enemy_action": ["walk_forward"], "weight": 0.5, "wasUsed": false, "inScript": false
+		"enemy_action": ["walk_forward"], "weight": 0.5, "wasUsed": false, "inScript": false, "history": []
 	},
 	{
 		"ruleID": 2, "prioritization": 11,
 		"conditions": { "distance": { "op": "<=", "value": 83 }},
-		"enemy_action": ["basic_kick"], "weight": 0.5, "wasUsed": false, "inScript": false
+		"enemy_action": ["basic_kick"], "weight": 0.5, "wasUsed": false, "inScript": false, "history": []
 	},
 	{
 		"ruleID": 3, "prioritization": 12,
 		"conditions": { "distance": { "op": "<=", "value": 75 } },
-		"enemy_action": ["basic_punch"], "weight": 0.5, "wasUsed": false, "inScript": false
+		"enemy_action": ["basic_punch"], "weight": 0.5, "wasUsed": false, "inScript": false, "history": []
 	},
 	{
 		"ruleID": 4, "prioritization": 21,
 		"conditions": { "player_anim": "basic_kick", "distance": { "op": ">=", "value": 100 }, "upper_hits_taken": { "op": ">=", "value": 1 } },
-		"enemy_action": ["standing_defense"], "weight": 0.5, "wasUsed": false, "inScript": false
+		"enemy_action": ["standing_defense"], "weight": 0.5, "wasUsed": false, "inScript": false, "history": []
 	},
 	{
 		"ruleID": 5, "prioritization": 22,
 		"conditions": { "player_anim": "basic_punch", "distance": { "op": ">=", "value": 83 }, "upper_hits_taken": { "op": ">=", "value": 1 } },
-		"enemy_action": ["standing_defense"], "weight": 0.5, "wasUsed": false, "inScript": false
+		"enemy_action": ["standing_defense"], "weight": 0.5, "wasUsed": false, "inScript": false, "history": []
 	},
 	{
 		"ruleID": 6, "prioritization": 24,
 		"conditions": { "player_anim": "crouch_punch", "distance": { "op": ">=", "value": 83 }, "lower_hits_taken": { "op": ">=", "value": 1 } },
-		"enemy_action": ["crouching_defense"], "weight": 0.5, "wasUsed": false, "inScript": false
+		"enemy_action": ["crouching_defense"], "weight": 0.5, "wasUsed": false, "inScript": false, "history": []
 	},
-{
+	{
 		"ruleID": 7, "prioritization": 23,
 		"conditions": { "player_anim": "crouch_kick", "distance": { "op": ">=", "value": 83 }, "lower_hits_taken": { "op": ">=", "value": 1 } },
-		"enemy_action": ["crouching_defense"], "weight": 0.5, "wasUsed": false, "inScript": false
+		"enemy_action": ["crouching_defense"], "weight": INITIAL_WEIGHT, "wasUsed": false, "inScript": false, "history": []
 	},
 	{
 		"ruleID": 8, "prioritization": 31,
 		"conditions": { "player_anim": "crouch_punch", "distance": { "op": ">=", "value": 83 }, "lower_hits_taken": { "op": ">=", "value": 3 } },
-		"enemy_action": ["crouching_defense", "crouch_punch"], "enemy_action_2": "crouch_punch", "weight": 0.5, "wasUsed": false, "inScript": false
+		"enemy_action": ["crouching_defense", "crouch_punch"], "enemy_action_2": "crouch_punch", "weight": INITIAL_WEIGHT, "wasUsed": false, "inScript": false, "history": []
 	},
 	{
 		"ruleID": 9, "prioritization": 32,
 		"conditions": { "player_anim": "crouch_kick", "distance": { "op": ">=", "value": 83 }, "lower_hits_taken": { "op": ">=", "value": 3 } },
-		"enemy_action": ["crouching_defense", "crouch_kick"], "weight": 0.5, "wasUsed": false, "inScript": false
+		"enemy_action": ["crouching_defense", "crouch_kick"], "weight": INITIAL_WEIGHT, "wasUsed": false, "inScript": false, "history": []
 	},
 	{
 		"ruleID": 11, "prioritization": 33,
 		"conditions": { "player_anim": "basic_punch", "distance": { "op": ">=", "value": 83 }, "upper_hits_taken": { "op": ">=", "value": 3 } },
-		"enemy_action": ["standing_defense", "basic_punch"], "weight": 0.5, "wasUsed": false, "inScript": false
+		"enemy_action": ["standing_defense", "basic_punch"], "weight": INITIAL_WEIGHT, "wasUsed": false, "inScript": false, "history": []
 	},
 	{
 		"ruleID": 12, "prioritization": 34,
 		"conditions": { "player_anim": "basic_kick", "distance": { "op": ">=", "value": 100 }, "upper_hits_taken": { "op": ">=", "value": 3 } },
-		"enemy_action": ["standing_defense", "basic_kick"], "weight": 0.5, "wasUsed": false, "inScript": false
+		"enemy_action": ["standing_defense", "basic_kick"], "weight": INITIAL_WEIGHT, "wasUsed": false, "inScript": false, "history": []
 	},
 	{
 		"ruleID": 13, "prioritization": 2,
 		"conditions": { "distance": { "op": "<=", "value": 80 }, "lower_hits_taken": { "op": ">=", "value": 3 } },
-		"enemy_action": ["walk_backward"], "weight": 0.5, "wasUsed": false, "inScript": false
+		"enemy_action": ["walk_backward"], "weight": INITIAL_WEIGHT, "wasUsed": false, "inScript": false, "history": []
 	},
 	{
 		"ruleID": 14, "prioritization": 100,
 		"conditions": { "player_anim": "idle" },
-		"enemy_action": ["idle"], "weight": 0.5, "wasUsed": false, "inScript": false
+		"enemy_action": ["idle"], "weight": INITIAL_WEIGHT, "wasUsed": false, "inScript": false, "history": []
 	},
 	{
 		"ruleID": 15,
@@ -83,9 +98,9 @@ var rules: Array = [
 			"player_anim": "!knocked_down"  # Only trigger if player is active
 		},
 		"enemy_action": ["corner_escape"],
-		"weight": 0.8,
+		"weight": INITIAL_WEIGHT + 0.3,
 		"wasUsed": false,
-		"inScript": false
+		"inScript": false, "history": []
 	},
 
 	#{
@@ -96,7 +111,7 @@ var rules: Array = [
 	#{
 		#"ruleID": 2, "prioritization": 10,
 		#"conditions": { "player_anim": "walk_forward", "distance": { "op": "<=", "value": 80 }, "upper_attacks_landed": { "op": ">=", "value": 0 }, "lower_attacks_landed": { "op": ">=", "value": 0 } },
-		#"enemy_action": ["basic_kick"], "weight": 0.5, "wasUsed": false, "inScript": false # Increased weight
+		#"enemy_action": ["basic_kick"], "weight": INITIAL_WEIGHT, "wasUsed": false, "inScript": false # Increased weight
 	#},
 	#{
 		#"ruleID": 3, "prioritization": 70,
@@ -231,152 +246,165 @@ var rules: Array = [
 		#"weight": 0.8, 
 		#"wasUsed": false, 
 		#"inScript": false
-	#},
-	
+	#}
 ]
 
-var current_script: Array
-
-func generate_and_update_script():
+func initialize_rules():
+	# Add initial randomness to weights
 	for rule in rules:
-		if rule.has("inScript"):
-			rule["inScript"] = false
-		else:
-			printerr("Warning: Rule %s is missing 'inScript' key." % rule.get("ruleID", "UNKNOWN"))
-			rule["inScript"] = false # Add it if missing
-
-	if script_count <= 0:
-		current_script = []
-		print("Script count is zero or negative. No script generated.")
-		return # Exit early
-
-	# --- Step 2: Sort a *copy* of rules by weight (descending) ---
-	var sorted_rules = rules.duplicate() # Shallow copy is sufficient
-	sorted_rules.sort_custom(func(a, b): 
-		# Sort descending. Handle missing 'weight' key gracefully.
-		return a.get("weight", 0.0) > b.get("weight", 0.0)
-	)
-
-	# --- Step 3: Slice to get the top N rules ---
-	var actual_count = min(script_count, sorted_rules.size())
-	# Get the slice containing the dictionaries of the top rules
-	var top_rules_slice = sorted_rules.slice(0, actual_count) 
-
-	# --- Step 4: Modify the 'inScript' flag to true *within the sliced array* ---
-	for rule_in_slice in top_rules_slice:
-		if rule_in_slice.has("inScript"):
-			rule_in_slice["inScript"] = true
-		else:
-			# This shouldn't happen if the original rules have the key, but handle defensively
-			print("Warning: Rule %s in slice is missing 'inScript' key." % rule_in_slice.get("ruleID", "UNKNOWN"))
-			rule_in_slice["inScript"] = true # Add and set to true
-
-	# --- Step 5: Assign the modified slice to current_script ---
-	current_script = top_rules_slice
-
-	#print("Generated new script with %d rules. 'inScript' set to true within this script." % current_script.size())
-	# Optional: Print the actual script for debugging (notice 'inScript' should be true)
-	#print("New Script:", current_script)
-
-func get_rules() -> Array:
-	return rules
-
-func get_DScript() -> Array:
-		return current_script
-		
-	
-func adjust_script_weights(fitness: float) -> void:
-	var adjustment = (fitness - baseline) * scaling_factor
-	var used_rules = []
-	var unused_rules = []
-	
-	# Track changes for logging
-	var weight_changes = {}
-	
-	# Classify rules
-	for rule in current_script:
-		if rule["wasUsed"]:
-			used_rules.append(rule)
-		else:
-			unused_rules.append(rule)
-	
-	# Calculate compensation more safely
-	var compensation = 0.0
-	if unused_rules.size() > 0:
-		compensation = (used_rules.size() * adjustment) / unused_rules.size()
-	
-	# Apply adjustments with clamping
-	for rule in current_script:
-		var original_weight = rule["weight"]
-		
-		if rule["wasUsed"]:
-			rule["weight"] += adjustment
-		else:
-			rule["weight"] += compensation
-		
-		# Apply nonlinear clamping
 		rule["weight"] = clamp(
-			rule["weight"] * (1.0 + 0.1 * randf()),  # Add slight randomness
-			WMIN, 
-			WMAX
+			INITIAL_WEIGHT + randf_range(-0.1, 0.1),
+			0.1,  # Minimum weight
+			1.0   # Maximum weight
+		)
+		_rule_usage_times[rule["ruleID"]] = 0.0
+		rule["in_script"] = false
+		_log_weight_change(rule, "INIT", rule.weight)
+		
+		rule_success_counts[rule.ruleID] = {"hits": 0, "uses": 0}
+
+		
+func generate_script() -> Array:
+	update_rule_priorities()  # Apply time-based adjustments
+	
+	for rule in rules:
+		rule["in_script"] = false
+	
+	# Convert weights to probabilities using softmax
+	var total_weight = 0.0
+	for rule in rules:
+		total_weight += exp(rule["weight"])
+	
+	var selected_rules = []
+	var remaining_rules = rules.duplicate()
+	
+	while selected_rules.size() < script_size and remaining_rules.size() > 0:
+		var rand_val = randf() * total_weight
+		var cumulative = 0.0
+		
+		for rule in remaining_rules:
+			cumulative += exp(rule["weight"])
+			if cumulative >= rand_val:
+				selected_rules.append(rule)
+				remaining_rules.erase(rule)
+				total_weight -= exp(rule["weight"])
+				_rule_usage_times[rule["ruleID"]] = Time.get_ticks_msec()
+				break
+	
+	_last_used_rules = selected_rules.duplicate()
+	_current_script = selected_rules
+	for rule in selected_rules:
+		rule["in_script"] = true
+		_log_weight_change(rule, "SCRIPT_SELECTION", rule.weight)
+	
+	return selected_rules
+
+func adjust_script_weights(fitness: float, ai_hp: float, player_hp: float):
+	# 1. Calculate HP difference momentum
+	var hp_diff = (ai_hp - player_hp) / max(ai_hp + player_hp, 1.0)
+	hp_difference_momentum = lerp(hp_difference_momentum, hp_diff, 0.2)
+	
+	# 2. Update success rates
+	var success_rates = {}
+	for rule in rules:
+		var stats = rule_success_counts[rule.ruleID]
+		success_rates[rule.ruleID] = stats.hits / float(max(stats.uses, 1))
+	
+	# 3. Adjust weights with multiple factors
+	for rule in rules:
+		var base_adjustment = 0.0
+		var success_factor = success_rates[rule.ruleID]
+		var hp_factor = _get_hp_based_modifier(rule, hp_diff)
+		var momentum_factor = hp_difference_momentum * HP_MOMENTUM_WEIGHT
+		
+		# Composite adjustment
+		var total_adjustment = (base_adjustment 
+			+ success_factor * 0.1
+			+ hp_factor
+			+ momentum_factor)
+			
+		rule.weight = clamp(rule.weight + total_adjustment, 0.1, 1.0)
+		_log_weight_change(rule, "COMPOSITE_ADJUST", rule.weight)
+
+func _get_hp_based_modifier(rule: Dictionary, hp_diff: float) -> float:
+	# Classify rule types (implement based on your rule actions)
+	var is_defensive = "defense" in rule.enemy_action
+	var is_aggressive = "attack" in rule.enemy_action
+	
+	# If AI is losing HP (negative diff), boost defensive rules
+	if hp_diff < -0.2:  # Losing significantly
+		return 0.1 if is_defensive else -0.05
+	# If AI is winning, boost aggressive rules
+	elif hp_diff > 0.2:  # Winning significantly
+		return 0.1 if is_aggressive else -0.05
+	return 0.0
+		
+func _log_weight_change(rule: Dictionary, reason: String, new_weight: float):
+	var entry = {
+		"timestamp": Time.get_datetime_string_from_system(),
+		"ruleID": rule["ruleID"],
+		"old_weight": rule.get("weight", 0.0),
+		"new_weight": new_weight,
+		"reason": reason
+	}
+	weight_history.append(entry)
+	rule["history"].append(entry)
+	
+# Call this when a rule successfully hits the opponent
+func record_rule_success(rule_id: int):
+	if rule_success_counts.has(rule_id):
+		var stats = rule_success_counts[rule_id]
+		stats.uses += 1
+		stats.hits += 1
+		
+		# Update weight based on success rate
+		var success_rate = stats.hits / float(stats.uses)
+		var weight_change = clamp(success_rate * 0.1, -0.05, 0.1)
+		rules[rule_id].weight = clamp(rules[rule_id].weight + weight_change, 0.1, 1.0)
+		
+		_log_weight_change(rules[rule_id], "SUCCESS", rules[rule_id].weight)
+
+func update_rule_priorities():
+	var current_time = Time.get_ticks_msec()
+	
+	for rule in rules:
+		var time_since_last_use = (current_time - _rule_usage_times[rule["ruleID"]]) / 1000.0
+		var priority_boost = clamp(
+			(1.0 - exp(-time_since_last_use / PRIORITY_DECAY_TIME)) * 0.3,
+			0.0,
+			0.3
 		)
 		
-		# Track meaningful changes
-		if abs(original_weight - rule["weight"]) > 0.01:
-			weight_changes[rule["ruleID"]] = {
-				"old": original_weight,
-				"new": rule["weight"]
-			}
-	
-	# Log weight changes
-	if weight_changes.size() > 0:
-		print("=== Weight Adjustments ===")
-		for rule_id in weight_changes:
-			var change = weight_changes[rule_id]
-			print("Rule %d: %.2f => %.2f" % [
-				rule_id, 
-				change["old"], 
-				change["new"]
-			])
-	else:
-		print("No significant weight changes this cycle")
+		rule["weight"] = clamp(
+			rule["weight"] + priority_boost,
+			0.1,
+			1.0
+		)
 
-func calculate_fitness(DS_lower_hits_taken: int, DS_upper_hits_taken: int, 
-					  DS_upper_successful_attacks: int, DS_lower_successful_attacks: int,
-					  DS_standing_defended: int, DS_crouching_defended: int, 
-					  maxHP: int) -> float:
-	# Enhanced fitness calculation with kick spam penalty
-	var kick_ratio = float(DS_lower_successful_attacks) / max(DS_lower_successful_attacks + DS_upper_successful_attacks, 1)
-	var kick_spam_penalty = -0.1 * kick_ratio
-	
-	var bot_dmg_taken = 10 * (DS_lower_hits_taken + DS_upper_hits_taken)
-	var bot_dmg_output = 10 * (DS_upper_successful_attacks + DS_lower_successful_attacks)
-	
-	var dmg_score = (bot_dmg_output - bot_dmg_taken) / float(maxHP)
-	var offensiveness = 0.002 * (DS_upper_successful_attacks + DS_lower_successful_attacks)
-	var defensiveness = 0.003 * (DS_standing_defended + DS_crouching_defended)
-	var penalties = -0.005 * (DS_lower_hits_taken + DS_upper_hits_taken)
-	
-	var raw = baseline + dmg_score + offensiveness + defensiveness + penalties + kick_spam_penalty
-	var fitness = clamp(raw, 0.0, 1.0)
-	
-	print("\n=== Fitness Calculation ===")
-	print("Damage Score: %.2f" % dmg_score)
-	print("Offensiveness: %.2f" % offensiveness)
-	print("Defensiveness: %.2f" % defensiveness)
-	print("Penalties: %.2f" % penalties)
-	print("Kick Spam Penalty: %.2f" % kick_spam_penalty)
-	print("Final Fitness: %.2f\n" % fitness)
-	
-	return fitness
-	
-func update_rulebase() -> void:
-	
-	var script_dict := {}
-	# Build dictionary from script using ruleID as key
-	for r in current_script:
-		script_dict[r["ruleID"]] = r
-	# Update rulebase weights from script_dict
-	for r in rules:
-		if script_dict.has(r["ruleID"]):
-			r["weight"] = script_dict[r["ruleID"]]["weight"]
+func get_DScript() -> Array:
+	return _current_script.duplicate()
+
+func get_rules() -> Array:
+	return rules.duplicate()
+
+func reset_weights():
+	for rule in rules:
+		rule["weight"] = clamp(
+			INITIAL_WEIGHT + randf_range(-0.1, 0.1),
+			0.1,
+			1.0
+		)
+		
+func get_rule_by_action(action) -> Dictionary:
+	for rule in rules:
+		var enemy_action = rule.get("enemy_action")
+		
+		# Handle array-based enemy_actions
+		if enemy_action is Array:
+			if action in enemy_action:
+				return rule
+		# Handle single string actions
+		elif enemy_action == action:
+			return rule
+			
+	return {}

@@ -14,6 +14,8 @@ var rule_engine: ScriptCreation # Instance of DS_script.txt logic
 var rules_base: Rules           # Instance of rules.txt logic
 var latest_script: Array = []   # The currently executing action sequence
 
+var current_rule_id: int = -1
+
 # AIConfig
 var ai_config: AIConfig
 
@@ -56,16 +58,20 @@ func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer
 	else:
 		print("DSController: Could not find opponent AnimationPlayer")
 		# Decide how to handle this - maybe disable rule conditions based on opponent anim?
+		
+	if fighter.hitbox_container.has_signal("area_entered"):
+		fighter.hitbox_container.connect("area_entered", Callable(self, "_on_hitbox_contact"))
 
 	# --- Instantiate DS components ---
 	if FileAccess.file_exists("res://Scripts/rules.gd"):
 		var RulesClass = load("res://Scripts/rules.gd")
 		if RulesClass:
 			rules_base = RulesClass.new()
+			rules_base.initialize_rules()
 			# Pass fighter reference if Rules need it (e.g., for fitness calc access)
 			# rules_base.set_fighter_reference(fighter)
-		else: printerr("DSController: Failed to load Rules.gd")
-	else: printerr("DSController: Rules.gd not found.")
+		else: print("DSController: Failed to load Rules.gd")
+	else: print("DSController: Rules.gd not found.")
 
 	if FileAccess.file_exists("res://Scripts/DS_script.gd"):
 		var ScriptCreationClass = load("res://Scripts/DS_script.gd")
@@ -131,19 +137,23 @@ func _physics_process(_delta):
 
 func _on_action_delay_completed(delay: float):
 	is_performing_action = false
+	
+# Add unified hitbox handler
+func _on_hitbox_contact(area: Area2D):
+	if area.get_parent() == opponent and current_rule_id != -1:
+		record_rule_success()
 
 func queue_actions(actions: Array):
 	action_queue.clear()
 	is_performing_action = false
-	
+	current_rule_id = -1  # <-- Reset current_rule_id when queueing new actions
+
 	# Convert all actions to dictionary format
 	for action in actions:
 		if action is String:
 			action_queue.append({"action": action, "delay": 0.1})
 		elif action is Dictionary:
 			action_queue.append(action)
-	
-#	print("Current Queue:", action_queue)
 
 
 func _on_animation_finished(anim_name: String):
@@ -154,89 +164,130 @@ func _on_animation_finished(anim_name: String):
 		# ⚡ Allow next action in queue
 		is_performing_action = false
 
-# --- Timer Timeout (From DS_ryu.txt) ---
 func _on_timer_timeout():
-	if not is_instance_valid(fighter) or not is_instance_valid(rules_base): return
+	if not is_instance_valid(rules_base):
+		print("Rules system not initialized!")
+		return
+
+	# Add rule validation
+	if rules_base.get_rules().is_empty():
+		print("No rules available in rulebase!")
+		return
+		
+	var ai_hp = fighter.get_health()
+	var player_hp = opponent.get_health()
+
+		
+	if not is_instance_valid(fighter) or not is_instance_valid(rules_base): 
+		return
 
 	print("\n=== DS Update Cycle ===")
 	print("Current HP: %d/%d" % [fighter.health, fighter.max_health])
 	
-	# Calculate and log fitness
+	# 1. Calculate fitness FIRST
 	var fitness = calculate_fitness()
 	print("Adapting with fitness: %.2f" % fitness)
 
-	# Weight adjustment
-	rules_base.adjust_script_weights(fitness)
-	rules_base.update_rulebase()
+	# 2. Apply weight adjustments based on fitness
+	rules_base.adjust_script_weights(fitness, ai_hp, player_hp)
 	
-	# Generate new script with logging
+	# 3. Update rule priorities before generating new script
+	rules_base.update_rule_priorities()
+	
+	# 4. Generate new script AFTER adjustments
+	rules_base.generate_script()
+	var active_script = rules_base.get_DScript()
+	
+	# 5. Update internal state
 	get_total_weights()
 	get_latest_script()
+	
+	# 6. Logging and cleanup
 	log_game_info()
 	append_script_to_log()
-	
-	# Reset counters
 	reset_counters()
+
+	# (Optional) Debug output
+	print("New script contains %d rules" % active_script.size())
 
 func get_total_weights():
 	var rules = rules_base.get_rules()
-	print(rules)
 	var total_weight = 0
 	for rule in rules:
 		total_weight += rule["weight"]
 	print("Total Weights: ", total_weight)
 
+# In DynamicScriptingController.gd
 func log_game_info():
-	print("\n=========== New Cycle ===========")
-	var script_rules = rules_base.get_DScript()
+	# Get fresh data from the rule system
+	var current_script = rules_base.get_DScript()
 	var executed_rules = rule_engine.get_executed_rules()
 	
-	#Format and log generated script
-	log_info(script_rules, "Newly Generated")
-	#Format and log executed rules
-	log_info(executed_rules, "Executed")
+	# Log current active script
+	_log_script_info(current_script, "CURRENT ACTIVE")
 	
-	if script_rules.is_empty():
-		print("No active rules in script!")
-		return
+	# Log executed rules
+	_log_script_info(executed_rules, "EXECUTED")
 	
-	# Sort by weight descending
-	script_rules.sort_custom(func(a, b): return a["weight"] > b["weight"])
-	
-	# Print top 5 rules
-	#print("Top 5 Highest Weights:")
-	#for i in range(min(5, script_rules.size())):
-		#var rule = script_rules[i]
-		#var action = process_action(rule)
-		#print("%d. [Rule %d] %s (Weight: %.2f)" % [
-			#i+1,
-			#rule["ruleID"],
-			#action, 
-			#rule["weight"]
-		#])
+	# Additional weight history
+	print("\n=== WEIGHT CHANGE HISTORY (LAST 5) ===")
+	var history = rules_base.weight_history.slice(-5)
+	for entry in history:
+		print("[%s] R%d: %.2f → %.2f (%s)" % [
+			entry.timestamp.substr(11), # Show only time
+			entry.ruleID,
+			entry.old_weight,
+			entry.new_weight,
+			entry.reason
+		])
+	print("")
 
+func _log_script_info(script: Array, header: String):
+	# Transform script data for formatting
+	var formatted_script = []
+	for rule in script:
+		formatted_script.append({
+			"ruleID": rule.ruleID,
+			"weight": rule.weight,
+			"inScript": rule.in_script,
+			"enemy_action": rule.enemy_action
+		})
+	
+	log_info(formatted_script, header)
+
+# Modified logging
+func log_info(script, header) -> void:
+	print("\n====== %s Rules ======" % header)
+	print("ID | Action            | Weight | Uses  | Success%")
+	print("---|-------------------|--------|-------|---------")
+	for rule in script:
+		var stats = rules_base.rule_success_counts[rule.ruleID]
+		var success_pct = stats.hits / float(max(stats.uses, 1)) * 100
+		print("%2d | %-17s | %5.2f | %5d | %6.1f%%" % [
+			rule.ruleID,
+			rule.enemy_action,
+			rule.weight,
+			stats.uses,
+			success_pct
+		])
+		
+func record_rule_success():
+	if current_rule_id != -1:
+		rules_base.record_rule_success(current_rule_id)
+		print("Recorded success for rule ", current_rule_id)
+
+func _process_action(rule: Dictionary) -> String:
+	var action = rule.get("enemy_action", "unknown")
+	if action is Array:
+		return " → ".join(action)
+	return action.lpad(16).substr(0, 16)
+	
 func process_action(rule: Dictionary) -> String:
 	var processedActions = ''
 	var actions = rule["enemy_action"]
 	for action in actions:
 		processedActions =  str(processedActions) + str(action)
 	return processedActions
-
-#LOG EXECUTED RULES 
-func log_info(script, header) -> void:
-	#print("\n====== %s Rules ======" % header)
-	#print("ID | Action            | Weight | In Script")
-	#print("---|-------------------|--------|----------")
-	#for rule in script:
-		#var rule_id = str(rule.get("ruleID", "??")).rpad(3)
-		#var action = process_action(rule)			
-		#var weight = "%.2f" % rule.get("weight", 0.0)
-		#var in_script = "✓" if rule.get("inScript", false) else "✗"
-		#
-		#print("%s | %s | %s   | %s" % [rule_id, action, weight, in_script])
-	#
-	#print("Total rules: %d\n" % script.size())
-	pass
 
 func reset_counters():
 	# Reset numerical counters
@@ -287,8 +338,8 @@ func calculate_fitness() -> float:
 func get_latest_script() -> void:
 	if not is_instance_valid(rules_base): return
 	# Assuming these methods exist in Rules.gd based on original DS_ryu.txt
-	if rules_base.has_method("generate_and_update_script") and rules_base.has_method("get_DScript"):
-		rules_base.generate_and_update_script()
+	if rules_base.has_method("generate_script") and rules_base.has_method("get_DScript"):
+		rules_base.generate_script()
 		latest_script = rules_base.get_DScript()
 		# Pass the latest script to the rule engine if it needs it?
 		# if is_instance_valid(rule_engine) and rule_engine.has_method("set_active_script"):

@@ -8,6 +8,9 @@ var ai_self
 
 var executed_rules: Dictionary = {}
 var current_rule: String = "No rule"
+var current_rule_dict: Dictionary = {}
+
+var rules_base: Rules
 
 var speed = 150
 
@@ -18,6 +21,15 @@ func _init(enemy_ref, enemy_anim, animation_player):
 	player = enemy_ref
 	player_anim = enemy_anim
 	animation = animation_player
+	
+	if FileAccess.file_exists("res://Scripts/rules.gd"):
+		var RulesClass = load("res://Scripts/rules.gd")
+		if RulesClass:
+			rules_base = RulesClass.new()
+			# Pass fighter reference if Rules need it (e.g., for fitness calc access)
+			# rules_base.set_fighter_reference(fighter)
+		else: print("DSScript: Failed to load Rules.gd")
+	else: print("DSScript: Rules.gd not found.")
 
 func set_ai_reference(ref):
 	ai_self = ref
@@ -82,6 +94,7 @@ func evaluate_and_execute(rules: Array):
 	# Sort matched rules by prioritization (highest first)
 	matched_rules.sort_custom(Callable(self, "_sort_by_priority_desc"))
 
+	# In DS_script.gd's evaluate_and_execute function:
 	if matched_rules.size() > 0:
 		var rule = matched_rules[0]
 		var actions = rule.get("enemy_actions", [])
@@ -102,20 +115,43 @@ func evaluate_and_execute(rules: Array):
 			rule["wasUsed"] = true
 			append_executed_rule(rule)
 			current_rule = " > ".join(valid_actions)
+			# Set the current_rule_id in the DSController
+			if ai_self and ai_self.active_controller:
+				ai_self.active_controller.current_rule_id = rule["ruleID"]  # <-- Add this line
 
 # Custom sort function
 func _sort_by_priority_desc(a, b):
-	print(a["prioritization"], b["prioritization"])
+	#print(a["prioritization"], b["prioritization"])
 	return int(b["prioritization"]) - int(a["prioritization"])
 
 # This should already exist — ensure it’s accessible
 func _execute_actions(actions: Array):
+	if actions.is_empty():
+		current_rule_dict = {}
+		return
+	
+	# Get first valid action
+	var first_action = actions[0]
+	if typeof(first_action) == TYPE_DICTIONARY:
+		first_action = first_action.get("action", "")
+		
+	# Find deepest matching rule
+	var matched_rule = rules_base.get_rule_by_action(first_action)
+	if not matched_rule.is_empty():
+		current_rule_dict = matched_rule
+	else:
+		current_rule_dict = {}
+	
 	if ai_self.active_controller.has_method("queue_actions"):
 		var delayed_actions = []
 		for action in actions:
 			delayed_actions.append({ "action": action, "delay": 0.2 })
 		ai_self.active_controller.queue_actions(delayed_actions)
-
+		
+func record_rule_success_calling_function():
+	if current_rule_dict.has("ruleID"):
+		rules_base.record_rule_success(current_rule_dict.ruleID)
+	return
 
 # --- Helper function for numerical comparisons ---
 # Renamed from compare_distance to be more generic
