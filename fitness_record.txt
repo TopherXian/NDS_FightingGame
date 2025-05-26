@@ -1,496 +1,203 @@
---- Timestamp: 2025-05-18 10:18:34 ---
-Fitness: 0.48
-
---- Timestamp: 2025-05-18 10:18:38 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 10:18:42 ---
-Fitness: 0.49
-
---- Timestamp: 2025-05-18 10:18:46 ---
-Fitness: 0.48
-
---- Timestamp: 2025-05-18 10:18:50 ---
-Fitness: 0.50
---- Timestamp: 2025-05-18 10:22:04 ---
-Fitness: 0.48
-
---- Timestamp: 2025-05-18 10:22:08 ---
-Fitness: 0.48
-
---- Timestamp: 2025-05-18 10:22:12 ---
-Fitness: 0.47
---- Timestamp: 2025-05-18 11:33:29 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:33:33 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:33:37 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:33:41 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:33:45 ---
-Fitness: 0.48
-
---- Timestamp: 2025-05-18 11:33:49 ---
-Fitness: 0.47
-
---- Timestamp: 2025-05-18 11:33:53 ---
-Fitness: 0.47
-
---- Timestamp: 2025-05-18 11:33:57 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:34:01 ---
-Fitness: 0.50
---- Timestamp: 2025-05-18 11:34:20 ---
-Fitness: 0.49
-
---- Timestamp: 2025-05-18 11:34:24 ---
-Fitness: 0.49
---- Timestamp: 2025-05-18 11:41:35 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:41:39 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:41:43 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:41:47 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:41:51 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:41:55 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:41:59 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:42:03 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:42:07 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:42:11 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:42:15 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:42:19 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:42:23 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:42:27 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:42:31 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:42:35 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:42:39 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:42:43 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:42:47 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:42:51 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:42:55 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:42:59 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:43:03 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:43:07 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:43:11 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:43:15 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:43:19 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:43:23 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:43:27 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:43:31 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:43:35 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:43:39 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:43:43 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:43:47 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:43:51 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:43:55 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:43:59 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:44:03 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:44:07 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:44:11 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:44:15 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:44:19 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:44:23 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:44:27 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:44:31 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:44:35 ---
+Timestamp: 2025-05-27 06:54:20
 Fitness: 0.50
 
---- Timestamp: 2025-05-18 11:44:39 ---
+Timestamp: 2025-05-27 06:54:24
 Fitness: 0.50
 
---- Timestamp: 2025-05-18 11:44:43 ---
+Timestamp: 2025-05-27 06:54:28
 Fitness: 0.50
 
---- Timestamp: 2025-05-18 11:44:47 ---
+Timestamp: 2025-05-27 06:54:32
 Fitness: 0.50
 
---- Timestamp: 2025-05-18 11:44:51 ---
+Timestamp: 2025-05-27 06:54:36
 Fitness: 0.50
 
---- Timestamp: 2025-05-18 11:44:55 ---
+Timestamp: 2025-05-27 06:54:40
 Fitness: 0.50
 
---- Timestamp: 2025-05-18 11:44:59 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:45:03 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:45:07 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:45:11 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:45:15 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:45:19 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:45:23 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:45:27 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:45:31 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:45:35 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:45:39 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:45:43 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:45:47 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:45:51 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:45:55 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:45:59 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:46:03 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:46:07 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:46:11 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:46:15 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:46:19 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:46:23 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:46:27 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:46:31 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:46:35 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:46:39 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:46:43 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:46:47 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:46:51 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:46:55 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:46:59 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:47:03 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:47:07 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:47:11 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:47:15 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:47:19 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:47:23 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:47:27 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:47:31 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:47:35 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:47:39 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:47:43 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:47:47 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:47:51 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:47:55 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:47:59 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:48:03 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:48:07 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:48:11 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:48:15 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:48:19 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:48:23 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:48:27 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:48:31 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:48:35 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:48:39 ---
-Fitness: 0.50
-
---- Timestamp: 2025-05-18 11:48:43 ---
-Fitness: 0.50
---- Timestamp: 2025-05-23 20:50:02 ---
+Timestamp: 2025-05-27 06:54:44
 Fitness: 0.51
 
---- Timestamp: 2025-05-23 20:50:06 ---
+Timestamp: 2025-05-27 06:54:48
 Fitness: 0.51
 
---- Timestamp: 2025-05-23 20:50:10 ---
+Timestamp: 2025-05-27 06:54:52
 Fitness: 0.50
 
---- Timestamp: 2025-05-23 20:50:14 ---
-Fitness: 0.49
-
---- Timestamp: 2025-05-23 20:50:18 ---
-Fitness: 0.49
-
---- Timestamp: 2025-05-23 20:50:22 ---
-Fitness: 0.48
-
---- Timestamp: 2025-05-23 20:51:49 ---
+Timestamp: 2025-05-27 06:54:56
 Fitness: 0.50
 
---- Timestamp: 2025-05-23 20:51:53 ---
-Fitness: 0.49
-
---- Timestamp: 2025-05-23 20:51:57 ---
-Fitness: 0.49
-
---- Timestamp: 2025-05-23 20:52:01 ---
-Fitness: 0.49
-
---- Timestamp: 2025-05-23 20:52:05 ---
+Timestamp: 2025-05-27 06:55:00
 Fitness: 0.50
 
---- Timestamp: 2025-05-23 20:52:09 ---
-Fitness: 0.50
-
-Timestamp: 2025-05-23 21:58:31
-Fitness: 0.50
-
-Timestamp: 2025-05-23 21:58:35
-Fitness: 0.49
-
-Timestamp: 2025-05-23 21:58:39
-Fitness: 0.49
-
-Timestamp: 2025-05-23 21:58:43
+Timestamp: 2025-05-27 06:55:04
 Fitness: 0.51
 
-Timestamp: 2025-05-23 21:59:42
-Fitness: 0.50
-
-Timestamp: 2025-05-23 21:59:46
+Timestamp: 2025-05-27 06:55:08
 Fitness: 0.51
 
-Timestamp: 2025-05-23 21:59:50
+Timestamp: 2025-05-27 06:55:12
+Fitness: 0.51
+
+Timestamp: 2025-05-27 06:55:16
+Fitness: 0.51
+
+Timestamp: 2025-05-27 06:55:20
+Fitness: 0.50
+
+Timestamp: 2025-05-27 06:55:24
+Fitness: 0.51
+
+Timestamp: 2025-05-27 06:55:28
+Fitness: 0.51
+
+Timestamp: 2025-05-27 06:55:32
+Fitness: 0.50
+
+Timestamp: 2025-05-27 06:55:36
+Fitness: 0.51
+
+Timestamp: 2025-05-27 06:55:40
+Fitness: 0.51
+
+Timestamp: 2025-05-27 06:55:44
+Fitness: 0.50
+
+Timestamp: 2025-05-27 06:55:48
+Fitness: 0.50
+
+Timestamp: 2025-05-27 06:55:52
+Fitness: 0.50
+
+Timestamp: 2025-05-27 06:55:56
+Fitness: 0.50
+
+Timestamp: 2025-05-27 06:56:00
+Fitness: 0.50
+
+Timestamp: 2025-05-27 06:56:04
+Fitness: 0.51
+
+Timestamp: 2025-05-27 06:56:08
+Fitness: 0.51
+
+Timestamp: 2025-05-27 06:56:12
+Fitness: 0.50
+
+Timestamp: 2025-05-27 06:56:16
+Fitness: 0.51
+
+Timestamp: 2025-05-27 06:56:20
+Fitness: 0.51
+
+Timestamp: 2025-05-27 06:56:24
+Fitness: 0.50
+
+Timestamp: 2025-05-27 06:56:28
+Fitness: 0.50
+
+Timestamp: 2025-05-27 06:56:32
+Fitness: 0.50
+
+Timestamp: 2025-05-27 06:56:36
+Fitness: 0.50
+
+Timestamp: 2025-05-27 06:56:40
+Fitness: 0.50
+
+Timestamp: 2025-05-27 06:56:44
+Fitness: 0.50
+
+Timestamp: 2025-05-27 06:56:48
+Fitness: 0.50
+
+Timestamp: 2025-05-27 06:56:52
+Fitness: 0.50
+
+Timestamp: 2025-05-27 06:56:56
+Fitness: 0.50
+
+Timestamp: 2025-05-27 06:57:00
+Fitness: 0.50
+Timestamp: 2025-05-27 07:00:52
+Fitness: 0.50
+
+Timestamp: 2025-05-27 07:00:56
 Fitness: 0.48
 
-Timestamp: 2025-05-23 21:59:54
+Timestamp: 2025-05-27 07:01:00
+Fitness: 0.49
+
+Timestamp: 2025-05-27 07:01:04
+Fitness: 0.50
+Timestamp: 2025-05-27 07:01:20
+Fitness: 0.49
+
+Timestamp: 2025-05-27 07:01:24
+Fitness: 0.50
+
+Timestamp: 2025-05-27 07:01:28
+Fitness: 0.50
+
+Timestamp: 2025-05-27 07:01:32
+Fitness: 0.51
+
+Timestamp: 2025-05-27 07:01:36
+Fitness: 0.50
+
+Timestamp: 2025-05-27 07:01:40
+Fitness: 0.50
+
+Timestamp: 2025-05-27 07:01:44
+Fitness: 0.50
+
+Timestamp: 2025-05-27 07:01:48
+Fitness: 0.50
+
+Timestamp: 2025-05-27 07:01:52
+Fitness: 0.50
+
+Timestamp: 2025-05-27 07:01:56
+Fitness: 0.50
+
+Timestamp: 2025-05-27 07:02:00
+Fitness: 0.50
+
+Timestamp: 2025-05-27 07:02:04
+Fitness: 0.51
+
+Timestamp: 2025-05-27 07:02:08
+Fitness: 0.50
+
+Timestamp: 2025-05-27 07:02:12
+Fitness: 0.50
+
+Timestamp: 2025-05-27 07:02:16
+Fitness: 0.50
+
+Timestamp: 2025-05-27 07:02:20
+Fitness: 0.50
+
+Timestamp: 2025-05-27 07:02:24
+Fitness: 0.50
+
+Timestamp: 2025-05-27 07:02:28
+Fitness: 0.50
+Timestamp: 2025-05-27 07:04:26
 Fitness: 0.48
 
-Timestamp: 2025-05-23 22:00:30
-Fitness: 0.49
-
-Timestamp: 2025-05-23 22:00:34
-Fitness: 0.49
-
-Timestamp: 2025-05-23 22:00:38
+Timestamp: 2025-05-27 07:04:30
 Fitness: 0.48
 
-Timestamp: 2025-05-23 22:00:42
+Timestamp: 2025-05-27 07:04:34
+Fitness: 0.50
+
+Timestamp: 2025-05-27 07:04:38
 Fitness: 0.49
 
-Timestamp: 2025-05-23 22:00:46
-Fitness: 0.49
-
-Timestamp: 2025-05-23 22:01:40
+Timestamp: 2025-05-27 07:04:42
 Fitness: 0.50
 
-Timestamp: 2025-05-23 22:01:44
-Fitness: 0.50
-
-Timestamp: 2025-05-23 22:01:48
-Fitness: 0.50
-
-Timestamp: 2025-05-23 22:01:52
-Fitness: 0.50
-
-Timestamp: 2025-05-23 22:01:56
-Fitness: 0.49
-
-Timestamp: 2025-05-23 22:02:00
-Fitness: 0.47
-
-Timestamp: 2025-05-23 22:02:04
-Fitness: 0.49
-
-Timestamp: 2025-05-23 22:02:08
-Fitness: 0.49
-
-Timestamp: 2025-05-23 22:03:59
-Fitness: 0.50
-
-Timestamp: 2025-05-23 22:04:03
-Fitness: 0.50
-
-Timestamp: 2025-05-23 22:04:07
-Fitness: 0.50
-
-Timestamp: 2025-05-23 22:04:11
-Fitness: 0.50
-
-Timestamp: 2025-05-23 22:04:15
+Timestamp: 2025-05-27 07:04:46
 Fitness: 0.48
-
-Timestamp: 2025-05-23 22:04:19
-Fitness: 0.48
-
-Timestamp: 2025-05-23 22:04:23
-Fitness: 0.49
-

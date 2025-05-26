@@ -354,7 +354,10 @@ func die():
 	if animation_player.current_animation != "knocked_down":
 		animation_player.play("knocked_down")
 
-
+func reset_health():
+	health = max_health
+	hp_bar.value = health
+	
 # --- Signal Callbacks ---
 func _on_upper_hurtbox_area_entered(area: Area2D) -> void:
 	# Check if the area is the opponent's hitbox and if it's currently active/damaging

@@ -41,6 +41,8 @@ func _process(_delta):
 	if round_active and (player1_health.value <= 0 or player2_health.value <= 0):
 		round_active = false
 		on_round_end()
+	if "%02d" % int(timer.time_left) == "00":
+		on_round_end()
 
 func on_round_end():
 	if GameSettings.match_count > 1:
@@ -52,8 +54,8 @@ func on_round_end():
 		
 func reset_round():
 	print("Resetting round...")
-	player1_health.value = player1_health.max_value
-	player2_health.value = player2_health.max_value
+	$Player.reset_health()
+	$Dummy_Ryu.reset_health()
 	timer.stop()
 	timer.start()
 	$Player.global_position = Vector2(327.933, 264.9326)
