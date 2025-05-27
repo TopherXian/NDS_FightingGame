@@ -528,7 +528,7 @@ tracks/4/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(38, 50)]
+"values": [Vector2(50, 41)]
 }
 tracks/5/type = "value"
 tracks/5/imported = false
@@ -540,7 +540,7 @@ tracks/5/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(7, 13)]
+"values": [Vector2(6, 14.5)]
 }
 tracks/6/type = "value"
 tracks/6/imported = false
@@ -3351,7 +3351,7 @@ _data = {
 }
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_cdvxo"]
-size = Vector2(38, 50)
+size = Vector2(50, 41)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_lyne4"]
 size = Vector2(49, 51)
@@ -3379,7 +3379,7 @@ libraries = {
 position = Vector2(-9, -36)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Dummy_UpperHurtbox"]
-position = Vector2(7, 13)
+position = Vector2(6, 14.5)
 shape = SubResource("RectangleShape2D_cdvxo")
 
 [node name="Dummy_LowerHurtbox" type="Area2D" parent="."]

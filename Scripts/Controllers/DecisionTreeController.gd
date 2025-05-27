@@ -82,7 +82,7 @@ func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer
 
   # Reposition Cooldown Timer
 	reposition_cooldown_timer = Timer.new()
-	reposition_cooldown_timer.wait_time = 0.5  # 1.5 second cooldown
+	reposition_cooldown_timer.wait_time = 1.5  # 1.5 second cooldown
 	reposition_cooldown_timer.one_shot = true
 	reposition_cooldown_timer.connect("timeout", Callable(self, "_on_reposition_cooldown_timeout"))
 	add_child(reposition_cooldown_timer)
@@ -102,11 +102,18 @@ func _physics_process(_delta):
 	if current_state == State.HURT:
 		return
 		
+	var opponent_anim
+	
+	if opponent_animation_player:
+		opponent_anim = opponent_animation_player.current_animation
+	else:
+		push_error("Current animation not found")
+		return
+	
 	corner_move_direction = fighter.get_distance_from_corner()
 	
-	var opponent_anim = opponent_animation_player.current_animation if opponent_animation_player else ""
-		
-	if corner_move_direction != 0 and opponent_anim != "knocked_down":
+	# Always prioritize corner escape over other states
+	if corner_move_direction != 0 && opponent_anim != "knocked_down" && current_state != State.CORNER_ESCAPE:
 		_change_state(State.CORNER_ESCAPE)
 		return
 		
@@ -223,9 +230,37 @@ func _physics_process(_delta):
 				reposition_cooldown_timer.stop() # Stop repositioning early
 				_change_state(State.DEFENDING)
 
+	#fighter.move_and_slide()
+	#
+	#if fighter.is_on_wall() && current_state == State.CORNER_ESCAPE:
+		## Reverse direction if stuck against wall
+		#fighter.velocity.x *= -1
 
 # --- State Change Helper ---
-func _change_state(new_state: State):	
+func _change_state(new_state: State):
+	if new_state == State.CORNER_ESCAPE:
+		# Clear any existing velocity
+		fighter.velocity = Vector2.ZERO
+		
+		# Calculate escape direction based on corner position
+		var escape_speed = 300
+		if corner_move_direction == -1: # Right corner
+			fighter.velocity.x = -escape_speed # Move left
+		elif corner_move_direction == 1: # Left corner
+			fighter.velocity.x = escape_speed # Move right
+			
+		# Add vertical jump if needed
+		if fighter.is_on_floor():
+			fighter.velocity.y = -400
+			_play_animation("jump")
+		return
+		
+	if new_state == State.REPOSITIONING:
+		# Cancel repositioning if already near a corner
+		if corner_move_direction != 0:
+			_change_state(State.CORNER_ESCAPE)
+			return
+	
 	if new_state == State.REPOSITIONING && !fighter.is_on_floor():
 		return
 		
@@ -335,7 +370,15 @@ func _move_away_from_opponent():
 		fighter.velocity.x = 0
 		return
 	
-	var direction = sign(fighter.global_position.x - opponent.global_position.x)
+	var direction := 0
+	
+	# Prioritize corner escape direction if near a corner
+	if corner_move_direction != 0:
+		direction = corner_move_direction
+	else:
+		# Default to moving away from opponent
+		direction = sign(fighter.global_position.x - opponent.global_position.x)
+	
 	var reposition_speed = 175
 	fighter.velocity.x = direction * reposition_speed
 	_play_animation("walk_backward", true)
@@ -372,7 +415,9 @@ func _on_defense_cooldown_timeout():
 	# print("Defense cooldown finished.") # Debug
 	
 func _on_reposition_cooldown_timeout():
-	can_reposition = true  # Re-enable repositioning
+	can_reposition = true
+	# Force re-evaluate state after cooldown
+	_change_state(State.IDLE)
 
 func reset_ai_state():
 	current_state = State.IDLE

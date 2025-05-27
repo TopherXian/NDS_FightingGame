@@ -3,7 +3,7 @@ class_name AIConfig
 
 @export_category("Decision Tree")
 @export_range(0, 1) var attack_chance_idle: float = 0.6
-@export_range(0, 1) var defense_probability: float = 0.5
+@export_range(0, 1) var defense_probability: float = 0.1
 @export_range(0, 200) var defense_trigger_range: float = 75.0
 @export_range(0, 2) var defense_cooldown_time: float = 0.25
 @export_range(0, 200) var attack_opportunity_range: float = 90.0
