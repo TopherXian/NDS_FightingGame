@@ -2,7 +2,7 @@
 extends Node
 class_name Rules
 
-var script_size: int = 14
+var script_size: int = 7
 
 # New variables for HP-based adaptation
 var hp_difference_momentum: float = 0.0

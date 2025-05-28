@@ -20,7 +20,9 @@ func _ready():
 	#print("Y: ", y)
 	# Let's customize the chart properties, which specify how the chart
 	# should look, plus some additional elements like labels, the scale, etc...
+	var max_y = y.max()
 	var cp: ChartProperties = ChartProperties.new()
+	#print(cp.get_property_list())
 	cp.colors.frame = Color("#161a1d")
 	cp.colors.background = Color.TRANSPARENT
 	cp.colors.grid = Color("#283442")
@@ -31,11 +33,19 @@ func _ready():
 	cp.draw_bounding_box = false
 	cp.draw_vertical_grid = false
 	cp.interactive = true # false by default, it allows the chart to create a tooltip to show point values
+	
+	var padded_y = y.duplicate()
+	var padded_x = x.duplicate()
+	if padded_y.size() > 0 and padded_y.min() > 0:
+		padded_y.append(0)
+		padded_x.append("")
 	# and interecept clicks on the plot
 	
 	# Let's add values to our functions
 	f1 = Function.new(
-		x, y, "RuleID", # This will create a function with x and y values taken by the Arrays 
+		padded_x,
+		padded_y, 
+		"RuleID", # This will create a function with x and y values taken by the Arrays 
 						# we have created previously. This function will also be named "Pressure"
 						# as it contains 'pressure' values.
 						# If set, the name of a function will be used both in the Legend

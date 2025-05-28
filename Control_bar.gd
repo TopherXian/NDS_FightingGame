@@ -13,8 +13,11 @@ func _ready():
 	var y = get_fitness_values()
 	#var x: PackedFloat32Array = PackedFloat32Array([0, 1, 2, 3, 4])
 	#var y: Array = [0.500, 0.400, 0.560, 0.80, 1.0]
+	print("Total points: ", x.size())
 	
 	var cp: ChartProperties = ChartProperties.new()
+	print(cp.get_property_list())
+	cp.max_samples = x.size() + 1
 	cp.colors.frame = Color("#161a1d")
 	cp.colors.background = Color.TRANSPARENT
 	cp.colors.grid = Color("#283442")
@@ -80,5 +83,3 @@ func get_fitness_values() -> Array:
 
 	print("Y:", y_values)
 	return y_values
-
-#func get_fitness():
