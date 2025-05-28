@@ -1,5 +1,5 @@
 # NeuroDynamicController.gd
-extends Node
+extends DynamicScriptingController
 class_name NeuroDynamicController
 
 # --- Configuration ---
@@ -18,40 +18,29 @@ var is_waiting_response: bool = false
 var last_game_state: Dictionary = {}
 var last_prediction: Array = []
 
-# --- References ---
-var fighter: CharacterBody2D
-var opponent: CharacterBody2D
-var animation_player: AnimationPlayer
-var opponent_HP: ProgressBar
+# func _ready():
+# 	# Setup HTTP request
+# 	http_request = HTTPRequest.new()
+# 	add_child(http_request)
+# 	http_request.request_completed.connect(_on_request_completed)
+# 	var error = http_request.request(MODEL_READY_ENDPOINT, ["Content-Type: application/json"], HTTPClient.METHOD_POST)
+# 	if error != OK:
+# 		print("Error sending request: ", error)
+# 		return
+# 	# Setup prediction timer
+# 	prediction_timer = Timer.new()
+# 	prediction_timer.wait_time = PREDICTION_INTERVAL
+# 	prediction_timer.timeout.connect(_on_prediction_timer)
+# 	add_child(prediction_timer)
+# 	prediction_timer.start()
 
-func _init(fighter_ref: CharacterBody2D, anim_player: AnimationPlayer, opp_ref: CharacterBody2D, playerHP: ProgressBar,):
-	fighter = fighter_ref
-	animation_player = anim_player
-	opponent = opp_ref
-	opponent_HP = playerHP
-
-func _ready():
-	# Setup HTTP request
-	http_request = HTTPRequest.new()
-	add_child(http_request)
-	http_request.request_completed.connect(_on_request_completed)
-	var error = http_request.request(MODEL_READY_ENDPOINT, ["Content-Type: application/json"], HTTPClient.METHOD_POST)
-	if error != OK:
-		print("Error sending request: ", error)
-		return
-	# Setup prediction timer
-	prediction_timer = Timer.new()
-	prediction_timer.wait_time = PREDICTION_INTERVAL
-	prediction_timer.timeout.connect(_on_prediction_timer)
-	add_child(prediction_timer)
-	prediction_timer.start()
 
 func _on_prediction_timer():
 	if !is_waiting_response:
 		send_game_state()
 
-func collect_game_state() -> Dictionary:
-	var previous_parameters = {
+func collect_params() -> Dictionary:
+	var prev_params = {
 		"attacks_landed": {
 			"lower": fighter.lower_attacks_landed,
 			"upper": fighter.upper_attacks_landed,
@@ -64,13 +53,13 @@ func collect_game_state() -> Dictionary:
 		"lower_hits": fighter.lower_hits_taken,
 		"upper_hits": fighter.upper_hits_taken,
 	}
-	return previous_parameters
+	return prev_params
 
 func send_game_state():
 	if is_waiting_response:
 		return
 	
-	var game_state = collect_game_state()
+	var game_state = collect_params()
 	last_game_state = game_state
 	
 	var json = JSON.stringify(game_state)
@@ -140,16 +129,16 @@ func execute_ai_action(action: String):
 func execute_fallback_action():
 	# Fallback to decision tree or other AI when model is unavailable
 	var distance = fighter.global_position.distance_to(opponent.global_position)
-	if distance > 100:
+	if distance > 150:
 		execute_ai_action("walk_forward")
 	else:
 		execute_ai_action("basic_punch")
 
-func _physics_process(delta):
-	if !is_waiting_response:
-		# Apply basic physics while waiting for predictions
-		fighter.velocity.y += fighter.gravity * delta
-		fighter.move_and_slide()
+#func _physics_process(delta):
+	#if !is_waiting_response:
+		## Apply basic physics while waiting for predictions
+		#fighter.velocity.y += fighter.gravity * delta
+		#fighter.move_and_slide()
 
 func _exit_tree():
 	if http_request:

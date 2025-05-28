@@ -120,14 +120,14 @@ func _ready():
 	# Initialize HP Bar
 	hp_bar.max_value = max_health
 	hp_bar.value = health
-	if FileAccess.file_exists("res://Scripts/Damaged.gd"): 
-		var DamagedClass = load("res://Scripts/Damaged.gd")
+	if FileAccess.file_exists("res://Scripts/damaged.gd"): 
+		var DamagedClass = load("res://Scripts/damaged.gd")
 		if DamagedClass:
 			damaged_system = DamagedClass.new(animation_player, self, hp_bar) # Pass needed refs
 		else:
-			print("ERROR: Could not load Damaged.gd")
+			print("ERROR: Could not load damaged.gd")
 	else:
-		print("WARNING: Damaged.gd not found at res://Scripts/Damaged.gd")
+		print("WARNING: Damaged.gd not found at res://Scripts/damaged.gd")
 
 	# Determine Control Type and Setup Controller
 	if character_id == "Player1":
@@ -209,10 +209,11 @@ func setup_controller(type: String):
 
 		"Neuro-Dynamic":
 			if FileAccess.file_exists("res://Scripts/Controllers/NeuroDynamicController.gd"): # Assuming path
-				var NDControllerClass = load("res://Scripts/AI/NeuroDynamicController.gd")
+				var NDControllerClass = load("res://Scripts/Controllers/NeuroDynamicController.gd")
 				if NDControllerClass:
-					active_controller = NDControllerClass.new(self, animation_player, opponent) # Use constructor if it accepts args
+					active_controller = NDControllerClass.new() # Use constructor if it accepts args
 					add_child(active_controller)
+					active_controller.init_controller(self, animation_player, opponent, hp_bar, ai_config)
 				else: print("Failed to load NeuroDynamicController.gd")
 			else: print("NeuroDynamicController.gd not found.")
 
