@@ -327,6 +327,17 @@ func adjust_script_weights(fitness: float, ai_hp: float, player_hp: float):
 		rule.weight = clamp(rule.weight + total_adjustment, 0.1, 1.0)
 		_log_weight_change(rule, "COMPOSITE_ADJUST", rule.weight)
 
+func adjust_script_weights_nds(predictions: Array[float]):
+	var success_rates = {}
+	for rule in rules:
+		var stats = rule_success_counts[rule.ruleID]
+		success_rates[rule.ruleID] = stats.hits / float(max(stats.uses, 1))
+	for i in predictions.size():
+		var adjustment = (predictions[i] + rules[i].weight) / 2
+		rules[i].weight = clamp(adjustment, 0.1, 0.9)
+		_log_weight_change(rules[i], "COMPOSITE_ADJUST", rules[i].weight)
+
+
 func _get_hp_based_modifier(rule: Dictionary, hp_diff: float) -> float:
 	# Classify rule types (implement based on your rule actions)
 	var is_defensive = "defense" in rule.enemy_action

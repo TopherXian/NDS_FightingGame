@@ -29,7 +29,7 @@ func _ready():
 	
 	# Set default selections based on requirements
 	p1_selector.select(ControlType_P1.HUMAN) # Ryu defaults to Human
-	p2_selector.select(ControlType_P2.DYNAMIC_SCRIPTING) # Dummy Ryu defaults to Dynamic Scripting
+	p2_selector.select(ControlType_P2.NEURO_DYNAMIC) # Dummy Ryu defaults to Dynamic Scripting
 
 	# Connect button signal
 	start_button.pressed.connect(_on_start_button_pressed)
