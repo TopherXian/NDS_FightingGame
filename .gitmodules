@@ -1,0 +1,3 @@
+[submodule "NDS_ProtoLSTM_Weight_Adjustment"]
+	path = NDS_ProtoLSTM_Weight_Adjustment
+	url = git@github.com:computerscience-person/NDS_ProtoLSTM_Weight_Adjustment.git

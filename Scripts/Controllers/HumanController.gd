@@ -23,8 +23,8 @@ func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer
 
 	# --- Instantiate control components ---
 	# Ensure the class scripts exist and paths are correct
-	if FileAccess.file_exists("res://Scripts/Movement.gd"):
-		var MovementsClass = load("res://Scripts/Movement.gd")
+	if FileAccess.file_exists("res://Scripts/movement.gd"):
+		var MovementsClass = load("res://Scripts/movement.gd")
 		if MovementsClass:
 			movement_system = MovementsClass.new(animation_player, fighter)
 			# Pass opponent reference if Movements needs it (original didn't seem to)
@@ -32,8 +32,8 @@ func init_controller(fighter_node: CharacterBody2D, anim_player: AnimationPlayer
 		else: printerr("HumanController: Failed to load Movements.gd")
 	else: printerr("HumanController: Movements.gd not found.")
 
-	if FileAccess.file_exists("res://Scripts/Attacks.gd"):
-		var AttacksClass = load("res://Scripts/Attacks.gd")
+	if FileAccess.file_exists("res://Scripts/attacks.gd"):
+		var AttacksClass = load("res://Scripts/attacks.gd")
 		if AttacksClass:
 			attack_system = AttacksClass.new(animation_player, fighter)
 			# Pass opponent reference if Attacks needs it (original didn't seem to)

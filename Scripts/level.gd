@@ -38,6 +38,8 @@ func _ready():
 # --- Existing _process ---
 func _process(_delta):
 	label.text = "%02d" % int(timer.time_left)
+	if Input.is_key_pressed(KEY_KEYBOARD):
+		print_debug(KEY_KEYBOARD)
 	if round_active and (player1_health.value <= 0 or player2_health.value <= 0):
 		round_active = false
 		on_round_end()

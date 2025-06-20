@@ -1,103 +1,140 @@
 # NeuroDynamicController.gd
-extends Node
+extends DynamicScriptingController
 class_name NeuroDynamicController
 
 # --- Configuration ---
-const PREDICTION_ENDPOINT = "http://your-backend-host:5000/predict"
-const PREDICTION_INTERVAL = 0.5  # Seconds between predictions
+const METRICS_ENDPOINT = "http://0.0.0.0:8000/api/v162/metrics_in"
+const MODEL_READY_ENDPOINT = "http://0.0.0.0:8000/api/v162/model_0_0_5/load_model"
+const PREDICT_ENDPOINT = "http://0.0.0.0:8000/api/v162/predict"
+const PREDICTION_INTERVAL = 5  # Seconds between predictions
+const METRICS_INTERVAL = 2
 const REQUEST_TIMEOUT = 1.0      # Seconds before considering request failed
+const HTTP_HEADERS = ["Content-Type: application/json"]
 
 # --- Nodes ---
-var http_request: HTTPRequest
 var prediction_timer: Timer
+var metrics_timer: Timer
 
 # --- State Tracking ---
-var is_waiting_response: bool = false
 var last_game_state: Dictionary = {}
 var last_prediction: Array = []
 
-# --- References ---
-var fighter: CharacterBody2D
-var opponent: CharacterBody2D
-var animation_player: AnimationPlayer
-
-func _init(fighter_ref: CharacterBody2D, anim_player: AnimationPlayer, opp_ref: CharacterBody2D):
-	fighter = fighter_ref
-	animation_player = anim_player
-	opponent = opp_ref
-
 func _ready():
 	# Setup HTTP request
-	http_request = HTTPRequest.new()
+	var http_request = HTTPRequest.new()
 	add_child(http_request)
-	http_request.request_completed.connect(_on_request_completed)
-	
+	var error = http_request.request(MODEL_READY_ENDPOINT, HTTP_HEADERS, HTTPClient.METHOD_POST)
+	if error != OK:
+		print("Error sending request: ", error)
+		return
 	# Setup prediction timer
 	prediction_timer = Timer.new()
+	metrics_timer = Timer.new()
 	prediction_timer.wait_time = PREDICTION_INTERVAL
+	metrics_timer.wait_time = METRICS_INTERVAL
 	prediction_timer.timeout.connect(_on_prediction_timer)
+	metrics_timer.timeout.connect(_on_metrics_timer)
 	add_child(prediction_timer)
+	add_child(metrics_timer)
 	prediction_timer.start()
+	metrics_timer.start()
 
-func _on_prediction_timer():
-	if !is_waiting_response:
-		send_game_state()
 
-func collect_game_state() -> Dictionary:
-	var state = {
-		"fighter": {
-			"position": fighter.global_position,
-			"health": fighter.health,
-			"velocity": fighter.velocity,
-			"animation": animation_player.current_animation,
-			"on_floor": fighter.is_on_floor()
-		},
-		"opponent": {
-			"position": opponent.global_position,
-			"health": opponent.health,
-			"velocity": opponent.velocity,
-			"animation": opponent.get_animation().current_animation if opponent else ""
-		},
-		"distance": fighter.global_position.distance_to(opponent.global_position),
-		"timestamp": Time.get_ticks_msec()
-	}
-	return state
+func _on_metrics_timer():
 
-func send_game_state():
-	if is_waiting_response:
-		return
+	var http_request = HTTPRequest.new()
+	add_child(http_request)
 	
-	var game_state = collect_game_state()
+	var game_state = collect_params()
 	last_game_state = game_state
 	
 	var json = JSON.stringify(game_state)
-	var headers = ["Content-Type: application/json"]
+	print_debug(json)
 	
-	var error = http_request.request(PREDICTION_ENDPOINT, headers, HTTPClient.METHOD_POST, json)
+	var error = http_request.request(METRICS_ENDPOINT, HTTP_HEADERS, HTTPClient.METHOD_POST, json)
 	if error != OK:
 		print("Error sending request: ", error)
 		return
 	
-	is_waiting_response = true
-	prediction_timer.start(REQUEST_TIMEOUT)  # Start timeout
 
-func _on_request_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray):
-	is_waiting_response = false
-	
-	if result != HTTPRequest.RESULT_SUCCESS:
-		print("HTTP request failed. Using fallback behavior.")
-		execute_fallback_action()
+func collect_params() -> Dictionary:
+	var prev_params = {
+		"attacks_landed": {
+			"lower": fighter.lower_attacks_landed,
+			"upper": fighter.upper_attacks_landed,
+		},
+		"current_hp": opponent_HP.value, # 👈 Add this line
+		"defenses": {
+			"crouching": fighter.crouching_defenses,
+			"standing": fighter.standing_defenses,
+		},
+		"lower_hits": fighter.lower_hits_taken,
+		"upper_hits": fighter.upper_hits_taken,
+	}
+	return prev_params
+
+
+func _on_prediction_timer():
+	var http_request = HTTPRequest.new()
+	add_child(http_request)
+	var error = http_request.request(PREDICT_ENDPOINT, HTTP_HEADERS, HTTPClient.METHOD_POST)
+	http_request.request_completed.connect(_prediction_req)
+	if error != HTTPRequest.RESULT_SUCCESS:
+		print_debug(error)
 		return
+	print_debug(last_prediction)
+
+func _prediction_req(_result, _response_code, _headers, body):
+	var weights = JSON.parse_string(body.get_string_from_utf8())
+	if weights:
+		last_prediction.append(weights.weight_adjustments)
 	
-	var json = JSON.new()
-	var parse_result = json.parse(body.get_string_from_utf8())
-	
-	if parse_result != OK:
-		print("Failed to parse JSON response")
+
+func _on_timer_timeout():
+	if not is_instance_valid(rules_base):
+		print("Rules system not initialized!")
 		return
+
+	# Add rule validation
+	if rules_base.get_rules().is_empty():
+		print("No rules available in rulebase!")
+		return
+		
+	var ai_hp = fighter.get_health()
+	var player_hp = opponent.get_health()
+
+		
+	if not is_instance_valid(fighter) or not is_instance_valid(rules_base): 
+		return
+
+	print("\n=== DS Update Cycle ===")
+	print("Current HP: %d/%d" % [fighter.health, fighter.max_health])
 	
-	var response = json.data
-	process_prediction(response.get("predictions", []))
+	# 1. Calculate fitness FIRST
+	var fitness = calculate_fitness()
+	print("Adapting with fitness: %.2f" % fitness)
+
+	# 2. Apply weight adjustments based on fitness
+	rules_base.adjust_script_weights_nds(last_prediction[-1])
+	
+	# 3. Update rule priorities before generating new script
+	rules_base.update_rule_priorities()
+	
+	# 4. Generate new script AFTER adjustments
+	rules_base.generate_script()
+	var active_script = rules_base.get_DScript()
+	
+	# 5. Update internal state
+	get_total_weights()
+	get_latest_script()
+	
+	# 6. Logging and cleanup
+	log_game_info()
+	append_script_to_log()
+	reset_counters()
+
+	# (Optional) Debug output
+	print("New script contains %d rules" % active_script.size())
 
 func process_prediction(predictions: Array):
 	if predictions.is_empty():
@@ -108,49 +145,14 @@ func process_prediction(predictions: Array):
 	sorted_predictions.sort_custom(func(a, b): return a[1] > b[1])
 	
 	var best_action = sorted_predictions[0][0]
-	execute_ai_action(best_action)
 
-func execute_ai_action(action: String):
-	match action:
-		"walk_forward":
-			fighter.velocity.x = fighter.movement_system.speed
-			animation_player.play("walk_forward")
-		"walk_backward":
-			fighter.velocity.x = -fighter.movement_system.speed
-			animation_player.play("walk_backward")
-		"basic_punch":
-			if fighter.is_on_floor() and !fighter.attack_system.is_attacking:
-				fighter.attack_system.handle_punch()
-		"basic_kick":
-			if fighter.is_on_floor() and !fighter.attack_system.is_attacking:
-				fighter.attack_system.handle_kick()
-		"jump":
-			if fighter.is_on_floor():
-				fighter.movement_system.handle_jump()
-		"crouch_defense":
-			animation_player.play("crouching_defense")
-		"standing_defense":
-			animation_player.play("standing_defense")
-		_:
-			animation_player.play("idle")
-
-func execute_fallback_action():
-	# Fallback to decision tree or other AI when model is unavailable
-	var distance = fighter.global_position.distance_to(opponent.global_position)
-	if distance > 100:
-		execute_ai_action("walk_forward")
-	else:
-		execute_ai_action("basic_punch")
-
-func _physics_process(delta):
-	if !is_waiting_response:
-		# Apply basic physics while waiting for predictions
-		fighter.velocity.y += fighter.gravity * delta
-		fighter.move_and_slide()
+#func _physics_process(delta):
+	#if !is_waiting_response:
+		## Apply basic physics while waiting for predictions
+		#fighter.velocity.y += fighter.gravity * delta
+		#fighter.move_and_slide()
 
 func _exit_tree():
-	if http_request:
-		http_request.queue_free()
 	if prediction_timer:
 		prediction_timer.stop()
 		prediction_timer.queue_free()
